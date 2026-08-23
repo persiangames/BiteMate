@@ -1,0 +1,1 @@
+{"version":3,"file":"location.types.js","sourceRoot":"","sources":["../../src/types/location.types.ts"],"names":[],"mappings":";;;AAAa,QAAA,qBAAqB,GAAG,CAAC,WAAW,EAAE,MAAM,EAAE,SAAS,CAAU,CAAC;AAGlE,QAAA,wBAAwB,GAAG,CAAC,CAAC,EAAE,CAAC,EAAE,EAAE,EAAE,EAAE,CAAU,CAAC;AAGnD,QAAA,0BAA0B,GAAuC;IAC5E,SAAS,EAAE,WAAW;IACtB,IAAI,EAAE,MAAM;IACZ,OAAO,EAAE,SAAS;CACnB,CAAC"}

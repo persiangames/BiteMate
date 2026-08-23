@@ -1,0 +1,2 @@
+-- Baseline migration for BiteMate infrastructure.
+-- Business models will be added in future phases.

@@ -1,0 +1,1112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  NORMAL_USER
+  RESTAURANT_OWNER
+  CAFE_OWNER
+  FOOD_TRUCK_OWNER
+  HOME_CHEF
+  FOOD_REVIEWER
+  COMPANION_USER
+  INFLUENCER
+  PLATFORM_ADMIN
+  MODERATOR
+}
+
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  FACEBOOK
+  PHONE
+}
+
+enum OtpPurpose {
+  PHONE_VERIFICATION
+  LOGIN
+  PHONE_CHANGE
+  EMAIL_CHANGE
+  ACCOUNT_DELETE
+}
+
+enum SupportedLocale {
+  en
+  fa
+  ar
+  hi
+  tr
+  fr
+  it
+  zh
+  ja
+  es
+  de
+  ru
+  pt
+  ko
+  id
+  th
+  vi
+  nl
+}
+
+enum AvailabilityStatus {
+  AVAILABLE
+  BUSY
+  OFFLINE
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+enum FeedSourceType {
+  FOLLOWING
+  NEARBY
+  TRENDING
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+enum BookingType {
+  RESTAURANT_TABLE
+  HOME_CHEF_MEAL
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum ReviewTargetType {
+  RESTAURANT
+  HOME_CHEF
+}
+
+enum MeetupStatus {
+  OPEN
+  SCHEDULED
+  FULL
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum EducationLevel {
+  HIGH_SCHOOL
+  DIPLOMA
+  BACHELOR
+  MASTER
+  PHD
+  OTHER
+}
+
+enum FoodIntentStatus {
+  ACTIVE
+  MATCHED
+  CANCELLED
+  EXPIRED
+  COMPLETED
+}
+
+enum NotificationType {
+  MEETUP_INVITATION
+  MEETUP_ACCEPTED
+  MATCH_FOUND
+  MESSAGE_RECEIVED
+  PAYMENT_RECEIVED
+  RANKING_UPDATE
+  POST_LIKE
+  POST_COMMENT
+  POST_TAG
+  NEW_FOLLOWER
+}
+
+enum PostTagRole {
+  RESTAURANT
+  CHEF
+  HOST
+  GUEST
+  COMPANION
+  INFLUENCER
+  REVIEWER
+  OWNER
+  HOME_CHEF
+}
+
+enum UserBadgeType {
+  FOOD_EXPLORER
+  SOCIAL_EATER
+  TOP_REVIEWER
+  TRUSTED_HOST
+}
+
+enum MeetupInviteStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum MeetupRoomStatus {
+  ACTIVE
+  CLOSED
+}
+
+enum CryptoAsset {
+  BTC
+  ETH
+  USDT
+  USDC
+  DOGE
+  SOL
+}
+
+enum WalletTransactionType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER_IN
+  TRANSFER_OUT
+  ESCROW_HOLD
+  ESCROW_RELEASE
+  ESCROW_REFUND
+  FEE
+}
+
+enum WalletTransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum PaymentProvider {
+  STRIPE
+  COINBASE
+  INTERNAL
+}
+
+enum BankAccountStatus {
+  PENDING_VERIFICATION
+  VERIFIED
+  REJECTED
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+  DISPUTED
+}
+
+enum PremiumSubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+enum RestaurantAdStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  PAUSED
+  ENDED
+}
+
+enum AffiliateSourceType {
+  BOOKING
+  RESTAURANT_AD_CLICK
+}
+
+enum AffiliateCommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  REJECTED
+}
+
+enum RestaurantApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AbuseReportStatus {
+  OPEN
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+enum AbuseReportTargetType {
+  USER
+  RESTAURANT
+  POST
+  MEETUP
+}
+
+model User {
+  id                  String              @id @default(uuid())
+  email               String?             @unique
+  phoneNumber         String?             @unique @map("phone_number")
+  passwordHash        String?             @map("password_hash")
+  fullName            String?             @map("full_name")
+  username            String?             @unique
+  bio                 String?
+  country             String?
+  city                String?
+  dateOfBirth         DateTime?           @map("date_of_birth") @db.Date
+  role                UserRole?
+  profileImage        String?             @map("profile_image")
+  coverImage          String?             @map("cover_image")
+  locale              SupportedLocale     @default(en)
+  authProvider        AuthProvider        @map("auth_provider")
+  firebaseUid         String?             @unique @map("firebase_uid")
+  emailVerified       Boolean             @default(false) @map("email_verified")
+  phoneVerified       Boolean             @default(false) @map("phone_verified")
+  otpVerified         Boolean             @default(false) @map("otp_verified")
+  isActive            Boolean             @default(true) @map("is_active")
+  liveLocationEnabled Boolean             @default(false) @map("live_location_enabled")
+  invisibleMode       Boolean             @default(false) @map("invisible_mode")
+  availabilityStatus  AvailabilityStatus  @default(OFFLINE) @map("availability_status")
+  liveLatitude        Float?              @map("live_latitude")
+  liveLongitude       Float?              @map("live_longitude")
+  lastLiveLocationAt  DateTime?           @map("last_live_location_at")
+  followerCount       Int                 @default(0) @map("follower_count")
+  followingCount      Int                 @default(0) @map("following_count")
+  isPremium           Boolean             @default(false) @map("is_premium")
+  premiumExpiresAt    DateTime?           @map("premium_expires_at")
+  rankScore           Float               @default(0) @map("rank_score")
+  activityPoints      Int                 @default(0) @map("activity_points")
+  successfulMeetups   Int                 @default(0) @map("successful_meetups")
+  meetupRating        Float               @default(3) @map("meetup_rating")
+  meetupReviewCount   Int                 @default(0) @map("meetup_review_count")
+  level               Int                 @default(1)
+  experiencePoints    Int                 @default(0) @map("experience_points")
+  adminVerified       Boolean             @default(false) @map("admin_verified")
+  tokenVersion        Int                 @default(0) @map("token_version")
+  totpEnabled         Boolean             @default(false) @map("totp_enabled")
+  totpSecret          String?             @map("totp_secret")
+  themePreference     String?             @map("theme_preference")
+  gender              Gender?
+  education           EducationLevel?
+  preferredMeals      String[]            @default([]) @map("preferred_meals")
+  favoriteCuisines    String[]            @default([]) @map("favorite_cuisines")
+  favoriteFoods       String[]            @default([]) @map("favorite_foods")
+  lookingToEat        Boolean             @default(false) @map("looking_to_eat")
+  deletedAt           DateTime?           @map("deleted_at")
+  createdAt           DateTime            @default(now()) @map("created_at")
+  updatedAt           DateTime            @updatedAt @map("updated_at")
+
+  refreshTokens RefreshToken[]
+  otpCodes      OtpCode[]
+  posts         Post[]
+  likes         PostLike[]
+  comments      Comment[]
+  shares        PostShare[]
+  postTags      PostTag[]
+  followers        Follow[]          @relation("FollowingTarget")
+  following        Follow[]          @relation("FollowerActor")
+  restaurants      Restaurant[]
+  homeChefProfile  HomeChefProfile?
+  bookings         Booking[]
+  reviews          Review[]
+  createdMeetups   FoodMeetup[]       @relation("MeetupCreator")
+  foodIntents      FoodIntent[]
+  notifications    Notification[]
+  notificationSettings NotificationSettings?
+  deviceTokens     DeviceToken[]
+  userBadges       UserBadge[]
+  meetupParticipations MeetupParticipation[]
+  meetupReviewsGiven MeetupReview[] @relation("MeetupReviewer")
+  meetupReviewsReceived MeetupReview[] @relation("MeetupReviewed")
+  sentMeetupInvites MeetupInvite[]    @relation("MeetupInviter")
+  receivedMeetupInvites MeetupInvite[] @relation("MeetupInvitee")
+  meetupRoomMembers MeetupRoomMember[]
+  meetupRoomMessages MeetupRoomMessage[]
+  fiatWallet         FiatWallet?
+  bankAccounts       BankAccount[]
+  cryptoAddresses    CryptoDepositAddress[]
+  walletTransactions WalletTransaction[]
+  escrowsPaid        EscrowHold[]           @relation("EscrowPayer")
+  escrowsReceived    EscrowHold[]           @relation("EscrowPayee")
+  fraudLogs          FraudLog[]
+  premiumSubscriptions PremiumSubscription[]
+  affiliateCommissions AffiliateCommission[] @relation("AffiliateReferrer")
+  restaurantAds        RestaurantAd[]
+  abuseReportsFiled    AbuseReport[]        @relation("AbuseReporter")
+  abuseReportsReviewed AbuseReport[]        @relation("AbuseReviewer")
+  adminAuditLogs       AdminAuditLog[]
+
+  @@index([country, city])
+  @@index([rankScore(sort: Desc)])
+  @@index([role, availabilityStatus])
+  @@map("users")
+}
+
+model RefreshToken {
+  id             String    @id @default(uuid())
+  tokenHash      String    @unique @map("token_hash")
+  familyId       String    @map("family_id")
+  userId         String    @map("user_id")
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt      DateTime  @map("expires_at")
+  revokedAt      DateTime? @map("revoked_at")
+  replacedByHash String?   @map("replaced_by_hash")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+model OtpCode {
+  id          String     @id @default(uuid())
+  userId      String?    @map("user_id")
+  user        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phoneNumber String     @map("phone_number")
+  codeHash    String     @map("code_hash")
+  purpose     OtpPurpose
+  expiresAt   DateTime   @map("expires_at")
+  verified    Boolean    @default(false)
+  attempts    Int        @default(0)
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  @@index([phoneNumber, purpose])
+  @@map("otp_codes")
+}
+
+model LocalizationKey {
+  id     String          @id @default(uuid())
+  key    String
+  locale SupportedLocale
+  value  String
+
+  @@unique([key, locale])
+  @@index([locale])
+  @@map("localization_keys")
+}
+
+model Post {
+  id            String    @id @default(uuid())
+  authorId      String    @map("author_id")
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  caption       String?
+  mediaType     MediaType @map("media_type")
+  mediaUrl      String    @map("media_url")
+  thumbnailUrl  String?   @map("thumbnail_url")
+  restaurantTag String?   @map("restaurant_tag")
+  locationLabel String?   @map("location_label")
+  locationLat   Float?    @map("location_lat")
+  locationLng   Float?    @map("location_lng")
+  likeCount     Int       @default(0) @map("like_count")
+  commentCount  Int       @default(0) @map("comment_count")
+  shareCount    Int       @default(0) @map("share_count")
+  trendingScore Float     @default(0) @map("trending_score")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  likes    PostLike[]
+  comments Comment[]
+  shares   PostShare[]
+  tags     PostTag[]
+
+  @@index([authorId, createdAt(sort: Desc)])
+  @@index([trendingScore(sort: Desc), createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@map("posts")
+}
+
+model PostTag {
+  id        String      @id @default(uuid())
+  postId    String      @map("post_id")
+  userId    String      @map("user_id")
+  role      PostTagRole
+  post      Post        @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@map("post_tags")
+}
+
+model PostLike {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  userId    String   @map("user_id")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([postId, userId])
+  @@index([userId])
+  @@map("post_likes")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  userId    String   @map("user_id")
+  content   String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([postId, createdAt(sort: Desc)])
+  @@map("comments")
+}
+
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String   @map("follower_id")
+  followingId String   @map("following_id")
+  follower    User     @relation("FollowerActor", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("FollowingTarget", fields: [followingId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+  @@map("follows")
+}
+
+model PostShare {
+  id        String   @id @default(uuid())
+  postId    String   @map("post_id")
+  userId    String   @map("user_id")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([postId])
+  @@index([userId])
+  @@map("post_shares")
+}
+
+model Restaurant {
+  id            String   @id @default(uuid())
+  ownerId       String   @map("owner_id")
+  owner         User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  name          String
+  description   String?
+  profileImage  String?  @map("profile_image")
+  coverImage    String?  @map("cover_image")
+  address       String?
+  city          String?
+  country       String?
+  latitude      Float?
+  longitude     Float?
+  phoneNumber   String?  @map("phone_number")
+  cuisineTypes  String[] @default([]) @map("cuisine_types")
+  averageRating Float    @default(0) @map("average_rating")
+  reviewCount   Int      @default(0) @map("review_count")
+  rankScore     Float    @default(0) @map("rank_score")
+  visitCount    Int      @default(0) @map("visit_count")
+  conversionCount Int    @default(0) @map("conversion_count")
+  isSponsored   Boolean  @default(false) @map("is_sponsored")
+  isActive      Boolean  @default(true) @map("is_active")
+  approvalStatus RestaurantApprovalStatus @default(PENDING) @map("approval_status")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  openingHours RestaurantOpeningHour[]
+  menuItems    RestaurantMenuItem[]
+  bookings     Booking[]
+  reviews      Review[]
+  ads          RestaurantAd[]
+
+  @@index([ownerId])
+  @@index([city, country])
+  @@index([averageRating(sort: Desc)])
+  @@index([rankScore(sort: Desc)])
+  @@index([approvalStatus, isActive])
+  @@map("restaurants")
+}
+
+model RestaurantOpeningHour {
+  id           String     @id @default(uuid())
+  restaurantId String     @map("restaurant_id")
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  dayOfWeek    DayOfWeek  @map("day_of_week")
+  openTime     String     @map("open_time")
+  closeTime    String     @map("close_time")
+  isClosed     Boolean    @default(false) @map("is_closed")
+
+  @@unique([restaurantId, dayOfWeek])
+  @@map("restaurant_opening_hours")
+}
+
+model RestaurantMenuItem {
+  id              String     @id @default(uuid())
+  restaurantId    String     @map("restaurant_id")
+  restaurant      Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  price           Decimal    @db.Decimal(10, 2)
+  currency        String     @default("USD")
+  category        String?
+  imageUrl        String?    @map("image_url")
+  discountPercent Int        @default(0) @map("discount_percent")
+  isAvailable     Boolean    @default(true) @map("is_available")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  @@index([restaurantId, category])
+  @@map("restaurant_menu_items")
+}
+
+model HomeChefProfile {
+  id            String   @id @default(uuid())
+  userId        String   @unique @map("user_id")
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bio           String?
+  specialties   String[] @default([])
+  averageRating Float    @default(0) @map("average_rating")
+  reviewCount   Int      @default(0) @map("review_count")
+  acceptsOrders Boolean  @default(true) @map("accepts_orders")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  menuItems    HomeChefMenuItem[]
+  availability HomeChefAvailability[]
+  bookings     Booking[]
+  reviews      Review[]
+
+  @@map("home_chef_profiles")
+}
+
+model HomeChefMenuItem {
+  id                String          @id @default(uuid())
+  homeChefProfileId String          @map("home_chef_profile_id")
+  homeChefProfile   HomeChefProfile @relation(fields: [homeChefProfileId], references: [id], onDelete: Cascade)
+  name              String
+  description       String?
+  price             Decimal         @db.Decimal(10, 2)
+  currency          String          @default("USD")
+  imageUrl          String?         @map("image_url")
+  availableDate     DateTime        @map("available_date") @db.Date
+  servingsAvailable Int             @map("servings_available")
+  servingsSold      Int             @default(0) @map("servings_sold")
+  isActive          Boolean         @default(true) @map("is_active")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  updatedAt         DateTime        @updatedAt @map("updated_at")
+
+  bookings Booking[]
+
+  @@index([homeChefProfileId, availableDate])
+  @@map("home_chef_menu_items")
+}
+
+model HomeChefAvailability {
+  id                String          @id @default(uuid())
+  homeChefProfileId String          @map("home_chef_profile_id")
+  homeChefProfile   HomeChefProfile @relation(fields: [homeChefProfileId], references: [id], onDelete: Cascade)
+  dayOfWeek         DayOfWeek       @map("day_of_week")
+  startTime         String          @map("start_time")
+  endTime           String          @map("end_time")
+
+  @@unique([homeChefProfileId, dayOfWeek])
+  @@map("home_chef_availability")
+}
+
+model Booking {
+  id                 String            @id @default(uuid())
+  customerId         String            @map("customer_id")
+  customer           User              @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  type               BookingType
+  status             BookingStatus     @default(PENDING)
+  restaurantId       String?           @map("restaurant_id")
+  restaurant         Restaurant?       @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+  homeChefProfileId  String?           @map("home_chef_profile_id")
+  homeChefProfile    HomeChefProfile?  @relation(fields: [homeChefProfileId], references: [id], onDelete: SetNull)
+  homeChefMenuItemId String?           @map("home_chef_menu_item_id")
+  homeChefMenuItem   HomeChefMenuItem? @relation(fields: [homeChefMenuItemId], references: [id], onDelete: SetNull)
+  bookingDate        DateTime          @map("booking_date") @db.Date
+  bookingTime        String            @map("booking_time")
+  partySize          Int?              @map("party_size")
+  quantity           Int               @default(1)
+  totalPrice         Decimal           @map("total_price") @db.Decimal(10, 2)
+  currency           String            @default("USD")
+  notes              String?
+  affiliateReferrerId String?          @map("affiliate_referrer_id")
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+
+  review Review?
+
+  @@index([customerId, createdAt(sort: Desc)])
+  @@index([restaurantId, bookingDate])
+  @@index([homeChefProfileId, bookingDate])
+  @@map("bookings")
+}
+
+model Review {
+  id                 String           @id @default(uuid())
+  reviewerId         String           @map("reviewer_id")
+  reviewer           User             @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+  targetType         ReviewTargetType @map("target_type")
+  restaurantId       String?          @map("restaurant_id")
+  restaurant         Restaurant?      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  homeChefProfileId  String?          @map("home_chef_profile_id")
+  homeChefProfile    HomeChefProfile? @relation(fields: [homeChefProfileId], references: [id], onDelete: Cascade)
+  bookingId          String?          @unique @map("booking_id")
+  booking            Booking?         @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  rating             Int
+  text               String?
+  isVerifiedPurchase Boolean          @default(false) @map("is_verified_purchase")
+  createdAt          DateTime         @default(now()) @map("created_at")
+  updatedAt          DateTime         @updatedAt @map("updated_at")
+
+  @@index([restaurantId, createdAt(sort: Desc)])
+  @@index([homeChefProfileId, createdAt(sort: Desc)])
+  @@index([reviewerId])
+  @@map("reviews")
+}
+
+model FoodMeetup {
+  id            String       @id @default(uuid())
+  creatorId     String       @map("creator_id")
+  creator       User         @relation("MeetupCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  foodType      String       @map("food_type")
+  foodCategory  String?      @map("food_category")
+  scheduledAt   DateTime     @map("scheduled_at")
+  radiusKm      Float        @map("radius_km")
+  desiredPeople Int          @map("desired_people")
+  latitude      Float
+  longitude     Float
+  locationLabel String?      @map("location_label")
+  mealSlot      String?      @map("meal_slot")
+  foodName      String?      @map("food_name")
+  preferredGender String?    @map("preferred_gender")
+  ageMin        Int?         @map("age_min")
+  ageMax        Int?         @map("age_max")
+  preferredEducation String? @map("preferred_education")
+  country       String?
+  city          String?
+  status        MeetupStatus @default(OPEN)
+  notes         String?
+  expiresAt     DateTime     @map("expires_at")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  invites MeetupInvite[]
+  room    MeetupRoom?
+  intent  FoodIntent?
+  participations MeetupParticipation[]
+  reviews MeetupReview[]
+
+  @@index([creatorId, createdAt(sort: Desc)])
+  @@index([status, scheduledAt])
+  @@index([foodType, scheduledAt])
+  @@map("food_meetups")
+}
+
+model FoodIntent {
+  id            String           @id @default(uuid())
+  userId        String           @map("user_id")
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  meetupId      String?          @unique @map("meetup_id")
+  meetup        FoodMeetup?      @relation(fields: [meetupId], references: [id], onDelete: SetNull)
+  foodType      String           @map("food_type")
+  foodCategory  String?          @map("food_category")
+  timeStart     DateTime         @map("time_start")
+  timeEnd       DateTime         @map("time_end")
+  latitude      Float
+  longitude     Float
+  radiusKm      Float            @map("radius_km")
+  desiredPeople Int              @default(2) @map("desired_people")
+  budgetMin     Float?           @map("budget_min")
+  budgetMax     Float?           @map("budget_max")
+  status        FoodIntentStatus @default(ACTIVE)
+  expiresAt     DateTime         @map("expires_at")
+  cancelledAt   DateTime?        @map("cancelled_at")
+  createdAt     DateTime         @default(now()) @map("created_at")
+  updatedAt     DateTime         @updatedAt @map("updated_at")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, timeStart])
+  @@index([foodType, timeStart])
+  @@map("food_intents")
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  userId      String           @map("user_id")
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        NotificationType
+  title       String
+  body        String
+  data        Json?
+  entityId    String?          @map("entity_id")
+  dedupeKey   String?          @unique @map("dedupe_key")
+  readAt      DateTime?        @map("read_at")
+  deliveredAt DateTime?        @map("delivered_at")
+  createdAt   DateTime         @default(now()) @map("created_at")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([userId, readAt])
+  @@map("notifications")
+}
+
+model NotificationSettings {
+  userId         String   @id @map("user_id")
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  muted          Boolean  @default(false)
+  disabledTypes  Json     @default("[]") @map("disabled_types")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("notification_settings")
+}
+
+model DeviceToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  platform  String   @default("web")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("device_tokens")
+}
+
+model UserBadge {
+  id       String        @id @default(uuid())
+  userId   String        @map("user_id")
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge    UserBadgeType
+  earnedAt DateTime      @default(now()) @map("earned_at")
+
+  @@unique([userId, badge])
+  @@index([userId])
+  @@map("user_badges")
+}
+
+model MeetupParticipation {
+  id          String     @id @default(uuid())
+  meetupId    String     @map("meetup_id")
+  meetup      FoodMeetup @relation(fields: [meetupId], references: [id], onDelete: Cascade)
+  userId      String     @map("user_id")
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        String
+  completedAt DateTime   @default(now()) @map("completed_at")
+
+  @@unique([meetupId, userId])
+  @@index([userId, completedAt(sort: Desc)])
+  @@map("meetup_participations")
+}
+
+model MeetupReview {
+  id         String     @id @default(uuid())
+  meetupId   String     @map("meetup_id")
+  meetup     FoodMeetup @relation(fields: [meetupId], references: [id], onDelete: Cascade)
+  reviewerId String     @map("reviewer_id")
+  reviewer   User       @relation("MeetupReviewer", fields: [reviewerId], references: [id], onDelete: Cascade)
+  reviewedId String     @map("reviewed_id")
+  reviewed   User       @relation("MeetupReviewed", fields: [reviewedId], references: [id], onDelete: Cascade)
+  rating     Int
+  comment    String?
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  @@unique([meetupId, reviewerId, reviewedId])
+  @@index([reviewedId, createdAt(sort: Desc)])
+  @@map("meetup_reviews")
+}
+
+model MeetupInvite {
+  id          String             @id @default(uuid())
+  meetupId    String             @map("meetup_id")
+  meetup      FoodMeetup         @relation(fields: [meetupId], references: [id], onDelete: Cascade)
+  inviterId   String             @map("inviter_id")
+  inviter     User               @relation("MeetupInviter", fields: [inviterId], references: [id], onDelete: Cascade)
+  inviteeId   String             @map("invitee_id")
+  invitee     User               @relation("MeetupInvitee", fields: [inviteeId], references: [id], onDelete: Cascade)
+  status      MeetupInviteStatus @default(PENDING)
+  expiresAt   DateTime           @map("expires_at")
+  respondedAt DateTime?          @map("responded_at")
+  createdAt   DateTime           @default(now()) @map("created_at")
+
+  @@unique([meetupId, inviteeId])
+  @@index([inviteeId, status])
+  @@index([inviterId, createdAt(sort: Desc)])
+  @@map("meetup_invites")
+}
+
+model MeetupRoom {
+  id        String           @id @default(uuid())
+  meetupId  String           @unique @map("meetup_id")
+  meetup    FoodMeetup       @relation(fields: [meetupId], references: [id], onDelete: Cascade)
+  status    MeetupRoomStatus @default(ACTIVE)
+  createdAt DateTime         @default(now()) @map("created_at")
+  closedAt  DateTime?        @map("closed_at")
+
+  members  MeetupRoomMember[]
+  messages MeetupRoomMessage[]
+
+  @@map("meetup_rooms")
+}
+
+model MeetupRoomMember {
+  id       String     @id @default(uuid())
+  roomId   String     @map("room_id")
+  room     MeetupRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId   String     @map("user_id")
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt DateTime   @default(now()) @map("joined_at")
+
+  @@unique([roomId, userId])
+  @@index([userId])
+  @@map("meetup_room_members")
+}
+
+model MeetupRoomMessage {
+  id        String     @id @default(uuid())
+  roomId    String     @map("room_id")
+  room      MeetupRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  senderId  String     @map("sender_id")
+  sender    User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime   @default(now()) @map("created_at")
+
+  @@index([roomId, createdAt(sort: Desc)])
+  @@map("meetup_room_messages")
+}
+
+model FiatWallet {
+  id               String   @id @default(uuid())
+  userId           String   @unique @map("user_id")
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  availableBalance Decimal  @default(0) @map("available_balance") @db.Decimal(14, 2)
+  pendingBalance   Decimal  @default(0) @map("pending_balance") @db.Decimal(14, 2)
+  currency         String   @default("USD")
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("fiat_wallets")
+}
+
+model BankAccount {
+  id                      String            @id @default(uuid())
+  userId                  String            @map("user_id")
+  user                    User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bankName                String            @map("bank_name")
+  accountHolderName       String            @map("account_holder_name")
+  country                 String
+  encryptedAccountNumber  String            @map("encrypted_account_number")
+  encryptedRoutingNumber  String?           @map("encrypted_routing_number")
+  last4                   String            @map("last4")
+  isDefault               Boolean           @default(false) @map("is_default")
+  status                  BankAccountStatus @default(PENDING_VERIFICATION)
+  verificationTokenHash   String?           @map("verification_token_hash")
+  verifiedAt              DateTime?         @map("verified_at")
+  createdAt               DateTime          @default(now()) @map("created_at")
+  updatedAt               DateTime          @updatedAt @map("updated_at")
+
+  @@index([userId, isDefault])
+  @@map("bank_accounts")
+}
+
+model CryptoDepositAddress {
+  id                String      @id @default(uuid())
+  userId            String      @map("user_id")
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset             CryptoAsset
+  address           String
+  providerReference String?     @map("provider_reference")
+  createdAt         DateTime    @default(now()) @map("created_at")
+
+  @@unique([userId, asset])
+  @@index([address])
+  @@map("crypto_deposit_addresses")
+}
+
+model WalletTransaction {
+  id                  String                  @id @default(uuid())
+  userId              String                  @map("user_id")
+  user                User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type                WalletTransactionType
+  status              WalletTransactionStatus @default(PENDING)
+  amount              Decimal                 @db.Decimal(14, 2)
+  fee                 Decimal                 @default(0) @db.Decimal(14, 2)
+  netAmount           Decimal                 @map("net_amount") @db.Decimal(14, 2)
+  currency            String                  @default("USD")
+  cryptoAsset         CryptoAsset?            @map("crypto_asset")
+  cryptoAmount        Decimal?                @map("crypto_amount") @db.Decimal(18, 8)
+  provider            PaymentProvider         @default(INTERNAL)
+  providerReferenceId String?                 @map("provider_reference_id")
+  counterpartyUserId  String?                 @map("counterparty_user_id")
+  description         String?
+  metadata            Json?
+  escrowId            String?                 @map("escrow_id")
+  idempotencyKey      String?                 @unique @map("idempotency_key")
+  completedAt         DateTime?               @map("completed_at")
+  createdAt           DateTime                @default(now()) @map("created_at")
+  updatedAt           DateTime                @updatedAt @map("updated_at")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([status, type])
+  @@map("wallet_transactions")
+}
+
+model EscrowHold {
+  id            String       @id @default(uuid())
+  payerId       String       @map("payer_id")
+  payer         User         @relation("EscrowPayer", fields: [payerId], references: [id], onDelete: Cascade)
+  payeeId       String       @map("payee_id")
+  payee         User         @relation("EscrowPayee", fields: [payeeId], references: [id], onDelete: Cascade)
+  amount        Decimal      @db.Decimal(14, 2)
+  fee           Decimal      @default(0) @db.Decimal(14, 2)
+  currency      String       @default("USD")
+  status        EscrowStatus @default(HELD)
+  referenceType String       @map("reference_type")
+  referenceId   String       @map("reference_id")
+  releaseNote   String?      @map("release_note")
+  heldAt        DateTime     @default(now()) @map("held_at")
+  releasedAt    DateTime?    @map("released_at")
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  @@index([payerId, status])
+  @@index([payeeId, status])
+  @@index([referenceType, referenceId])
+  @@map("escrow_holds")
+}
+
+model FraudLog {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  riskScore Int      @default(0) @map("risk_score")
+  details   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+  @@map("fraud_logs")
+}
+
+model PremiumSubscription {
+  id                  String                    @id @default(uuid())
+  userId              String                    @map("user_id")
+  user                User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status              PremiumSubscriptionStatus @default(ACTIVE)
+  planId              String                    @default("premium_monthly") @map("plan_id")
+  amount              Decimal                   @db.Decimal(10, 2)
+  currency            String                    @default("USD")
+  startedAt           DateTime                  @default(now()) @map("started_at")
+  expiresAt           DateTime                  @map("expires_at")
+  providerReferenceId String?                   @map("provider_reference_id")
+  createdAt           DateTime                  @default(now()) @map("created_at")
+  updatedAt           DateTime                  @updatedAt @map("updated_at")
+
+  @@index([userId, status])
+  @@index([expiresAt])
+  @@map("premium_subscriptions")
+}
+
+model RestaurantAd {
+  id           String             @id @default(uuid())
+  restaurantId String             @map("restaurant_id")
+  restaurant   Restaurant         @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  ownerId      String             @map("owner_id")
+  owner        User               @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title        String
+  imageUrl     String?            @map("image_url")
+  targetUrl    String?            @map("target_url")
+  budget       Decimal            @db.Decimal(10, 2)
+  spent        Decimal            @default(0) @db.Decimal(10, 2)
+  impressions  Int                @default(0)
+  clicks       Int                @default(0)
+  status       RestaurantAdStatus @default(PENDING_PAYMENT)
+  startsAt     DateTime           @default(now()) @map("starts_at")
+  endsAt       DateTime?          @map("ends_at")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+
+  @@index([restaurantId, status])
+  @@index([ownerId])
+  @@index([status, startsAt])
+  @@map("restaurant_ads")
+}
+
+model AffiliateCommission {
+  id             String                    @id @default(uuid())
+  referrerUserId String                    @map("referrer_user_id")
+  referrer       User                      @relation("AffiliateReferrer", fields: [referrerUserId], references: [id], onDelete: Cascade)
+  sourceType     AffiliateSourceType         @map("source_type")
+  sourceId       String                    @map("source_id")
+  amount         Decimal                   @db.Decimal(10, 2)
+  currency       String                    @default("USD")
+  status         AffiliateCommissionStatus @default(PENDING)
+  createdAt      DateTime                  @default(now()) @map("created_at")
+  updatedAt      DateTime                  @updatedAt @map("updated_at")
+
+  @@index([referrerUserId, status])
+  @@index([sourceType, sourceId])
+  @@map("affiliate_commissions")
+}
+
+model AbuseReport {
+  id             String                @id @default(uuid())
+  reporterId     String                @map("reporter_id")
+  reporter       User                  @relation("AbuseReporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType     AbuseReportTargetType @map("target_type")
+  targetId       String                @map("target_id")
+  reason         String
+  details        String?
+  status         AbuseReportStatus     @default(OPEN)
+  reviewedById   String?               @map("reviewed_by_id")
+  reviewer       User?                 @relation("AbuseReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  resolutionNote String?               @map("resolution_note")
+  createdAt      DateTime              @default(now()) @map("created_at")
+  updatedAt      DateTime              @updatedAt @map("updated_at")
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([targetType, targetId])
+  @@index([reporterId])
+  @@map("abuse_reports")
+}
+
+model AdminAuditLog {
+  id         String   @id @default(uuid())
+  adminId    String   @map("admin_id")
+  admin      User     @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  action     String
+  targetType String   @map("target_type")
+  targetId   String?  @map("target_id")
+  details    Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([adminId, createdAt(sort: Desc)])
+  @@index([action, createdAt(sort: Desc)])
+  @@map("admin_audit_logs")
+}

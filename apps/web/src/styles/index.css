@@ -1,0 +1,169 @@
+@import './design-system.css';
+
+.page:not(.app-shell__content) {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.page.wide {
+  max-width: 1080px;
+}
+
+.panel {
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  border: 2px solid var(--card-outline);
+  box-shadow: 0 0 0 1px var(--card-outline-glow), var(--shadow-glass);
+  backdrop-filter: blur(18px);
+  color: var(--color-dark);
+}
+
+.card {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  border: 2px solid var(--card-outline);
+  box-shadow: 0 0 0 1px var(--card-outline-glow);
+  color: var(--color-dark);
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.profile-list {
+  margin: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.profile-list div {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.profile-list dt {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.profile-list dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+.feed-page {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.nearby-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.nearby-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.field.checkbox,
+.field.inline {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.tag,
+.badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.chat-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+}
+
+.chat-media {
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.button-like {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 0.85rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.hours-row {
+  display: grid;
+  grid-template-columns: 7rem 5rem 1fr 1fr;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tags {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.booking-form {
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.member-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.typing-indicator {
+  font-style: italic;
+  color: var(--color-muted);
+}
+
+.plain-list {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.chat-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.chat-list-item h2 {
+  margin: 0;
+}

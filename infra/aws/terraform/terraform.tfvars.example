@@ -1,0 +1,18 @@
+aws_region                  = "us-east-1"
+vpc_id                      = "vpc-xxxxxxxx"
+public_subnet_ids           = ["subnet-public-a", "subnet-public-b"]
+private_subnet_ids          = ["subnet-private-a", "subnet-private-b"]
+web_bucket_name             = "bitemate-web-prod-unique"
+media_bucket_name           = "bitemate-media-prod-unique"
+ecs_execution_role_arn      = "arn:aws:iam::123456789012:role/ecsTaskExecutionRole"
+ecs_task_role_arn           = "arn:aws:iam::123456789012:role/bitemateApiTaskRole"
+ecs_service_security_group_id = "sg-xxxxxxxx"
+api_desired_count           = 2
+
+api_container_secrets = [
+  { name = "DATABASE_URL", valueFrom = "arn:aws:secretsmanager:us-east-1:123456789012:secret:bitemate/database" },
+  { name = "JWT_SECRET", valueFrom = "arn:aws:secretsmanager:us-east-1:123456789012:secret:bitemate/jwt" },
+  { name = "REDIS_PASSWORD", valueFrom = "arn:aws:secretsmanager:us-east-1:123456789012:secret:bitemate/redis" },
+  { name = "STRIPE_SECRET_KEY", valueFrom = "arn:aws:secretsmanager:us-east-1:123456789012:secret:bitemate/stripe" },
+  { name = "SENTRY_DSN", valueFrom = "arn:aws:secretsmanager:us-east-1:123456789012:secret:bitemate/sentry" }
+]

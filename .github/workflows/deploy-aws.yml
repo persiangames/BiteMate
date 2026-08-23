@@ -1,0 +1,84 @@
+name: Deploy AWS
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  ECR_API_REPOSITORY: bitemate-api
+  ECR_GATEWAY_REPOSITORY: bitemate-gateway
+  ECS_CLUSTER: bitemate-prod
+  ECS_API_SERVICE: bitemate-api
+  S3_WEB_BUCKET: ${{ vars.S3_WEB_BUCKET }}
+  CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: vars.AWS_DEPLOY_ENABLED == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: aws-actions/amazon-ecr-login@v2
+        id: ecr
+
+      - name: Build and push API image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -f infra/docker/api/Dockerfile -t $ECR_REGISTRY/$ECR_API_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_API_REPOSITORY:$IMAGE_TAG
+          docker tag $ECR_REGISTRY/$ECR_API_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_API_REPOSITORY:latest
+          docker push $ECR_REGISTRY/$ECR_API_REPOSITORY:latest
+
+      - name: Build and push Gateway image
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -f infra/docker/gateway/Dockerfile -t $ECR_REGISTRY/$ECR_GATEWAY_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_GATEWAY_REPOSITORY:$IMAGE_TAG
+
+      - name: Deploy API to ECS
+        env:
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_API_SERVICE \
+            --force-new-deployment
+
+      - name: Build web assets
+        run: |
+          npm ci
+          npm run shared:build
+          VITE_API_BASE_URL=/api npm run web:build
+
+      - name: Sync web to S3
+        if: env.S3_WEB_BUCKET != ''
+        run: |
+          aws s3 sync apps/web/dist s3://$S3_WEB_BUCKET/ --delete \
+            --cache-control "public,max-age=31536000,immutable" \
+            --exclude "index.html"
+          aws s3 cp apps/web/dist/index.html s3://$S3_WEB_BUCKET/index.html \
+            --cache-control "no-cache"
+
+      - name: Invalidate CloudFront
+        if: env.CLOUDFRONT_DISTRIBUTION_ID != ''
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id $CLOUDFRONT_DISTRIBUTION_ID \
+            --paths "/*"

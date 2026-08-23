@@ -1,0 +1,12 @@
+{
+  "name": "bitemate-local-infra",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node start.mjs"
+  },
+  "dependencies": {
+    "embedded-postgres": "15.5.1-beta.9",
+    "mongodb-memory-server": "9.2.0"
+  }
+}

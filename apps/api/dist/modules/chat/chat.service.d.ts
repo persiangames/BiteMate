@@ -1,0 +1,40 @@
+import { ConfigService } from '@nestjs/config';
+import type { ChatMessageDto, ChatSummaryDto, ChatsListResponseDto, MessagesListResponseDto } from '@bitemate/shared';
+import { Model } from 'mongoose';
+import { PrismaService } from '../database/prisma.service';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
+import { NotificationsService } from '../notifications/notifications.service';
+import { ChatDocument } from './schemas/chat.schema';
+import { MessageDocument } from './schemas/message.schema';
+import { PresenceService } from './presence.service';
+import type { CreateMessageDto } from './dto/chat.dto';
+export declare class ChatService {
+    private readonly chatModel;
+    private readonly messageModel;
+    private readonly prisma;
+    private readonly presenceService;
+    private readonly realtimeGateway;
+    private readonly notificationsService;
+    private readonly configService;
+    constructor(chatModel: Model<ChatDocument>, messageModel: Model<MessageDocument>, prisma: PrismaService, presenceService: PresenceService, realtimeGateway: RealtimeGateway, notificationsService: NotificationsService, configService: ConfigService);
+    listChats(userId: string): Promise<ChatsListResponseDto>;
+    getOrCreateDirectChat(userId: string, otherUserId: string): Promise<ChatSummaryDto>;
+    ensureMeetupGroupChat(params: {
+        meetupRoomId: string;
+        meetupId: string;
+        title: string;
+        participantIds: string[];
+    }): Promise<ChatDocument>;
+    findChatByMeetupRoomId(meetupRoomId: string): Promise<ChatDocument | null>;
+    getMessages(userId: string, chatId: string, cursor?: string, limit?: number): Promise<MessagesListResponseDto>;
+    sendMessage(userId: string, dto: CreateMessageDto): Promise<ChatMessageDto>;
+    markChatRead(userId: string, chatId: string, upToMessageId?: string): Promise<void>;
+    private assertChatMember;
+    private validateMessagePayload;
+    private buildPreview;
+    private buildDirectKey;
+    private toChatSummary;
+    private toMessageDto;
+    private toParticipant;
+    private loadUsers;
+}
