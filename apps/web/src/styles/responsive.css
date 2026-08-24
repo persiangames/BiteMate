@@ -1,0 +1,181 @@
+/* Responsive foundation — stable layout on mobile, tablet, desktop, and browser zoom */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: clip;
+  min-width: 320px;
+}
+
+#root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: clip;
+}
+
+img,
+video,
+canvas,
+svg,
+iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+.app-shell__content,
+.page,
+.app-screen,
+.ig-auth,
+.auth-screen {
+  min-width: 0;
+}
+
+.app-shell__content {
+  width: min(100%, 920px);
+}
+
+/* Auth screens */
+.ig-auth {
+  padding: clamp(1rem, 4vw, 2rem) clamp(0.75rem, 3vw, 1.5rem) calc(4rem + env(safe-area-inset-bottom, 0px));
+}
+
+.ig-auth__card {
+  width: min(100%, 460px);
+  padding: clamp(1.25rem, 4vw, 2rem) clamp(1rem, 3vw, 1.75rem);
+}
+
+.ig-auth__form input {
+  font-size: clamp(0.875rem, 2.8vw, 1rem);
+  min-height: 48px;
+}
+
+.ig-auth__form input::placeholder {
+  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+}
+
+.auth-screen {
+  padding: clamp(0.75rem, 3vw, 1.5rem);
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 1rem);
+}
+
+.auth-screen__panel {
+  width: min(100%, 560px);
+  margin-inline: auto;
+}
+
+/* Feed & cards */
+.feed-page {
+  width: min(100%, 680px);
+  padding-inline: clamp(0.5rem, 2vw, 1rem);
+}
+
+.post-media {
+  width: 100%;
+  max-height: min(72vh, 720px);
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+}
+
+/* Map pickers */
+.map-container,
+.location-picker__map {
+  min-height: clamp(220px, 42vh, 420px);
+}
+
+/* Tables / wide forms */
+.hours-row {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 480px) {
+  .hours-row {
+    grid-template-columns: 7rem 5rem 1fr 1fr;
+  }
+}
+
+/* Bottom nav safe area on small phones */
+@media (max-width: 380px) {
+  .bottom-nav__label {
+    font-size: 0.62rem;
+  }
+
+  .screen-header h1 {
+    font-size: 1.35rem;
+  }
+
+  .fab {
+    width: 50px;
+    height: 50px;
+    font-size: 1.45rem;
+  }
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  .app-shell__content:has(.inbox) {
+    width: min(100%, 760px);
+  }
+
+  .thread-screen {
+    max-width: 920px;
+    margin-inline: auto;
+    border-inline: 1px solid var(--color-border);
+  }
+}
+
+/* Desktop wide */
+@media (min-width: 1024px) {
+  .app-shell__content {
+    padding-inline: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .inbox {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+  }
+}
+
+/* Social auth buttons */
+.social-auth {
+  display: grid;
+  gap: 0.55rem;
+  width: 100%;
+}
+
+.social-auth__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 46px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--surface);
+  color: var(--color-dark);
+  font-weight: 650;
+  font-size: 0.9rem;
+}
+
+.social-auth__btn:hover,
+.social-auth__btn:focus-visible {
+  background: var(--surface-2);
+}
+
+.social-auth__btn--google {
+  border-color: #dadce0;
+}
+
+.social-auth__btn--phone {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.social-auth__icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}

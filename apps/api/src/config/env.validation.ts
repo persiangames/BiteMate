@@ -17,7 +17,9 @@ export const envValidationSchema = Joi.object({
     otherwise: Joi.string().allow('').optional(),
   }),
   REDIS_DB: Joi.number().integer().min(0).default(0),
-  CORS_ORIGINS: Joi.string().default('http://localhost:5173,http://localhost:3001'),
+  CORS_ORIGINS: Joi.string().default(
+    'http://localhost:5173,http://localhost:3001,https://www.bitemate.ir,https://bitemate.ir',
+  ),
   LOG_LEVEL: Joi.string()
     .valid('fatal', 'error', 'warn', 'info', 'debug', 'trace')
     .default('info'),
@@ -112,4 +114,27 @@ export const envValidationSchema = Joi.object({
   MONETIZATION_MIN_AD_BUDGET: Joi.number().min(1).default(25),
   MONETIZATION_AFFILIATE_BOOKING_RATE: Joi.number().min(0).max(1).default(0.05),
   ADMIN_BOOTSTRAP_EMAIL: Joi.string().email().allow('').optional(),
+  APP_NAME: Joi.string().default('BiteMate'),
+  APP_PUBLIC_URL: Joi.string().uri().default('https://www.bitemate.ir'),
+  SMS_PROVIDER: Joi.string()
+    .valid('console', 'kavenegar', 'melipayamak', 'http')
+    .default('console'),
+  SMS_SENDER: Joi.string().default('BiteMate'),
+  KAVENEGAR_API_KEY: Joi.string().allow('').optional(),
+  KAVENEGAR_OTP_TEMPLATE: Joi.string().allow('').optional(),
+  MELIPAYAMAK_USERNAME: Joi.string().allow('').optional(),
+  MELIPAYAMAK_PASSWORD: Joi.string().allow('').optional(),
+  MELIPAYAMAK_FROM: Joi.string().allow('').optional(),
+  SMS_HTTP_URL: Joi.string().allow('').optional(),
+  SMS_HTTP_METHOD: Joi.string().valid('GET', 'POST', 'PUT').default('POST'),
+  SMS_HTTP_API_KEY_HEADER: Joi.string().default('Authorization'),
+  SMS_HTTP_API_KEY: Joi.string().allow('').optional(),
+  EMAIL_PROVIDER: Joi.string().valid('console', 'smtp').default('console'),
+  EMAIL_FROM: Joi.string().default('noreply@bitemate.ir'),
+  EMAIL_FROM_NAME: Joi.string().default('BiteMate'),
+  SMTP_HOST: Joi.string().allow('').optional(),
+  SMTP_PORT: Joi.number().port().default(587),
+  SMTP_SECURE: Joi.string().valid('true', 'false').default('false'),
+  SMTP_USER: Joi.string().allow('').optional(),
+  SMTP_PASS: Joi.string().allow('').optional(),
 });

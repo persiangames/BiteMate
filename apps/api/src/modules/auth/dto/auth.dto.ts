@@ -322,6 +322,46 @@ export class VerifyTwoFactorDto {
   code!: string;
 }
 
+export class ForgotPasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  identifier!: string;
+}
+
+export class ResetPasswordDto {
+  @IsString()
+  @IsNotEmpty()
+  identifier!: string;
+
+  @IsString()
+  @Matches(/^\d{6}$/)
+  code!: string;
+
+  @IsString()
+  @MinLength(8)
+  newPassword!: string;
+}
+
+export class OtpLoginRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  destination!: string;
+}
+
+export class OtpLoginVerifyDto {
+  @IsString()
+  @IsNotEmpty()
+  destination!: string;
+
+  @IsString()
+  @Matches(/^\d{6}$/)
+  code!: string;
+
+  @IsOptional()
+  @IsEnum(SUPPORTED_LOCALES)
+  locale?: SupportedLocale;
+}
+
 export class EnableTwoFactorDto {
   @IsString()
   @Matches(/^\d{6}$/)

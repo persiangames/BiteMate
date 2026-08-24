@@ -4,20 +4,23 @@ import {
   USER_ROLES,
   type UserRole,
 } from '@bitemate/shared';
+import { isFirebaseConfigured, signInWithGoogle } from '@/data/firebase/firebaseClient';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
 import { SearchableSelect } from '@/presentation/components/SearchableSelect';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { citySelectOptions, countrySelectOptions } from '@/data/localize';
+import { localizeError } from '@/presentation/i18n/localizeError';
 
-type AuthMethod = 'email' | 'phone';
+type AuthMethod = 'email' | 'phone' | 'google';
 
 export function RegisterPage() {
-  const { register, locale } = useAuth();
+  const { register, socialLogin, locale } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [authMethod, setAuthMethod] = useState<AuthMethod | null>(null);
+  const [googleIdToken, setGoogleIdToken] = useState<string | null>(null);
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -47,6 +50,20 @@ export function RegisterPage() {
     setLoading(true);
     setError(null);
     try {
+      if (authMethod === 'google' && googleIdToken) {
+        const created = await socialLogin({
+          idToken: googleIdToken,
+          fullName: form.fullName,
+          country: form.country,
+          city: form.city,
+          dateOfBirth: form.dateOfBirth,
+          role: form.role,
+          locale,
+        });
+        navigate(created.user.otpVerified ? '/feed' : '/verify-otp', { replace: true });
+        return;
+      }
+
       const created = await register({
         channel: authMethod,
         email: authMethod === 'email' ? form.email : undefined,
@@ -75,6 +92,21 @@ export function RegisterPage() {
     }
     setError(null);
     setStep(4);
+  }
+
+  async function startGoogleRegistration() {
+    setLoading(true);
+    setError(null);
+    try {
+      const idToken = await signInWithGoogle();
+      setGoogleIdToken(idToken);
+      setAuthMethod('google');
+      setStep(3);
+    } catch (err) {
+      setError(localizeError(t, err, 'auth.socialFailed'));
+    } finally {
+      setLoading(false);
+    }
   }
 
   const profileFields = (
@@ -145,6 +177,21 @@ export function RegisterPage() {
         {step === 1 && (
           <div className="flow">
             <p className="hint">{t('auth.chooseChannel')}</p>
+            {isFirebaseConfigured() ? (
+              <button
+                type="button"
+                className="social-auth__btn social-auth__btn--google"
+                disabled={loading}
+                onClick={() => void startGoogleRegistration()}
+              >
+                {t('auth.google')}
+              </button>
+            ) : (
+              <p className="hint">{t('auth.socialUnavailable')}</p>
+            )}
+            <div className="ig-auth__divider">
+              <span>{t('auth.or')}</span>
+            </div>
             <button
               type="button"
               className="btn-primary"

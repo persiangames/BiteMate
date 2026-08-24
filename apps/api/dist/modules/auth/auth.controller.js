@@ -62,6 +62,18 @@ let AuthController = class AuthController {
     verifyOtp(user, dto) {
         return this.authService.verifyOtp(dto, user.sub);
     }
+    requestLoginOtp(dto) {
+        return this.authService.requestLoginOtp(dto);
+    }
+    verifyLoginOtp(dto) {
+        return this.authService.verifyLoginOtp(dto);
+    }
+    forgotPassword(dto) {
+        return this.authService.forgotPassword(dto);
+    }
+    resetPassword(dto) {
+        return this.authService.resetPassword(dto);
+    }
     verifyTwoFactor(dto) {
         return this.authService.verifyTwoFactorLogin(dto.challengeToken, dto.code);
     }
@@ -142,6 +154,42 @@ __decorate([
     __metadata("design:paramtypes", [Object, auth_dto_1.VerifyOtpDto]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "verifyOtp", null);
+__decorate([
+    (0, auth_decorators_1.Public)(),
+    (0, common_1.Post)('otp/login/request'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth_dto_1.OtpLoginRequestDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "requestLoginOtp", null);
+__decorate([
+    (0, auth_decorators_1.Public)(),
+    (0, common_1.Post)('otp/login/verify'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth_dto_1.OtpLoginVerifyDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "verifyLoginOtp", null);
+__decorate([
+    (0, auth_decorators_1.Public)(),
+    (0, common_1.Post)('password/forgot'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth_dto_1.ForgotPasswordDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "forgotPassword", null);
+__decorate([
+    (0, auth_decorators_1.Public)(),
+    (0, common_1.Post)('password/reset'),
+    (0, common_1.HttpCode)(common_1.HttpStatus.OK),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [auth_dto_1.ResetPasswordDto]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "resetPassword", null);
 __decorate([
     (0, auth_decorators_1.Public)(),
     (0, common_1.Post)('2fa/verify'),

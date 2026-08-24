@@ -1,6 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
+import { SocialAuthButtons } from '@/presentation/components/auth/SocialAuthButtons';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { verifyTwoFactorLogin } from '@/data/repositories/authRepository';
@@ -16,6 +17,10 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  function afterAuth(otpVerified: boolean) {
+    navigate(otpVerified ? '/feed' : '/verify-otp', { replace: true });
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
@@ -25,7 +30,7 @@ export function LoginPage() {
       if (challengeToken) {
         const response = await verifyTwoFactorLogin({ challengeToken, code: otpCode });
         setSession(response);
-        navigate(response.user.otpVerified ? '/feed' : '/verify-otp', { replace: true });
+        afterAuth(response.user.otpVerified);
         return;
       }
 
@@ -34,7 +39,7 @@ export function LoginPage() {
         setChallengeToken(response.challengeToken);
         return;
       }
-      navigate(response.user.otpVerified ? '/feed' : '/verify-otp', { replace: true });
+      afterAuth(response.user.otpVerified);
     } catch {
       setError(t('auth.error.invalid'));
     } finally {
@@ -65,7 +70,6 @@ export function LoginPage() {
               <input
                 type="text"
                 autoComplete="username"
-                inputMode="email"
                 placeholder={t('auth.identifier')}
                 value={identifier}
                 onChange={(event) => setIdentifier(event.target.value)}
@@ -90,6 +94,11 @@ export function LoginPage() {
               <div className="ig-auth__divider">
                 <span>{t('auth.or')}</span>
               </div>
+              <SocialAuthButtons
+                mode="login"
+                onGoogleNeedsProfile={() => navigate('/register', { state: { social: 'google' } })}
+                onSuccess={(otpVerified) => afterAuth(otpVerified)}
+              />
               <Link className="ig-auth__forgot" to="/forgot-password">
                 {t('auth.forgot')}
               </Link>

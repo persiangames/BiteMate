@@ -45,7 +45,7 @@ __decorate([
     __metadata("design:type", String)
 ], CreatePostDto.prototype, "caption", void 0);
 __decorate([
-    (0, class_validator_1.IsEnum)(shared_1.MEDIA_TYPES),
+    (0, class_validator_1.IsIn)(shared_1.MEDIA_TYPES),
     __metadata("design:type", String)
 ], CreatePostDto.prototype, "mediaType", void 0);
 __decorate([

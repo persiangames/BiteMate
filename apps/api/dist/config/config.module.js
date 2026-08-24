@@ -43,6 +43,7 @@ exports.AppConfigModule = void 0;
 const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const configuration_1 = __importStar(require("./configuration"));
+const messaging_config_1 = require("./messaging.config");
 const security_config_1 = require("./security.config");
 const env_validation_1 = require("./env.validation");
 let AppConfigModule = class AppConfigModule {
@@ -55,7 +56,7 @@ exports.AppConfigModule = AppConfigModule = __decorate([
                 isGlobal: true,
                 cache: true,
                 expandVariables: true,
-                load: [configuration_1.default, configuration_1.databaseConfig, configuration_1.loggingConfig, configuration_1.redisConfig, configuration_1.jwtConfig, configuration_1.firebaseConfig, configuration_1.otpConfig, configuration_1.locationConfig, configuration_1.storageConfig, configuration_1.meetupConfig, configuration_1.intentConfig, configuration_1.notificationConfig, configuration_1.mongoConfig, configuration_1.chatConfig, configuration_1.walletConfig, configuration_1.premiumConfig, configuration_1.rankingConfig, configuration_1.monetizationConfig, configuration_1.adminConfig, security_config_1.securityConfig, security_config_1.sentryConfig],
+                load: [configuration_1.default, configuration_1.databaseConfig, configuration_1.loggingConfig, configuration_1.redisConfig, configuration_1.jwtConfig, configuration_1.firebaseConfig, configuration_1.otpConfig, messaging_config_1.messagingConfig, configuration_1.locationConfig, configuration_1.storageConfig, configuration_1.meetupConfig, configuration_1.intentConfig, configuration_1.notificationConfig, configuration_1.mongoConfig, configuration_1.chatConfig, configuration_1.walletConfig, configuration_1.premiumConfig, configuration_1.rankingConfig, configuration_1.monetizationConfig, configuration_1.adminConfig, security_config_1.securityConfig, security_config_1.sentryConfig],
                 validationSchema: env_validation_1.envValidationSchema,
                 validationOptions: {
                     abortEarly: false,

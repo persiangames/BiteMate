@@ -105,3 +105,39 @@ export async function logoutUser(refreshToken: string) {
     body: JSON.stringify({ refreshToken }),
   });
 }
+
+export async function forgotPassword(identifier: string) {
+  return apiFetch<{ message: string }>('/auth/password/forgot', {
+    method: 'POST',
+    body: JSON.stringify({ identifier }),
+  });
+}
+
+export async function resetPassword(payload: {
+  identifier: string;
+  code: string;
+  newPassword: string;
+}) {
+  return apiFetch<{ message: string }>('/auth/password/reset', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function requestLoginOtp(destination: string) {
+  return apiFetch<OtpRequestResponseDto>('/auth/otp/login/request', {
+    method: 'POST',
+    body: JSON.stringify({ destination }),
+  });
+}
+
+export async function verifyLoginOtp(payload: {
+  destination: string;
+  code: string;
+  locale?: SupportedLocale;
+}) {
+  return apiFetch<AuthResponseDto>('/auth/otp/login/verify', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}

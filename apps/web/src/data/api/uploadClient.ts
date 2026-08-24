@@ -7,10 +7,9 @@ export async function uploadMedia(
   accessToken: string,
   file: File,
 ): Promise<{ mediaUrl: string; thumbnailUrl: string | null; mediaType: 'IMAGE' | 'VIDEO' }> {
-  const formData = new FormData();
-  formData.append('file', file);
-
   async function send(token: string) {
+    const formData = new FormData();
+    formData.append('file', file);
     return fetch(`${API_BASE_URL}/media/upload`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${token}` },

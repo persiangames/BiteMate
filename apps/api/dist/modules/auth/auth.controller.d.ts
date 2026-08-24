@@ -1,7 +1,7 @@
 import type { Request } from 'express';
-import type { AuthResponseDto, OtpRequestResponseDto } from '@bitemate/shared';
+import type { AuthResponseDto, MessageResponseDto, OtpRequestResponseDto } from '@bitemate/shared';
 import { AuthService } from './auth.service';
-import { FirebaseAuthDto, LoginDto, RefreshTokenDto, RegisterDto, RequestOtpDto, VerifyOtpDto, VerifyTwoFactorDto } from './dto/auth.dto';
+import { FirebaseAuthDto, ForgotPasswordDto, LoginDto, OtpLoginRequestDto, OtpLoginVerifyDto, RefreshTokenDto, RegisterDto, RequestOtpDto, ResetPasswordDto, VerifyOtpDto, VerifyTwoFactorDto } from './dto/auth.dto';
 import type { JwtPayload } from './types/jwt-payload.type';
 export declare class AuthController {
     private readonly authService;
@@ -18,5 +18,9 @@ export declare class AuthController {
     }>;
     requestOtp(user: JwtPayload, dto: RequestOtpDto): Promise<OtpRequestResponseDto>;
     verifyOtp(user: JwtPayload, dto: VerifyOtpDto): Promise<AuthResponseDto>;
+    requestLoginOtp(dto: OtpLoginRequestDto): Promise<OtpRequestResponseDto>;
+    verifyLoginOtp(dto: OtpLoginVerifyDto): Promise<AuthResponseDto>;
+    forgotPassword(dto: ForgotPasswordDto): Promise<MessageResponseDto>;
+    resetPassword(dto: ResetPasswordDto): Promise<MessageResponseDto>;
     verifyTwoFactor(dto: VerifyTwoFactorDto): Promise<AuthResponseDto>;
 }

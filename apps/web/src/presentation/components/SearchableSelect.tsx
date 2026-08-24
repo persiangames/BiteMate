@@ -11,6 +11,7 @@ interface SearchableSelectProps {
   allowCustom?: boolean;
   formatSelected?: (value: string) => string;
   extraOptions?: Array<string | SelectOption>;
+  maxResults?: number;
   onQueryChange?: (query: string) => void;
   onChange: (value: string) => void;
 }
@@ -28,6 +29,7 @@ export function SearchableSelect({
   allowCustom,
   formatSelected,
   extraOptions,
+  maxResults = 150,
   onQueryChange,
   onChange,
 }: SearchableSelectProps) {
@@ -60,7 +62,7 @@ export function SearchableSelect({
   const matches = useMemo(() => {
     const needle = query.trim().toLowerCase();
     const filtered =
-      needle.length < 2
+      needle.length < 1
         ? normalized
         : normalized.filter(
             (option) =>
@@ -68,16 +70,18 @@ export function SearchableSelect({
               option.value.toLowerCase().includes(needle),
           );
     const extra = extras.filter((option) => !filtered.some((item) => item.value === option.value));
-    return [...extra, ...filtered].slice(0, 80);
-  }, [normalized, extras, query]);
+    return [...extra, ...filtered].slice(0, maxResults);
+  }, [normalized, extras, query, maxResults]);
 
   const trimmed = query.trim();
-  const exactMatch = normalized.some(
+  const exactMatch = [...normalized, ...extras].some(
     (option) =>
       option.label.toLowerCase() === trimmed.toLowerCase() ||
       option.value.toLowerCase() === trimmed.toLowerCase(),
   );
   const canAddCustom = Boolean(allowCustom && trimmed.length >= 2 && !exactMatch);
+  const needsQuery =
+    normalized.length > maxResults && trimmed.length < 1 && extras.length === 0;
 
   function commit(nextValue: string, nextLabel = nextValue) {
     onChange(nextValue);
@@ -112,6 +116,9 @@ export function SearchableSelect({
       />
       {open && !disabled ? (
         <ul className="searchable-select__menu" role="listbox">
+          {needsQuery ? (
+            <li className="searchable-select__empty">{t('select.typeToSearch')}</li>
+          ) : null}
           {canAddCustom ? (
             <li>
               <button type="button" onClick={() => commit(trimmed)}>
@@ -119,7 +126,7 @@ export function SearchableSelect({
               </button>
             </li>
           ) : null}
-          {matches.length === 0 && !canAddCustom ? (
+          {!needsQuery && matches.length === 0 && !canAddCustom ? (
             <li className="searchable-select__empty">{t('select.noMatches')}</li>
           ) : (
             matches.map((option) => (

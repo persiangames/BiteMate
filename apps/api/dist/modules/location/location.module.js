@@ -9,6 +9,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.LocationModule = void 0;
 const common_1 = require("@nestjs/common");
 const location_controller_1 = require("./location.controller");
+const geocode_controller_1 = require("./geocode.controller");
+const geocode_service_1 = require("./geocode.service");
 const location_service_1 = require("./location.service");
 const geo_location_service_1 = require("./geo-location.service");
 let LocationModule = class LocationModule {
@@ -16,9 +18,9 @@ let LocationModule = class LocationModule {
 exports.LocationModule = LocationModule;
 exports.LocationModule = LocationModule = __decorate([
     (0, common_1.Module)({
-        controllers: [location_controller_1.LocationController, location_controller_1.NearbyUsersController],
-        providers: [location_service_1.LocationService, geo_location_service_1.GeoLocationService],
-        exports: [location_service_1.LocationService, geo_location_service_1.GeoLocationService],
+        controllers: [location_controller_1.LocationController, location_controller_1.NearbyUsersController, geocode_controller_1.GeocodeController],
+        providers: [location_service_1.LocationService, geo_location_service_1.GeoLocationService, geocode_service_1.GeocodeService],
+        exports: [location_service_1.LocationService, geo_location_service_1.GeoLocationService, geocode_service_1.GeocodeService],
     })
 ], LocationModule);
 //# sourceMappingURL=location.module.js.map

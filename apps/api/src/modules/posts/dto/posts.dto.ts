@@ -1,7 +1,6 @@
 import {
   ArrayMaxSize,
   IsArray,
-  IsEnum,
   IsIn,
   IsNumber,
   IsOptional,
@@ -28,7 +27,7 @@ export class CreatePostDto {
   @MaxLength(2200)
   caption?: string;
 
-  @IsEnum(MEDIA_TYPES)
+  @IsIn(MEDIA_TYPES)
   mediaType!: MediaType;
 
   @IsString()

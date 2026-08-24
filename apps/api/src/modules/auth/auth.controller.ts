@@ -11,6 +11,7 @@ import {
 import type { Request } from 'express';
 import type {
   AuthResponseDto,
+  MessageResponseDto,
   OtpRequestResponseDto,
 } from '@bitemate/shared';
 import { Public } from '../../common/decorators/auth.decorators';
@@ -19,10 +20,14 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import {
   FirebaseAuthDto,
+  ForgotPasswordDto,
   LoginDto,
+  OtpLoginRequestDto,
+  OtpLoginVerifyDto,
   RefreshTokenDto,
   RegisterDto,
   RequestOtpDto,
+  ResetPasswordDto,
   VerifyOtpDto,
   VerifyTwoFactorDto,
 } from './dto/auth.dto';
@@ -107,6 +112,34 @@ export class AuthController {
     @Body() dto: VerifyOtpDto,
   ): Promise<AuthResponseDto> {
     return this.authService.verifyOtp(dto, user.sub);
+  }
+
+  @Public()
+  @Post('otp/login/request')
+  @HttpCode(HttpStatus.OK)
+  requestLoginOtp(@Body() dto: OtpLoginRequestDto): Promise<OtpRequestResponseDto> {
+    return this.authService.requestLoginOtp(dto);
+  }
+
+  @Public()
+  @Post('otp/login/verify')
+  @HttpCode(HttpStatus.OK)
+  verifyLoginOtp(@Body() dto: OtpLoginVerifyDto): Promise<AuthResponseDto> {
+    return this.authService.verifyLoginOtp(dto);
+  }
+
+  @Public()
+  @Post('password/forgot')
+  @HttpCode(HttpStatus.OK)
+  forgotPassword(@Body() dto: ForgotPasswordDto): Promise<MessageResponseDto> {
+    return this.authService.forgotPassword(dto);
+  }
+
+  @Public()
+  @Post('password/reset')
+  @HttpCode(HttpStatus.OK)
+  resetPassword(@Body() dto: ResetPasswordDto): Promise<MessageResponseDto> {
+    return this.authService.resetPassword(dto);
   }
 
   @Public()

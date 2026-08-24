@@ -24,3 +24,18 @@ export function resolveMediaUrl(url?: string | null): string | undefined {
 
   return url;
 }
+
+/** Store relative upload paths so media survives host changes in dev/prod. */
+export function normalizeMediaUrlForStorage(url: string): string {
+  try {
+    const parsed = url.startsWith('http://') || url.startsWith('https://')
+      ? new URL(url)
+      : new URL(url, window.location.origin);
+    if (parsed.pathname.startsWith('/uploads/')) {
+      return `${parsed.pathname}${parsed.search}`;
+    }
+  } catch {
+    return url;
+  }
+  return url;
+}

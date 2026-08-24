@@ -9,7 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleteAccountConfirmDto = exports.DeleteAccountRequestDto = exports.UpdateThemeDto = exports.ChangePasswordDto = exports.DisableTwoFactorDto = exports.EnableTwoFactorDto = exports.VerifyTwoFactorDto = exports.VerifyContactChangeDto = exports.RequestContactChangeDto = exports.SearchUsersQueryDto = exports.UsernameQueryDto = exports.UpdateLocaleDto = exports.UpdateProfileDto = exports.VerifyOtpDto = exports.RequestOtpDto = exports.RefreshTokenDto = exports.FirebaseAuthDto = exports.LoginDto = exports.RegisterDto = void 0;
+exports.DeleteAccountConfirmDto = exports.DeleteAccountRequestDto = exports.UpdateThemeDto = exports.ChangePasswordDto = exports.DisableTwoFactorDto = exports.EnableTwoFactorDto = exports.OtpLoginVerifyDto = exports.OtpLoginRequestDto = exports.ResetPasswordDto = exports.ForgotPasswordDto = exports.VerifyTwoFactorDto = exports.VerifyContactChangeDto = exports.RequestContactChangeDto = exports.SearchUsersQueryDto = exports.UsernameQueryDto = exports.UpdateLocaleDto = exports.UpdateProfileDto = exports.VerifyOtpDto = exports.RequestOtpDto = exports.RefreshTokenDto = exports.FirebaseAuthDto = exports.LoginDto = exports.RegisterDto = void 0;
 const class_validator_1 = require("class-validator");
 const class_transformer_1 = require("class-transformer");
 const shared_1 = require("@bitemate/shared");
@@ -431,6 +431,66 @@ __decorate([
     (0, class_validator_1.Matches)(/^\d{6}$/),
     __metadata("design:type", String)
 ], VerifyTwoFactorDto.prototype, "code", void 0);
+class ForgotPasswordDto {
+    identifier;
+}
+exports.ForgotPasswordDto = ForgotPasswordDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], ForgotPasswordDto.prototype, "identifier", void 0);
+class ResetPasswordDto {
+    identifier;
+    code;
+    newPassword;
+}
+exports.ResetPasswordDto = ResetPasswordDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], ResetPasswordDto.prototype, "identifier", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(/^\d{6}$/),
+    __metadata("design:type", String)
+], ResetPasswordDto.prototype, "code", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MinLength)(8),
+    __metadata("design:type", String)
+], ResetPasswordDto.prototype, "newPassword", void 0);
+class OtpLoginRequestDto {
+    destination;
+}
+exports.OtpLoginRequestDto = OtpLoginRequestDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], OtpLoginRequestDto.prototype, "destination", void 0);
+class OtpLoginVerifyDto {
+    destination;
+    code;
+    locale;
+}
+exports.OtpLoginVerifyDto = OtpLoginVerifyDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.IsNotEmpty)(),
+    __metadata("design:type", String)
+], OtpLoginVerifyDto.prototype, "destination", void 0);
+__decorate([
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.Matches)(/^\d{6}$/),
+    __metadata("design:type", String)
+], OtpLoginVerifyDto.prototype, "code", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsEnum)(shared_1.SUPPORTED_LOCALES),
+    __metadata("design:type", String)
+], OtpLoginVerifyDto.prototype, "locale", void 0);
 class EnableTwoFactorDto {
     code;
 }

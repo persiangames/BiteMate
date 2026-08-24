@@ -20,6 +20,7 @@ import configuration, {
   monetizationConfig,
   adminConfig,
 } from './configuration';
+import { messagingConfig } from './messaging.config';
 import { securityConfig, sentryConfig } from './security.config';
 import { envValidationSchema } from './env.validation';
 
@@ -29,7 +30,7 @@ import { envValidationSchema } from './env.validation';
       isGlobal: true,
       cache: true,
       expandVariables: true,
-      load: [configuration, databaseConfig, loggingConfig, redisConfig, jwtConfig, firebaseConfig, otpConfig, locationConfig, storageConfig, meetupConfig, intentConfig, notificationConfig, mongoConfig, chatConfig, walletConfig, premiumConfig, rankingConfig, monetizationConfig, adminConfig, securityConfig, sentryConfig],
+      load: [configuration, databaseConfig, loggingConfig, redisConfig, jwtConfig, firebaseConfig, otpConfig, messagingConfig, locationConfig, storageConfig, meetupConfig, intentConfig, notificationConfig, mongoConfig, chatConfig, walletConfig, premiumConfig, rankingConfig, monetizationConfig, adminConfig, securityConfig, sentryConfig],
       validationSchema: envValidationSchema,
       validationOptions: {
         abortEarly: false,

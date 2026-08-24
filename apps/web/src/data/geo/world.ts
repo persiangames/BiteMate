@@ -537,3 +537,29 @@ export function filterCities(countryName: string, query: string): string[] {
   if (needle.length < 1) return cities;
   return cities.filter((city) => city.toLowerCase().includes(needle));
 }
+
+export function searchWorldCities(
+  query: string,
+  limit = 120,
+): Array<{ country: string; city: string }> {
+  const needle = query.trim().toLowerCase();
+  if (!needle) {
+    return [];
+  }
+
+  const hits: Array<{ country: string; city: string }> = [];
+  for (const record of WORLD_COUNTRIES) {
+    for (const city of record.cities) {
+      if (
+        city.toLowerCase().includes(needle) ||
+        record.name.toLowerCase().includes(needle)
+      ) {
+        hits.push({ country: record.name, city });
+        if (hits.length >= limit) {
+          return hits;
+        }
+      }
+    }
+  }
+  return hits;
+}

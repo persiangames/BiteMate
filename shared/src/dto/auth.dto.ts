@@ -153,6 +153,30 @@ export interface OtpRequestResponseDto {
   devCode?: string;
 }
 
+export interface ForgotPasswordRequestDto {
+  identifier: string;
+}
+
+export interface ResetPasswordRequestDto {
+  identifier: string;
+  code: string;
+  newPassword: string;
+}
+
+export interface OtpLoginRequestDto {
+  destination: string;
+}
+
+export interface OtpLoginVerifyDto {
+  destination: string;
+  code: string;
+  locale?: SupportedLocale;
+}
+
+export interface MessageResponseDto {
+  message: string;
+}
+
 export interface LocalizationBundleDto {
   locale: SupportedLocale;
   keys: Record<string, string>;

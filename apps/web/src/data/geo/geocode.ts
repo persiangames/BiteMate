@@ -1,4 +1,6 @@
 import { countryFromIso } from '@/data/geo/world';
+import { apiFetch } from '@/data/api/client';
+import { getAccessToken } from '@/data/api/sessionBridge';
 
 const NOMINATIM_HEADERS = {
   Accept: 'application/json',
@@ -58,25 +60,43 @@ function countryFromAddress(address?: NominatimAddress): string | null {
   return countryFromIso(address?.country_code) ?? address?.country ?? null;
 }
 
+async function withGeoProxy<T>(path: string, fallback: () => Promise<T>): Promise<T> {
+  if (!getAccessToken()) {
+    return fallback();
+  }
+  try {
+    return await apiFetch<T>(path);
+  } catch {
+    return fallback();
+  }
+}
+
 export async function geocodeCity(country: string, city: string): Promise<{ latitude: number; longitude: number } | null> {
-  const params = new URLSearchParams({
-    format: 'jsonv2',
-    limit: '1',
-    city,
-    country,
-  });
-  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
-    headers: NOMINATIM_HEADERS,
-  });
-  if (!response.ok) {
-    return null;
-  }
-  const rows = (await response.json()) as Array<{ lat: string; lon: string }>;
-  const first = rows[0];
-  if (!first) {
-    return null;
-  }
-  return { latitude: Number(first.lat), longitude: Number(first.lon) };
+  const params = new URLSearchParams({ country, city });
+  const proxied = await withGeoProxy<{ latitude: number; longitude: number } | null>(
+    `/geo/city?${params.toString()}`,
+    async () => {
+      const searchParams = new URLSearchParams({
+        format: 'jsonv2',
+        limit: '1',
+        city,
+        country,
+      });
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?${searchParams.toString()}`, {
+        headers: NOMINATIM_HEADERS,
+      });
+      if (!response.ok) {
+        return null;
+      }
+      const rows = (await response.json()) as Array<{ lat: string; lon: string }>;
+      const first = rows[0];
+      if (!first) {
+        return null;
+      }
+      return { latitude: Number(first.lat), longitude: Number(first.lon) };
+    },
+  );
+  return proxied;
 }
 
 export async function searchPlaces(query: string, country?: string): Promise<PlaceHit[]> {
@@ -85,104 +105,118 @@ export async function searchPlaces(query: string, country?: string): Promise<Pla
     return [];
   }
 
-  const params = new URLSearchParams({
-    format: 'jsonv2',
-    q: country ? `${needle}, ${country}` : needle,
-    addressdetails: '1',
-    limit: '10',
-  });
-  const response = await fetch(`https://nominatim.openstreetmap.org/search?${params.toString()}`, {
-    headers: NOMINATIM_HEADERS,
-  });
-  if (!response.ok) {
-    return [];
+  const params = new URLSearchParams({ q: needle });
+  if (country) {
+    params.set('country', country);
   }
 
-  const rows = (await response.json()) as Array<{
-    lat: string;
-    lon: string;
-    name?: string;
-    display_name?: string;
-    type?: string;
-    addresstype?: string;
-    address?: NominatimAddress;
-  }>;
-
-  const allowed = new Set([
-    'city',
-    'town',
-    'village',
-    'municipality',
-    'county',
-    'state',
-    'suburb',
-    'hamlet',
-    'neighbourhood',
-    'administrative',
-  ]);
-
-  const seen = new Set<string>();
-  const hits: PlaceHit[] = [];
-
-  for (const row of rows) {
-    const kind = row.addresstype || row.type || '';
-    if (kind && !allowed.has(kind)) {
-      continue;
-    }
-    const city = cityFromAddress(row.address, row.name);
-    const mappedCountry = countryFromAddress(row.address);
-    if (!city || !mappedCountry) {
-      continue;
-    }
-    const key = `${mappedCountry}|${city}`.toLowerCase();
-    if (seen.has(key)) {
-      continue;
-    }
-    seen.add(key);
-    hits.push({
-      city,
-      country: mappedCountry,
-      countryCode: (row.address?.country_code ?? '').toUpperCase(),
-      latitude: Number(row.lat),
-      longitude: Number(row.lon),
+  return withGeoProxy<PlaceHit[]>(`/geo/search?${params.toString()}`, async () => {
+    const searchParams = new URLSearchParams({
+      format: 'jsonv2',
+      q: country ? `${needle}, ${country}` : needle,
+      addressdetails: '1',
+      limit: '10',
     });
-  }
+    const response = await fetch(`https://nominatim.openstreetmap.org/search?${searchParams.toString()}`, {
+      headers: NOMINATIM_HEADERS,
+    });
+    if (!response.ok) {
+      return [];
+    }
 
-  return hits;
+    const rows = (await response.json()) as Array<{
+      lat: string;
+      lon: string;
+      name?: string;
+      display_name?: string;
+      type?: string;
+      addresstype?: string;
+      address?: NominatimAddress;
+    }>;
+
+    const allowed = new Set([
+      'city',
+      'town',
+      'village',
+      'municipality',
+      'county',
+      'state',
+      'suburb',
+      'hamlet',
+      'neighbourhood',
+      'administrative',
+    ]);
+
+    const seen = new Set<string>();
+    const hits: PlaceHit[] = [];
+
+    for (const row of rows) {
+      const kind = row.addresstype || row.type || '';
+      if (kind && !allowed.has(kind)) {
+        continue;
+      }
+      const city = cityFromAddress(row.address, row.name);
+      const mappedCountry = countryFromAddress(row.address);
+      if (!city || !mappedCountry) {
+        continue;
+      }
+      const key = `${mappedCountry}|${city}`.toLowerCase();
+      if (seen.has(key)) {
+        continue;
+      }
+      seen.add(key);
+      hits.push({
+        city,
+        country: mappedCountry,
+        countryCode: (row.address?.country_code ?? '').toUpperCase(),
+        latitude: Number(row.lat),
+        longitude: Number(row.lon),
+      });
+    }
+
+    return hits;
+  });
 }
 
 export async function reverseGeocodePlace(latitude: number, longitude: number): Promise<ReversePlace> {
   const params = new URLSearchParams({
-    format: 'jsonv2',
     lat: String(latitude),
     lon: String(longitude),
-    zoom: '16',
-    addressdetails: '1',
   });
-  const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${params.toString()}`, {
-    headers: NOMINATIM_HEADERS,
-  });
-  if (!response.ok) {
-    return { neighborhood: null, city: null, country: null, countryCode: null, displayName: null };
-  }
-  const data = (await response.json()) as {
-    display_name?: string;
-    address?: NominatimAddress;
-  };
-  const neighborhood =
-    data.address?.neighbourhood ||
-    data.address?.suburb ||
-    data.address?.quarter ||
-    data.address?.city_district ||
-    null;
 
-  return {
-    neighborhood,
-    city: cityFromAddress(data.address),
-    country: countryFromAddress(data.address),
-    countryCode: data.address?.country_code?.toUpperCase() ?? null,
-    displayName: data.display_name ?? null,
-  };
+  return withGeoProxy<ReversePlace>(`/geo/reverse?${params.toString()}`, async () => {
+    const searchParams = new URLSearchParams({
+      format: 'jsonv2',
+      lat: String(latitude),
+      lon: String(longitude),
+      zoom: '16',
+      addressdetails: '1',
+    });
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?${searchParams.toString()}`, {
+      headers: NOMINATIM_HEADERS,
+    });
+    if (!response.ok) {
+      return { neighborhood: null, city: null, country: null, countryCode: null, displayName: null };
+    }
+    const data = (await response.json()) as {
+      display_name?: string;
+      address?: NominatimAddress;
+    };
+    const neighborhood =
+      data.address?.neighbourhood ||
+      data.address?.suburb ||
+      data.address?.quarter ||
+      data.address?.city_district ||
+      null;
+
+    return {
+      neighborhood,
+      city: cityFromAddress(data.address),
+      country: countryFromAddress(data.address),
+      countryCode: data.address?.country_code?.toUpperCase() ?? null,
+      displayName: data.display_name ?? null,
+    };
+  });
 }
 
 export async function reverseGeocode(latitude: number, longitude: number): Promise<string | null> {

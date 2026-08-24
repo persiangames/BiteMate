@@ -86,6 +86,22 @@ export declare class VerifyTwoFactorDto {
     challengeToken: string;
     code: string;
 }
+export declare class ForgotPasswordDto {
+    identifier: string;
+}
+export declare class ResetPasswordDto {
+    identifier: string;
+    code: string;
+    newPassword: string;
+}
+export declare class OtpLoginRequestDto {
+    destination: string;
+}
+export declare class OtpLoginVerifyDto {
+    destination: string;
+    code: string;
+    locale?: SupportedLocale;
+}
 export declare class EnableTwoFactorDto {
     code: string;
 }

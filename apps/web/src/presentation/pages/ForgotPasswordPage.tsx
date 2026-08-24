@@ -1,20 +1,31 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { forgotPassword } from '@/data/repositories/authRepository';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
 import { useI18n } from '@/presentation/context/I18nContext';
+import { localizeError } from '@/presentation/i18n/localizeError';
 
 export function ForgotPasswordPage() {
   const { t } = useI18n();
   const navigate = useNavigate();
   const [identifier, setIdentifier] = useState('');
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(event: FormEvent) {
+  async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setSent(true);
-    window.setTimeout(() => {
-      navigate('/reset-password', { state: { identifier } });
-    }, 700);
+    setLoading(true);
+    setError(null);
+    try {
+      await forgotPassword(identifier.trim());
+      setSent(true);
+      navigate('/reset-password', { state: { identifier: identifier.trim() } });
+    } catch (err) {
+      setError(localizeError(t, err, 'auth.otp.failed'));
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -23,7 +34,7 @@ export function ForgotPasswordPage() {
         <BrandLockup size="md" />
         <h1>{t('auth.forgot.title')}</h1>
         <p className="hint">{t('auth.forgot.hint')}</p>
-        <form className="ig-auth__form" onSubmit={handleSubmit}>
+        <form className="ig-auth__form" onSubmit={(event) => void handleSubmit(event)}>
           <input
             type="text"
             autoComplete="username"
@@ -33,8 +44,9 @@ export function ForgotPasswordPage() {
             required
           />
           {sent ? <p className="hint">{t('auth.forgot.sent')}</p> : null}
-          <button type="submit" className="btn-primary" disabled={!identifier.trim()}>
-            {t('auth.forgot.send')}
+          {error ? <p className="error">{error}</p> : null}
+          <button type="submit" className="btn-primary" disabled={!identifier.trim() || loading}>
+            {loading ? '...' : t('auth.forgot.send')}
           </button>
         </form>
         <Link className="ig-auth__forgot" to="/login">

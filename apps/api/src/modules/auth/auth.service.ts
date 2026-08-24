@@ -19,15 +19,21 @@ import { createHash, randomBytes, randomInt, randomUUID } from 'node:crypto';
 import type {
   AuthResponseDto,
   FirebaseAuthRequestDto,
+  ForgotPasswordRequestDto,
   LoginRequestDto,
+  MessageResponseDto,
+  OtpLoginRequestDto,
+  OtpLoginVerifyDto,
   OtpRequestResponseDto,
   RegisterRequestDto,
+  ResetPasswordRequestDto,
   VerifyOtpRequestDto,
 } from '@bitemate/shared';
 import { PrismaService } from '../database/prisma.service';
 import { RateLimiterService } from '../redis/rate-limiter.service';
 import { FraudDetectionService } from '../security/fraud-detection.service';
 import { FirebaseService } from './firebase.service';
+import { MessagingService } from '../messaging/messaging.service';
 import { mapUserToAuthDto } from './mappers/user.mapper';
 import { verifyTotpCode } from './totp';
 import type { JwtPayload } from './types/jwt-payload.type';
@@ -44,6 +50,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly firebaseService: FirebaseService,
+    private readonly messagingService: MessagingService,
     private readonly rateLimiter: RateLimiterService,
     private readonly fraudDetection: FraudDetectionService,
   ) {}
@@ -100,6 +107,17 @@ export class AuthService {
     });
 
     await this.fraudDetection.inspectNewAccount(user.id, context);
+
+    const destination = email ?? phoneNumber;
+    if (destination) {
+      await this.createAndSendOtp(
+        destination,
+        OtpPurpose.PHONE_VERIFICATION,
+        user.id,
+        'account verification',
+      );
+    }
+
     return this.buildAuthResponse(user);
   }
 
@@ -311,10 +329,112 @@ export class AuthService {
     destination: string,
     userId?: string,
   ): Promise<OtpRequestResponseDto> {
-    const target = destination.trim();
+    return this.createAndSendOtp(
+      destination,
+      OtpPurpose.PHONE_VERIFICATION,
+      userId,
+      'verification',
+    );
+  }
+
+  async requestLoginOtp(dto: OtpLoginRequestDto): Promise<OtpRequestResponseDto> {
+    const destination = this.normalizeDestination(dto.destination);
+    const user = await this.findUserByDestination(destination);
+    if (!user) {
+      throw new BadRequestException('No account found for this email or phone number');
+    }
+    if (!user.isActive) {
+      throw new UnauthorizedException('Account is disabled');
+    }
+    const target = user.email ?? user.phoneNumber;
+    if (!target) {
+      throw new BadRequestException('Account has no email or phone number on file');
+    }
+    return this.createAndSendOtp(target, OtpPurpose.LOGIN, user.id, 'login');
+  }
+
+  async verifyLoginOtp(dto: OtpLoginVerifyDto): Promise<AuthResponseDto> {
+    const destination = this.normalizeDestination(dto.destination);
+    const user = await this.findUserByDestination(destination);
+    if (!user) {
+      throw new BadRequestException('No account found for this email or phone number');
+    }
+    const target = user.email ?? user.phoneNumber;
+    if (!target) {
+      throw new BadRequestException('Account has no email or phone number on file');
+    }
+    await this.assertValidOtp(target, dto.code, OtpPurpose.LOGIN);
+    let hydrated = await this.maybePromoteBootstrapAdmin(user);
+    if (dto.locale && dto.locale !== hydrated.locale) {
+      hydrated = await this.prisma.user.update({
+        where: { id: hydrated.id },
+        data: { locale: dto.locale },
+      });
+    }
+    return this.buildAuthResponse(hydrated);
+  }
+
+  async forgotPassword(dto: ForgotPasswordRequestDto): Promise<MessageResponseDto> {
+    const identifier = dto.identifier.trim();
+    const user = await this.resolveUserByIdentifier(identifier);
+    const genericMessage =
+      'If an account exists, a verification code has been sent to your email or phone.';
+
+    if (!user?.isActive) {
+      return { message: genericMessage };
+    }
+
+    const target = user.email ?? user.phoneNumber;
+    if (target) {
+      await this.createAndSendOtp(
+        target,
+        OtpPurpose.PASSWORD_RESET,
+        user.id,
+        'password reset',
+      );
+    }
+
+    return { message: genericMessage };
+  }
+
+  async resetPassword(dto: ResetPasswordRequestDto): Promise<MessageResponseDto> {
+    const identifier = dto.identifier.trim();
+    const user = await this.resolveUserByIdentifier(identifier);
+    if (!user) {
+      throw new BadRequestException('Invalid reset request');
+    }
+
+    const target = user.email ?? user.phoneNumber;
+    if (!target) {
+      throw new BadRequestException('Invalid reset request');
+    }
+
+    await this.assertValidOtp(target, dto.code, OtpPurpose.PASSWORD_RESET);
+    const passwordHash = await bcrypt.hash(dto.newPassword, 12);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash },
+    });
+
+    await this.prisma.refreshToken.updateMany({
+      where: { userId: user.id, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+
+    return { message: 'Password updated successfully' };
+  }
+
+  private async createAndSendOtp(
+    destination: string,
+    purpose: OtpPurpose,
+    userId?: string,
+    purposeLabel = 'verification',
+  ): Promise<OtpRequestResponseDto> {
+    const target = this.normalizeDestination(destination);
     if (!target) {
       throw new BadRequestException('Email or phone number is required');
     }
+
     const code = randomInt(100000, 999999).toString();
     const codeHash = await bcrypt.hash(code, 10);
     const expiresInSeconds = this.configService.get<number>(
@@ -326,7 +446,7 @@ export class AuthService {
     await this.prisma.otpCode.updateMany({
       where: {
         phoneNumber: target,
-        purpose: OtpPurpose.PHONE_VERIFICATION,
+        purpose,
         verified: false,
       },
       data: { verified: true },
@@ -337,10 +457,19 @@ export class AuthService {
         userId,
         phoneNumber: target,
         codeHash,
-        purpose: OtpPurpose.PHONE_VERIFICATION,
+        purpose,
         expiresAt,
       },
     });
+
+    try {
+      await this.messagingService.sendOtp(target, code, purposeLabel);
+    } catch (error) {
+      const nodeEnv = this.configService.get<string>('app.nodeEnv', 'development');
+      if (nodeEnv === 'production') {
+        throw new ServiceUnavailableException('Unable to send verification code');
+      }
+    }
 
     const nodeEnv = this.configService.get<string>('app.nodeEnv', 'development');
     const response: OtpRequestResponseDto = {
@@ -355,19 +484,16 @@ export class AuthService {
     return response;
   }
 
-  async verifyOtp(
-    dto: VerifyOtpRequestDto,
-    userId: string,
-  ): Promise<AuthResponseDto> {
-    const destination = dto.email?.trim().toLowerCase() || dto.phoneNumber?.trim();
-    if (!destination) {
-      throw new BadRequestException('Email or phone number is required');
-    }
-
+  private async assertValidOtp(
+    destination: string,
+    code: string,
+    purpose: OtpPurpose,
+  ): Promise<void> {
+    const target = this.normalizeDestination(destination);
     const otp = await this.prisma.otpCode.findFirst({
       where: {
-        phoneNumber: destination,
-        purpose: OtpPurpose.PHONE_VERIFICATION,
+        phoneNumber: target,
+        purpose,
         verified: false,
         expiresAt: { gt: new Date() },
       },
@@ -383,7 +509,7 @@ export class AuthService {
       throw new BadRequestException('Maximum OTP attempts exceeded');
     }
 
-    const valid = await bcrypt.compare(dto.code, otp.codeHash);
+    const valid = await bcrypt.compare(code, otp.codeHash);
     if (!valid) {
       await this.prisma.otpCode.update({
         where: { id: otp.id },
@@ -396,6 +522,46 @@ export class AuthService {
       where: { id: otp.id },
       data: { verified: true },
     });
+  }
+
+  private normalizeDestination(value: string): string {
+    const target = value.trim();
+    return target.includes('@') ? target.toLowerCase() : target;
+  }
+
+  private async resolveUserByIdentifier(identifier: string) {
+    const trimmed = identifier.trim();
+    const lowered = trimmed.toLowerCase();
+    return this.prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: lowered },
+          { username: lowered },
+          { phoneNumber: trimmed },
+        ],
+      },
+    });
+  }
+
+  private async findUserByDestination(destination: string) {
+    const normalized = this.normalizeDestination(destination);
+    return this.prisma.user.findFirst({
+      where: {
+        OR: [{ email: normalized }, { phoneNumber: normalized }],
+      },
+    });
+  }
+
+  async verifyOtp(
+    dto: VerifyOtpRequestDto,
+    userId: string,
+  ): Promise<AuthResponseDto> {
+    const destination = dto.email?.trim().toLowerCase() || dto.phoneNumber?.trim();
+    if (!destination) {
+      throw new BadRequestException('Email or phone number is required');
+    }
+
+    await this.assertValidOtp(destination, dto.code, OtpPurpose.PHONE_VERIFICATION);
 
     const isEmail = destination.includes('@');
     const user = await this.prisma.user.update({
