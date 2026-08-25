@@ -63,7 +63,11 @@ COPY --from=builder /app/node_modules/prisma /app/node_modules/prisma
 
 COPY --from=builder /app/node_modules/@prisma /app/node_modules/@prisma
 
+COPY --from=builder /app/node_modules/.prisma /app/node_modules/.prisma
+
 WORKDIR /app/apps/api
+
+RUN node /app/node_modules/prisma/build/index.js generate
 
 COPY infra/docker/api/docker-entrypoint.sh ./docker-entrypoint.sh
 
