@@ -69,6 +69,8 @@ WORKDIR /app/apps/api
 
 RUN node /app/node_modules/prisma/build/index.js generate
 
+RUN mkdir -p /app/apps/api/uploads && chown -R nestjs:nodejs /app/apps/api/uploads
+
 COPY infra/docker/api/docker-entrypoint.sh ./docker-entrypoint.sh
 
 RUN chmod +x ./docker-entrypoint.sh
