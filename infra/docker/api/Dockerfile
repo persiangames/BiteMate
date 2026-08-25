@@ -32,7 +32,9 @@ WORKDIR /app/apps/api
 
 RUN npx prisma generate
 
-RUN npm run build
+WORKDIR /app
+
+RUN npm run build --workspace=api
 
 
 
