@@ -275,7 +275,7 @@ export class AuthService {
           authProvider: firebaseUser.provider,
           emailVerified: firebaseUser.emailVerified,
           phoneVerified: false,
-          otpVerified: false,
+          otpVerified: firebaseUser.emailVerified,
         },
       });
     } else {
@@ -287,6 +287,7 @@ export class AuthService {
           profileImage:
             user.profileImage ?? dto.profileImage ?? firebaseUser.picture,
           emailVerified: firebaseUser.emailVerified || user.emailVerified,
+          otpVerified: user.otpVerified || firebaseUser.emailVerified,
           authProvider: firebaseUser.provider,
         },
       });
