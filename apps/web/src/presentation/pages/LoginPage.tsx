@@ -1,9 +1,12 @@
 import { FormEvent, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { normalizeLoginIdentifier } from '@bitemate/shared';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
+import { PasswordInput } from '@/presentation/components/auth/PasswordInput';
 import { SocialAuthButtons } from '@/presentation/components/auth/SocialAuthButtons';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
+import { localizeError } from '@/presentation/i18n/localizeError';
 import { verifyTwoFactorLogin } from '@/data/repositories/authRepository';
 
 export function LoginPage() {
@@ -34,14 +37,14 @@ export function LoginPage() {
         return;
       }
 
-      const response = await login(identifier, password);
+      const response = await login(normalizeLoginIdentifier(identifier), password);
       if (response.twoFactorRequired && response.challengeToken) {
         setChallengeToken(response.challengeToken);
         return;
       }
       afterAuth(response.user.otpVerified);
-    } catch {
-      setError(t('auth.error.invalid'));
+    } catch (err) {
+      setError(localizeError(t, err, 'auth.error.invalid'));
     } finally {
       setLoading(false);
     }
@@ -75,13 +78,11 @@ export function LoginPage() {
                 onChange={(event) => setIdentifier(event.target.value)}
                 required
               />
-              <input
-                type="password"
-                autoComplete="current-password"
-                placeholder={t('auth.password')}
+              <PasswordInput
                 value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                required
+                onChange={setPassword}
+                placeholder={t('auth.password')}
+                autoComplete="current-password"
               />
             </>
           )}

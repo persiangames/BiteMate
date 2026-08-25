@@ -91,3 +91,19 @@ export function isOldEnough(dateOfBirth: string, minAge = MIN_SIGNUP_AGE): boole
   }
   return age >= minAge;
 }
+
+/** Normalize login identifier (email, phone, or username) for consistent lookups. */
+export function normalizeLoginIdentifier(identifier: string): string {
+  const trimmed = identifier.trim();
+  if (!trimmed) {
+    return '';
+  }
+  if (trimmed.includes('@')) {
+    return trimmed.toLowerCase();
+  }
+  const compact = trimmed.replace(/[\s\-()]/g, '');
+  if (/^\+?\d/.test(compact)) {
+    return normalizePhoneInput(trimmed);
+  }
+  return trimmed.toLowerCase();
+}

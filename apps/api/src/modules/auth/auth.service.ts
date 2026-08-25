@@ -34,6 +34,7 @@ import {
   MIN_SIGNUP_AGE,
   isOldEnough,
   isValidUsername,
+  normalizeLoginIdentifier,
   normalizeUsername,
 } from '@bitemate/shared';
 import { PrismaService } from '../database/prisma.service';
@@ -153,12 +154,19 @@ export class AuthService {
     dto: LoginRequestDto,
     context: AuthRequestContext = {},
   ): Promise<AuthResponseDto> {
-    const identifier = (dto.identifier ?? dto.email ?? '').trim();
+    const identifier = normalizeLoginIdentifier(dto.identifier ?? dto.email ?? '');
+    if (!identifier) {
+      throw new BadRequestException('Email, username, or phone number is required');
+    }
     await this.assertLoginNotLocked(identifier, context.ipAddress);
 
     const user = await this.prisma.user.findFirst({
       where: {
-        OR: [{ email: identifier }, { username: identifier }, { phoneNumber: identifier }],
+        OR: [
+          { email: identifier },
+          { username: identifier },
+          { phoneNumber: identifier },
+        ],
       },
     });
 
@@ -553,19 +561,20 @@ export class AuthService {
   }
 
   private normalizeDestination(value: string): string {
-    const target = value.trim();
-    return target.includes('@') ? target.toLowerCase() : target;
+    return normalizeLoginIdentifier(value);
   }
 
   private async resolveUserByIdentifier(identifier: string) {
-    const trimmed = identifier.trim();
-    const lowered = trimmed.toLowerCase();
+    const normalized = normalizeLoginIdentifier(identifier);
+    if (!normalized) {
+      return null;
+    }
     return this.prisma.user.findFirst({
       where: {
         OR: [
-          { email: lowered },
-          { username: lowered },
-          { phoneNumber: trimmed },
+          { email: normalized },
+          { username: normalized },
+          { phoneNumber: normalized },
         ],
       },
     });

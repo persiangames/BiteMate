@@ -16,6 +16,7 @@ export function localizeError(
     'Phone number must be in international format, e.g. +989121234567': 'auth.error.phoneFormat',
     'Password must be 8–128 characters and include a letter, a number, and a symbol':
       'auth.password.rules',
+    'Invalid email or password': 'auth.error.invalid',
   };
 
   if (message && mapped[message]) {
