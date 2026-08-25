@@ -1,0 +1,42 @@
+# Render Blueprint — BiteMate API
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: bitemate-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    buildCommand: >-
+      npm install &&
+      npm run shared:build &&
+      npm run db:generate &&
+      npm run api:build &&
+      npm run db:migrate:deploy
+    startCommand: npm run api:start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: development
+      - key: TRUST_PROXY
+        value: "true"
+      - key: SMS_PROVIDER
+        value: console
+      - key: EMAIL_PROVIDER
+        value: console
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        value: "6379"
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: MEDIA_PUBLIC_BASE_URL
+        sync: false

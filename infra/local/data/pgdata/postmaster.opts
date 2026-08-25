@@ -1,1 +1,0 @@
-D:/BiteMate/BiteMateApp/infra/local/postgres/bin/postgres.exe "-D" "D:/BiteMate/BiteMateApp/infra/local/data/pgdata" "-p" "5432"

@@ -1,10 +1,27 @@
 # Dependencies
 node_modules/
+**/node_modules.zip
 .pnp
 .pnp.js
 
+# Build output
+apps/api/dist/
+apps/web/dist/
+shared/dist/
+services/*/dist/
+
 .next/
 apps/admin/.next/
+
+# Local bundled databases (too large for GitHub/Render)
+infra/local/postgres/
+infra/local/data/
+infra/local/postgres-win64.jar
+infra/local/postgres-windows-x86_64.txz
+structure.txt
+*_structure.txt
+api_structure.txt
+web_structure.txt
 
 # Environment
 .env
