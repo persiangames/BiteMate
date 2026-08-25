@@ -36,13 +36,17 @@ async function parseError(response: Response): Promise<ApiError> {
   } catch {
     body = undefined;
   }
-  const message =
-    typeof body === 'object' &&
-    body !== null &&
-    'message' in body &&
-    typeof (body as { message: unknown }).message === 'string'
-      ? (body as { message: string }).message
-      : `Request failed: ${response.status} ${response.statusText}`;
+
+  let message = `Request failed: ${response.status} ${response.statusText}`;
+  if (typeof body === 'object' && body !== null && 'message' in body) {
+    const raw = (body as { message: unknown }).message;
+    if (typeof raw === 'string') {
+      message = raw;
+    } else if (Array.isArray(raw)) {
+      message = raw.filter((item): item is string => typeof item === 'string').join(' ');
+    }
+  }
+
   return new ApiError(message, response.status, body);
 }
 

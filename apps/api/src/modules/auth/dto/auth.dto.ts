@@ -23,8 +23,11 @@ import {
   EDUCATION_LEVELS,
   GENDERS,
   MEAL_SLOTS,
+  PASSWORD_PATTERN,
   SUPPORTED_LOCALES,
+  USERNAME_PATTERN,
   USER_ROLES,
+  normalizePhoneInput,
   type AvailabilityStatus,
   type EducationLevel,
   type Gender,
@@ -43,6 +46,11 @@ export class RegisterDto {
 
   @IsString()
   @MinLength(8)
+  @MaxLength(128)
+  @Matches(PASSWORD_PATTERN, {
+    message:
+      'Password must be 8–128 characters and include a letter, a number, and a symbol',
+  })
   password!: string;
 
   @IsString()
@@ -50,8 +58,11 @@ export class RegisterDto {
   fullName!: string;
 
   @ValidateIf((dto: RegisterDto) => dto.channel === 'phone')
+  @Transform(({ value }) => (typeof value === 'string' ? normalizePhoneInput(value) : value))
   @IsString()
-  @Matches(/^\+[1-9]\d{7,14}$/)
+  @Matches(/^\+[1-9]\d{7,14}$/, {
+    message: 'Phone number must be in international format, e.g. +989121234567',
+  })
   phoneNumber?: string;
 
   @IsString()
@@ -72,7 +83,13 @@ export class RegisterDto {
   locale!: SupportedLocale;
 
   @IsOptional()
+  @Transform(({ value }) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : value,
+  )
   @IsString()
+  @Matches(USERNAME_PATTERN, {
+    message: 'Username must be 3–30 letters, numbers, or underscores',
+  })
   username?: string;
 
   @IsOptional()
@@ -339,6 +356,11 @@ export class ResetPasswordDto {
 
   @IsString()
   @MinLength(8)
+  @MaxLength(128)
+  @Matches(PASSWORD_PATTERN, {
+    message:
+      'Password must be 8–128 characters and include a letter, a number, and a symbol',
+  })
   newPassword!: string;
 }
 
@@ -385,6 +407,11 @@ export class ChangePasswordDto {
 
   @IsString()
   @MinLength(8)
+  @MaxLength(128)
+  @Matches(PASSWORD_PATTERN, {
+    message:
+      'Password must be 8–128 characters and include a letter, a number, and a symbol',
+  })
   newPassword!: string;
 }
 

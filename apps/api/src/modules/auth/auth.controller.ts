@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
+  Query,
   Req,
   UseGuards,
   BadRequestException,
@@ -13,6 +15,7 @@ import type {
   AuthResponseDto,
   MessageResponseDto,
   OtpRequestResponseDto,
+  UsernameAvailableResponseDto,
 } from '@bitemate/shared';
 import { Public } from '../../common/decorators/auth.decorators';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
@@ -28,6 +31,7 @@ import {
   RegisterDto,
   RequestOtpDto,
   ResetPasswordDto,
+  UsernameQueryDto,
   VerifyOtpDto,
   VerifyTwoFactorDto,
 } from './dto/auth.dto';
@@ -48,6 +52,12 @@ function requestContext(req: Request) {
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Public()
+  @Get('username-available')
+  checkUsername(@Query() query: UsernameQueryDto): Promise<UsernameAvailableResponseDto> {
+    return this.authService.checkUsernameAvailable(query.username);
+  }
 
   @Public()
   @Post('register')

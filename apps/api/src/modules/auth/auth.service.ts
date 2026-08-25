@@ -27,7 +27,14 @@ import type {
   OtpRequestResponseDto,
   RegisterRequestDto,
   ResetPasswordRequestDto,
+  UsernameAvailableResponseDto,
   VerifyOtpRequestDto,
+} from '@bitemate/shared';
+import {
+  MIN_SIGNUP_AGE,
+  isOldEnough,
+  isValidUsername,
+  normalizeUsername,
 } from '@bitemate/shared';
 import { PrismaService } from '../database/prisma.service';
 import { RateLimiterService } from '../redis/rate-limiter.service';
@@ -83,8 +90,13 @@ export class AuthService {
       throw new ConflictException('Email or phone number already registered');
     }
 
+    if (!isOldEnough(dto.dateOfBirth, MIN_SIGNUP_AGE)) {
+      throw new BadRequestException(`You must be at least ${MIN_SIGNUP_AGE} years old to sign up`);
+    }
+
+    const username = await this.resolveUsernameForRegister(dto.username, dto.fullName);
+
     const passwordHash = await bcrypt.hash(dto.password, 12);
-    const username = await this.allocateUsername(dto.username || dto.fullName);
 
     const user = await this.prisma.user.create({
       data: {
@@ -110,15 +122,31 @@ export class AuthService {
 
     const destination = email ?? phoneNumber;
     if (destination) {
-      await this.createAndSendOtp(
-        destination,
-        OtpPurpose.PHONE_VERIFICATION,
-        user.id,
-        'account verification',
-      );
+      try {
+        await this.createAndSendOtp(
+          destination,
+          OtpPurpose.PHONE_VERIFICATION,
+          user.id,
+          'account verification',
+        );
+      } catch {
+        // Account is created; user can request a new code on the verify screen.
+      }
     }
 
     return this.buildAuthResponse(user);
+  }
+
+  async checkUsernameAvailable(username: string): Promise<UsernameAvailableResponseDto> {
+    const normalized = normalizeUsername(username);
+    if (!isValidUsername(normalized)) {
+      return { username: normalized, available: false };
+    }
+    const existing = await this.prisma.user.findFirst({
+      where: { username: { equals: normalized, mode: 'insensitive' } },
+      select: { id: true },
+    });
+    return { username: normalized, available: !existing };
   }
 
   async login(
@@ -634,6 +662,27 @@ export class AuthService {
         data: { tokenVersion: { increment: 1 } },
       }),
     ]);
+  }
+
+  private async resolveUsernameForRegister(
+    requested: string | undefined,
+    fullName: string,
+  ): Promise<string> {
+    if (requested?.trim()) {
+      const normalized = normalizeUsername(requested);
+      if (!isValidUsername(normalized)) {
+        throw new BadRequestException('Username must be 3–30 letters, numbers, or underscores');
+      }
+      const taken = await this.prisma.user.findFirst({
+        where: { username: { equals: normalized, mode: 'insensitive' } },
+        select: { id: true },
+      });
+      if (taken) {
+        throw new ConflictException('This username is already taken');
+      }
+      return normalized;
+    }
+    return this.allocateUsername(fullName);
   }
 
   private async allocateUsername(source: string): Promise<string> {

@@ -141,3 +141,10 @@ export async function verifyLoginOtp(payload: {
     body: JSON.stringify(payload),
   });
 }
+
+export async function checkUsernameAvailablePublic(username: string) {
+  const search = new URLSearchParams({ username });
+  return apiFetch<{ username: string; available: boolean }>(
+    `/auth/username-available?${search.toString()}`,
+  );
+}

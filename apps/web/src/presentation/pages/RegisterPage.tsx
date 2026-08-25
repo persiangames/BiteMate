@@ -1,11 +1,19 @@
-import { FormEvent, useMemo, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   USER_ROLES,
+  USERNAME_PATTERN,
+  isOldEnough,
+  isValidE164Phone,
+  isValidPassword,
+  isValidUsername,
+  normalizePhoneInput,
   type UserRole,
 } from '@bitemate/shared';
+import { checkUsernameAvailablePublic } from '@/data/repositories/authRepository';
 import { isFirebaseConfigured, signInWithGoogle } from '@/data/firebase/firebaseClient';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
+import { PasswordField } from '@/presentation/components/auth/PasswordField';
 import { SearchableSelect } from '@/presentation/components/SearchableSelect';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
@@ -24,6 +32,7 @@ export function RegisterPage() {
   const [form, setForm] = useState({
     email: '',
     password: '',
+    passwordConfirm: '',
     username: '',
     fullName: '',
     phoneNumber: '',
@@ -32,6 +41,9 @@ export function RegisterPage() {
     dateOfBirth: '',
     role: 'NORMAL_USER' as UserRole,
   });
+  const [usernameStatus, setUsernameStatus] = useState<
+    'idle' | 'checking' | 'available' | 'taken' | 'invalid'
+  >('idle');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const totalSteps = 4;
@@ -42,6 +54,75 @@ export function RegisterPage() {
 
   const countryOptions = useMemo(() => countrySelectOptions(locale), [locale]);
   const cityOptions = useMemo(() => citySelectOptions(form.country, locale), [form.country, locale]);
+
+  useEffect(() => {
+    const username = form.username.trim().toLowerCase();
+    if (!username) {
+      setUsernameStatus('idle');
+      return;
+    }
+    if (!USERNAME_PATTERN.test(username)) {
+      setUsernameStatus('invalid');
+      return;
+    }
+
+    setUsernameStatus('checking');
+    const timer = window.setTimeout(() => {
+      void checkUsernameAvailablePublic(username)
+        .then((result) => setUsernameStatus(result.available ? 'available' : 'taken'))
+        .catch(() => setUsernameStatus('idle'));
+    }, 400);
+
+    return () => window.clearTimeout(timer);
+  }, [form.username]);
+
+  function validateCredentialsStep(): boolean {
+    if (!isValidPassword(form.password)) {
+      setError(t('auth.password.rules'));
+      return false;
+    }
+    if (form.password !== form.passwordConfirm) {
+      setError(t('auth.password.mismatch'));
+      return false;
+    }
+    if (authMethod === 'phone') {
+      const normalized = normalizePhoneInput(form.phoneNumber);
+      if (!isValidE164Phone(normalized)) {
+        setError(t('auth.error.phoneFormat'));
+        return false;
+      }
+    }
+    setError(null);
+    return true;
+  }
+
+  function validateProfileStep(): boolean {
+    if (!form.fullName || !form.country || !form.city || !form.dateOfBirth) {
+      setError(t('auth.completeProfile'));
+      return false;
+    }
+    if (!isOldEnough(form.dateOfBirth)) {
+      setError(t('auth.error.tooYoung'));
+      return false;
+    }
+    const username = form.username.trim().toLowerCase();
+    if (username) {
+      if (!isValidUsername(username)) {
+        setError(t('profile.username.invalid'));
+        return false;
+      }
+      if (usernameStatus === 'taken') {
+        setError(t('profile.username.taken'));
+        return false;
+      }
+      if (usernameStatus === 'checking') {
+        setError(t('profile.usernameChecking'));
+        return false;
+      }
+    }
+    setError(null);
+    return true;
+  }
 
   async function submitRegistration() {
     if (!authMethod) {
@@ -64,13 +145,16 @@ export function RegisterPage() {
         return;
       }
 
+      const phoneNumber =
+        authMethod === 'phone' ? normalizePhoneInput(form.phoneNumber) : undefined;
+
       const created = await register({
         channel: authMethod,
-        email: authMethod === 'email' ? form.email : undefined,
-        phoneNumber: authMethod === 'phone' ? form.phoneNumber : undefined,
+        email: authMethod === 'email' ? form.email.trim().toLowerCase() : undefined,
+        phoneNumber,
         password: form.password,
-        username: form.username || undefined,
-        fullName: form.fullName,
+        username: form.username.trim() || undefined,
+        fullName: form.fullName.trim(),
         country: form.country,
         city: form.city,
         dateOfBirth: form.dateOfBirth,
@@ -79,19 +163,10 @@ export function RegisterPage() {
       });
       navigate(created.user.otpVerified ? '/feed' : '/verify-otp', { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? t('auth.registerFailed') : t('auth.registerFailed'));
+      setError(localizeError(t, err, 'auth.registerFailed'));
     } finally {
       setLoading(false);
     }
-  }
-
-  function nextFromProfile() {
-    if (!form.fullName || !form.country || !form.city || !form.dateOfBirth) {
-      setError(t('auth.completeProfile'));
-      return;
-    }
-    setError(null);
-    setStep(4);
   }
 
   async function startGoogleRegistration() {
@@ -109,6 +184,17 @@ export function RegisterPage() {
     }
   }
 
+  const usernameHint =
+    usernameStatus === 'checking'
+      ? t('profile.usernameChecking')
+      : usernameStatus === 'available'
+        ? t('profile.usernameOk')
+        : usernameStatus === 'taken'
+          ? t('profile.username.taken')
+          : usernameStatus === 'invalid'
+            ? t('profile.username.invalid')
+            : null;
+
   const profileFields = (
     <>
       <label className="field">
@@ -117,7 +203,16 @@ export function RegisterPage() {
           value={form.username}
           onChange={(event) => updateField('username', event.target.value.toLowerCase())}
           placeholder={t('auth.optional')}
+          autoComplete="username"
+          pattern="[a-z0-9_]{3,30}"
         />
+        {usernameHint ? (
+          <span
+            className={`hint${usernameStatus === 'taken' || usernameStatus === 'invalid' ? ' error' : ''}`}
+          >
+            {usernameHint}
+          </span>
+        ) : null}
       </label>
       <label className="field">
         <span>{t('auth.fullName')}</span>
@@ -125,6 +220,7 @@ export function RegisterPage() {
           value={form.fullName}
           onChange={(event) => updateField('fullName', event.target.value)}
           required
+          autoComplete="name"
         />
       </label>
       <SearchableSelect
@@ -152,6 +248,7 @@ export function RegisterPage() {
           value={form.dateOfBirth}
           onChange={(event) => updateField('dateOfBirth', event.target.value)}
           required
+          max={new Date().toISOString().slice(0, 10)}
         />
       </label>
     </>
@@ -222,8 +319,9 @@ export function RegisterPage() {
             className="flow"
             onSubmit={(event) => {
               event.preventDefault();
-              setError(null);
-              setStep(3);
+              if (validateCredentialsStep()) {
+                setStep(3);
+              }
             }}
           >
             <label className="field">
@@ -233,19 +331,21 @@ export function RegisterPage() {
                 value={form.email}
                 onChange={(event) => updateField('email', event.target.value)}
                 required
+                autoComplete="email"
               />
             </label>
-            <label className="field">
-              <span>{t('auth.password')}</span>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(event) => updateField('password', event.target.value)}
-                minLength={8}
-                required
-              />
-            </label>
+            <PasswordField
+              label={t('auth.password')}
+              value={form.password}
+              onChange={(value) => updateField('password', value)}
+              confirmLabel={t('auth.password.confirm')}
+              confirmValue={form.passwordConfirm}
+              onConfirmChange={(value) => updateField('passwordConfirm', value)}
+              rulesLabel={t('auth.password.rules')}
+              mismatchLabel={t('auth.password.mismatch')}
+            />
             <p className="hint">{t('auth.emailOtpHint')}</p>
+            {error && <p className="error">{error}</p>}
             <button type="submit" className="btn-primary">
               {t('auth.continue')}
             </button>
@@ -257,8 +357,9 @@ export function RegisterPage() {
             className="flow"
             onSubmit={(event) => {
               event.preventDefault();
-              setError(null);
-              setStep(3);
+              if (validateCredentialsStep()) {
+                setStep(3);
+              }
             }}
           >
             <label className="field">
@@ -266,21 +367,24 @@ export function RegisterPage() {
               <input
                 value={form.phoneNumber}
                 onChange={(event) => updateField('phoneNumber', event.target.value)}
-                placeholder="+989121234567"
+                placeholder="09121234567 یا +989121234567"
                 required
+                inputMode="tel"
+                autoComplete="tel"
               />
             </label>
-            <label className="field">
-              <span>{t('auth.password')}</span>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(event) => updateField('password', event.target.value)}
-                minLength={8}
-                required
-              />
-            </label>
+            <PasswordField
+              label={t('auth.password')}
+              value={form.password}
+              onChange={(value) => updateField('password', value)}
+              confirmLabel={t('auth.password.confirm')}
+              confirmValue={form.passwordConfirm}
+              onConfirmChange={(value) => updateField('passwordConfirm', value)}
+              rulesLabel={t('auth.password.rules')}
+              mismatchLabel={t('auth.password.mismatch')}
+            />
             <p className="hint">{t('auth.phoneOtpHint')}</p>
+            {error && <p className="error">{error}</p>}
             <button type="submit" className="btn-primary">
               {t('auth.continue')}
             </button>
@@ -292,10 +396,13 @@ export function RegisterPage() {
             className="flow"
             onSubmit={(event) => {
               event.preventDefault();
-              nextFromProfile();
+              if (validateProfileStep()) {
+                setStep(4);
+              }
             }}
           >
             {profileFields}
+            {error && <p className="error">{error}</p>}
             <button type="submit" className="btn-primary">
               {t('auth.continue')}
             </button>
@@ -330,7 +437,7 @@ export function RegisterPage() {
           </form>
         )}
 
-        {error && step !== 4 && <p className="error">{error}</p>}
+        {error && step !== 2 && step !== 3 && step !== 4 && <p className="error">{error}</p>}
 
         {step > 1 && (
           <button
