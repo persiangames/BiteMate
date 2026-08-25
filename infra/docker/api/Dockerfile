@@ -10,13 +10,19 @@ WORKDIR /app
 
 FROM base AS deps
 
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 
 COPY apps/api/package.json ./apps/api/
 
+COPY apps/web/package.json ./apps/web/
+
+COPY apps/admin/package.json ./apps/admin/
+
 COPY shared/package.json ./shared/
 
-RUN npm ci --workspace=api --include-workspace-root
+ENV NODE_ENV=development
+
+RUN npm ci
 
 
 
@@ -32,9 +38,7 @@ WORKDIR /app/apps/api
 
 RUN npx prisma generate
 
-WORKDIR /app
-
-RUN npm run build --workspace=api
+RUN npx nest build
 
 
 
