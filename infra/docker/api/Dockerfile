@@ -41,15 +41,26 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nestjs
 
-COPY --from=builder /app/apps/api/dist ./dist
+COPY package.json package-lock.json ./
 
-COPY --from=builder /app/apps/api/package.json ./package.json
+COPY apps/api/package.json ./apps/api/
 
-COPY --from=builder /app/apps/api/prisma ./prisma
+COPY apps/web/package.json ./apps/web/
 
-COPY --from=builder /app/node_modules ./node_modules
+COPY apps/admin/package.json ./apps/admin/
+
+COPY shared/package.json ./shared/
 
 COPY --from=builder /app/shared/dist ./shared/dist
+
+COPY --from=builder /app/apps/api/dist ./apps/api/dist
+
+COPY --from=builder /app/apps/api/prisma ./apps/api/prisma
+
+RUN npm ci --omit=dev --workspace=api --include-workspace-root && \
+    npm install prisma --workspace=api --include-workspace-root --no-save
+
+WORKDIR /app/apps/api
 
 COPY infra/docker/api/docker-entrypoint.sh ./docker-entrypoint.sh
 
