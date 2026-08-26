@@ -12,6 +12,7 @@ export function localizeError(
     'Username already taken': 'profile.username.taken',
     'This username is already taken': 'profile.username.taken',
     'Email or phone number already registered': 'auth.error.duplicate',
+    'No account found with this email or phone number': 'auth.error.notRegistered',
     'Registration temporarily blocked by fraud controls': 'auth.error.blocked',
     'Unable to send verification code': 'auth.otp.failed',
     'You must be at least 13 years old to sign up': 'auth.error.tooYoung',

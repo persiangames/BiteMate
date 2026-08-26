@@ -5,6 +5,7 @@ import {
   HttpStatus,
   Injectable,
   Logger,
+  NotFoundException,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -419,24 +420,28 @@ export class AuthService {
   async forgotPassword(dto: ForgotPasswordRequestDto): Promise<MessageResponseDto> {
     const identifier = dto.identifier.trim();
     const user = await this.resolveUserByIdentifier(identifier);
-    const genericMessage =
-      'If an account exists, a verification code has been sent to your email or phone.';
 
-    if (!user?.isActive) {
-      return { message: genericMessage };
+    if (!user) {
+      throw new NotFoundException('No account found with this email or phone number');
+    }
+
+    if (!user.isActive) {
+      throw new BadRequestException('Account is disabled');
     }
 
     const target = this.resolveOtpTarget(user, identifier);
-    if (target) {
-      await this.createAndSendOtp(
-        target,
-        OtpPurpose.PASSWORD_RESET,
-        user.id,
-        'password reset',
-      );
+    if (!target) {
+      throw new BadRequestException('Account has no email or phone number on file');
     }
 
-    return { message: genericMessage };
+    await this.createAndSendOtp(
+      target,
+      OtpPurpose.PASSWORD_RESET,
+      user.id,
+      'password reset',
+    );
+
+    return { message: 'Verification code sent successfully' };
   }
 
   async resetPassword(dto: ResetPasswordRequestDto): Promise<MessageResponseDto> {
