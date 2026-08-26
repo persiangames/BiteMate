@@ -588,17 +588,41 @@ export class AuthService {
     return user.email ?? user.phoneNumber;
   }
 
+  private phoneLookupVariants(value: string): string[] {
+    const normalized = normalizeLoginIdentifier(value);
+    const digits = normalized.replace(/\D/g, '');
+    const variants = new Set<string>();
+    if (normalized) {
+      variants.add(normalized);
+    }
+    if (digits.startsWith('98') && digits.length >= 12) {
+      variants.add(`+${digits}`);
+      variants.add(`0${digits.slice(2)}`);
+    }
+    if (digits.startsWith('0') && digits.length >= 10) {
+      variants.add(`+98${digits.slice(1)}`);
+      variants.add(digits);
+    }
+    if (/^9\d{9}$/.test(digits)) {
+      variants.add(`+98${digits}`);
+      variants.add(`0${digits}`);
+    }
+    return [...variants];
+  }
+
   private async resolveUserByIdentifier(identifier: string) {
     const normalized = normalizeLoginIdentifier(identifier);
     if (!normalized) {
       return null;
     }
+    const phoneVariants = this.phoneLookupVariants(identifier);
     return this.prisma.user.findFirst({
       where: {
         OR: [
           { email: normalized },
           { username: normalized },
           { phoneNumber: normalized },
+          ...phoneVariants.map((phoneNumber) => ({ phoneNumber })),
         ],
       },
     });
@@ -606,9 +630,14 @@ export class AuthService {
 
   private async findUserByDestination(destination: string) {
     const normalized = this.normalizeDestination(destination);
+    const phoneVariants = this.phoneLookupVariants(destination);
     return this.prisma.user.findFirst({
       where: {
-        OR: [{ email: normalized }, { phoneNumber: normalized }],
+        OR: [
+          { email: normalized },
+          { phoneNumber: normalized },
+          ...phoneVariants.map((phoneNumber) => ({ phoneNumber })),
+        ],
       },
     });
   }

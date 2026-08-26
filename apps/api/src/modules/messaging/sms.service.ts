@@ -99,11 +99,12 @@ export class SmsService {
   }
 
   private describeMelipayamakFailure(payload: {
-    RetStatus?: number;
+    RetStatus?: number | string;
     StrRetStatus?: string;
     Value?: string;
   } | null): string {
-    const status = payload?.RetStatus;
+    const status = Number(payload?.RetStatus);
+    const valueCode = Number(payload?.Value);
     const map: Record<number, string> = {
       0: 'Invalid Melipayamak username or API key',
       2: 'Insufficient Melipayamak credit',
@@ -114,12 +115,27 @@ export class SmsService {
       16: 'Recipient number not found',
       18: 'Invalid recipient number',
       [-110]: 'Use APIKey as password, not panel password',
-      [-109]: 'Render IP must be allowed in Melipayamak webservice settings',
+      [-109]: 'Add Render outbound IP ranges to Melipayamak allowed IPs',
+      109: 'Add Render outbound IP ranges to Melipayamak allowed IPs',
     };
-    if (status != null && map[status]) {
+    if (Number.isFinite(status) && map[status]) {
       return map[status];
     }
+    if (Number.isFinite(valueCode) && map[valueCode]) {
+      return map[valueCode];
+    }
     return payload?.StrRetStatus ?? payload?.Value ?? 'Unknown Melipayamak error';
+  }
+
+  private isMelipayamakSuccess(payload: {
+    RetStatus?: number | string;
+    Value?: string;
+  } | null): boolean {
+    if (Number(payload?.RetStatus) === 1) {
+      return true;
+    }
+    const valueDigits = String(payload?.Value ?? '').replace(/\D/g, '');
+    return valueDigits.length > 10;
   }
 
   private async fetchWithTimeout(
@@ -182,7 +198,7 @@ export class SmsService {
       throw new Error(`Melipayamak SMS failed: HTTP ${response.status}`);
     }
 
-    if (Number(payload?.RetStatus) !== 1) {
+    if (!this.isMelipayamakSuccess(payload)) {
       const detail = this.describeMelipayamakFailure(payload);
       this.logger.error(
         `Melipayamak rejected SMS to ${to}: ${detail} (payload=${JSON.stringify(payload)})`,
