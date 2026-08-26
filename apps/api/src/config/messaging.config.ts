@@ -14,9 +14,9 @@ export const messagingConfig = registerAs('messaging', () => ({
       template: process.env.KAVENEGAR_OTP_TEMPLATE ?? '',
     },
     melipayamak: {
-      username: process.env.MELIPAYAMAK_USERNAME ?? '',
-      password: process.env.MELIPAYAMAK_PASSWORD ?? '',
-      from: process.env.MELIPAYAMAK_FROM ?? '',
+      username: process.env.MELIPAYAMAK_USERNAME?.trim() ?? '',
+      password: process.env.MELIPAYAMAK_PASSWORD?.trim() ?? '',
+      from: process.env.MELIPAYAMAK_FROM?.trim() ?? '',
     },
     http: {
       url: process.env.SMS_HTTP_URL ?? '',

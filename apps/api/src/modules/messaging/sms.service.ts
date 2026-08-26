@@ -142,9 +142,10 @@ export class SmsService {
     const from = this.configService.get<string>('messaging.sms.melipayamak.from');
 
     if (!username || !password || !from) {
-      this.logger.warn('Melipayamak credentials missing');
-      this.logger.log(`[SMS:fallback] to=${phoneNumber} message=${message}`);
-      return;
+      this.logger.error(
+        'Melipayamak credentials missing — set MELIPAYAMAK_USERNAME, MELIPAYAMAK_PASSWORD (APIKey), MELIPAYAMAK_FROM',
+      );
+      throw new Error('Melipayamak SMS is not configured');
     }
 
     const to = this.formatMelipayamakRecipient(phoneNumber);
@@ -181,9 +182,11 @@ export class SmsService {
       throw new Error(`Melipayamak SMS failed: HTTP ${response.status}`);
     }
 
-    if (payload?.RetStatus !== 1) {
+    if (Number(payload?.RetStatus) !== 1) {
       const detail = this.describeMelipayamakFailure(payload);
-      this.logger.error(`Melipayamak rejected SMS to ${to}: ${detail}`);
+      this.logger.error(
+        `Melipayamak rejected SMS to ${to}: ${detail} (payload=${JSON.stringify(payload)})`,
+      );
       throw new Error(`Melipayamak SMS rejected: ${detail}`);
     }
 

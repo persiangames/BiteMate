@@ -9,8 +9,8 @@ export function VerifyOtpPage() {
   const { user, accessToken, completeOtp } = useAuth();
   const { t } = useI18n();
   const destination = useMemo(
-    () => user?.email || user?.phoneNumber || '',
-    [user?.email, user?.phoneNumber],
+    () => user?.phoneNumber || user?.email || '',
+    [user?.phoneNumber, user?.email],
   );
   const channel = destination.includes('@') ? 'email' : 'phone';
   const [code, setCode] = useState('');

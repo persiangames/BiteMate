@@ -4,6 +4,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   ServiceUnavailableException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -53,6 +54,8 @@ export interface AuthRequestContext {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
@@ -128,7 +131,13 @@ export class AuthService {
         OtpPurpose.PHONE_VERIFICATION,
         user.id,
         'account verification',
-      ).catch(() => undefined);
+        { silentOnDeliveryFailure: true },
+      ).catch((error) => {
+        this.logger.error(
+          `Register OTP could not be sent to ${destination}`,
+          error instanceof Error ? error.stack : error,
+        );
+      });
     }
 
     return this.buildAuthResponse(user);
@@ -379,7 +388,7 @@ export class AuthService {
     if (!user.isActive) {
       throw new UnauthorizedException('Account is disabled');
     }
-    const target = user.email ?? user.phoneNumber;
+    const target = this.resolveOtpTarget(user, destination);
     if (!target) {
       throw new BadRequestException('Account has no email or phone number on file');
     }
@@ -392,7 +401,7 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('No account found for this email or phone number');
     }
-    const target = user.email ?? user.phoneNumber;
+    const target = this.resolveOtpTarget(user, destination);
     if (!target) {
       throw new BadRequestException('Account has no email or phone number on file');
     }
@@ -417,7 +426,7 @@ export class AuthService {
       return { message: genericMessage };
     }
 
-    const target = user.email ?? user.phoneNumber;
+    const target = this.resolveOtpTarget(user, identifier);
     if (target) {
       await this.createAndSendOtp(
         target,
@@ -462,6 +471,7 @@ export class AuthService {
     purpose: OtpPurpose,
     userId?: string,
     purposeLabel = 'verification',
+    options?: { silentOnDeliveryFailure?: boolean },
   ): Promise<OtpRequestResponseDto> {
     const target = this.normalizeDestination(destination);
     if (!target) {
@@ -498,8 +508,11 @@ export class AuthService {
     try {
       await this.messagingService.sendOtp(target, code, purposeLabel);
     } catch (error) {
-      const nodeEnv = this.configService.get<string>('app.nodeEnv', 'development');
-      if (nodeEnv === 'production') {
+      this.logger.error(
+        `OTP delivery failed for ${target} (${purposeLabel})`,
+        error instanceof Error ? error.stack : error,
+      );
+      if (!options?.silentOnDeliveryFailure) {
         throw new ServiceUnavailableException('Unable to send verification code');
       }
     }
@@ -558,6 +571,21 @@ export class AuthService {
 
   private normalizeDestination(value: string): string {
     return normalizeLoginIdentifier(value);
+  }
+
+  private resolveOtpTarget(
+    user: { email: string | null; phoneNumber: string | null },
+    identifierHint?: string,
+  ): string | null {
+    const hint = identifierHint?.trim() ?? '';
+    if (hint.includes('@')) {
+      return user.email;
+    }
+    const compact = hint.replace(/[\s\-()]/g, '');
+    if (/^\+?\d/.test(compact)) {
+      return user.phoneNumber;
+    }
+    return user.email ?? user.phoneNumber;
   }
 
   private async resolveUserByIdentifier(identifier: string) {
