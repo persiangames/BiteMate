@@ -1,34 +1,57 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as dns from 'node:dns/promises';
 import * as nodemailer from 'nodemailer';
 import { buildOtpEmailContent, type OtpEmailPurpose } from './email-templates';
-import { smtpIpv4Lookup } from './smtp-ipv4.util';
 
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
   private transporter: nodemailer.Transporter | null = null;
+  private transporterPromise: Promise<nodemailer.Transporter | null> | null = null;
 
   constructor(private readonly configService: ConfigService) {}
 
-  private getTransporter(): nodemailer.Transporter | null {
+  private async resolveTransporter(): Promise<nodemailer.Transporter | null> {
     if (this.transporter) {
       return this.transporter;
     }
+    if (!this.transporterPromise) {
+      this.transporterPromise = this.buildTransporter();
+    }
+    this.transporter = await this.transporterPromise;
+    return this.transporter;
+  }
+
+  private async buildTransporter(): Promise<nodemailer.Transporter | null> {
     const host = this.configService.get<string>('messaging.email.smtp.host');
     const user = this.configService.get<string>('messaging.email.smtp.user');
     const pass = this.configService.get<string>('messaging.email.smtp.pass');
     if (!host || !user || !pass) {
       return null;
     }
-    this.transporter = nodemailer.createTransport({
-      host,
+
+    let connectHost = host;
+    try {
+      const resolved = await dns.lookup(host, { family: 4 });
+      connectHost = resolved.address;
+      this.logger.log(`SMTP using IPv4 ${connectHost} for ${host}`);
+    } catch (error) {
+      this.logger.warn(
+        `Could not resolve ${host} to IPv4; falling back to hostname`,
+        error instanceof Error ? error.message : error,
+      );
+    }
+
+    return nodemailer.createTransport({
+      host: connectHost,
       port: this.configService.get<number>('messaging.email.smtp.port', 587),
       secure: this.configService.get<boolean>('messaging.email.smtp.secure', false),
       auth: { user, pass },
-      lookup: smtpIpv4Lookup,
-    } as nodemailer.TransportOptions);
-    return this.transporter;
+      tls: {
+        servername: host,
+      },
+    });
   }
 
   async sendOtpEmail(to: string, code: string, purpose: string): Promise<void> {
@@ -57,7 +80,7 @@ export class EmailService {
       return;
     }
 
-    const transporter = this.getTransporter();
+    const transporter = await this.resolveTransporter();
     if (!transporter) {
       this.logger.error(
         'Email SMTP not configured — set EMAIL_PROVIDER=smtp and SMTP_HOST, SMTP_USER, SMTP_PASS',
