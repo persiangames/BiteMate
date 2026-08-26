@@ -73,6 +73,20 @@ export class SmsService {
     }
   }
 
+  private formatMelipayamakRecipient(phoneNumber: string): string {
+    const digits = phoneNumber.replace(/\D/g, '');
+    if (digits.startsWith('98') && digits.length >= 12) {
+      return `0${digits.slice(2)}`;
+    }
+    if (digits.startsWith('9') && digits.length === 10) {
+      return `0${digits}`;
+    }
+    if (digits.startsWith('09') && digits.length === 11) {
+      return digits;
+    }
+    return phoneNumber.trim();
+  }
+
   private async sendMelipayamak(phoneNumber: string, message: string): Promise<void> {
     const username = this.configService.get<string>('messaging.sms.melipayamak.username');
     const password = this.configService.get<string>('messaging.sms.melipayamak.password');
@@ -84,20 +98,33 @@ export class SmsService {
       return;
     }
 
+    const to = this.formatMelipayamakRecipient(phoneNumber);
+    const body = new URLSearchParams({
+      username,
+      password,
+      to,
+      from,
+      text: message,
+      isFlash: 'false',
+    });
+
     const response = await fetch('https://rest.payamak-panel.com/api/SendSMS/SendSMS', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        username,
-        password,
-        to: phoneNumber,
-        from,
-        text: message,
-        isFlash: false,
-      }),
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body,
     });
+
+    const payload = (await response.json().catch(() => null)) as
+      | { RetStatus?: number; StrRetStatus?: string; Value?: string }
+      | null;
+
     if (!response.ok) {
       throw new Error(`Melipayamak SMS failed: ${response.status}`);
+    }
+
+    if (payload?.RetStatus !== 1) {
+      const detail = payload?.StrRetStatus ?? payload?.Value ?? 'Unknown Melipayamak error';
+      throw new Error(`Melipayamak SMS rejected: ${detail}`);
     }
   }
 
