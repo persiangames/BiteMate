@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { buildOtpEmailContent, type OtpEmailPurpose } from './email-templates';
+import { smtpIpv4Lookup } from './smtp-ipv4.util';
 
 @Injectable()
 export class EmailService {
@@ -25,7 +26,8 @@ export class EmailService {
       port: this.configService.get<number>('messaging.email.smtp.port', 587),
       secure: this.configService.get<boolean>('messaging.email.smtp.secure', false),
       auth: { user, pass },
-    });
+      lookup: smtpIpv4Lookup,
+    } as nodemailer.TransportOptions);
     return this.transporter;
   }
 

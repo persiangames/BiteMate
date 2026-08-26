@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import './instrument';
+import * as dns from 'node:dns';
 import { Logger, LogLevel, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -12,6 +13,8 @@ import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { isProductionEnv } from './common/utils/environment.util';
+
+dns.setDefaultResultOrder('ipv4first');
 
 function resolveLogLevels(level: string): LogLevel[] {
   const normalized = level === 'info' ? 'log' : level === 'trace' ? 'verbose' : level;
