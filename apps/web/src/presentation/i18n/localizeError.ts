@@ -26,6 +26,27 @@ export function localizeError(
     return t(mapped[message]);
   }
 
+  if (message.startsWith('Melipayamak SMS rejected:')) {
+    const detail = message.replace('Melipayamak SMS rejected: ', '');
+    const persian: Record<string, string> = {
+      'Invalid Melipayamak username or API key': 'نام کاربری یا APIKey ملی‌پیامک اشتباه است.',
+      'Insufficient Melipayamak credit': 'اعتبار پنل ملی‌پیامک کافی نیست.',
+      'Invalid sender line (MELIPAYAMAK_FROM)': 'شماره خط (MELIPAYAMAK_FROM) اشتباه است.',
+      'Dedicated line required; public lines cannot send via webservice':
+        'خط عمومی است — خط اختصاصی لازم است.',
+      'Add Render outbound IP ranges to Melipayamak allowed IPs':
+        'IP سرور Render در ملی‌پیامک مجاز نیست.',
+      'Use APIKey as password, not panel password':
+        'به‌جای رمز پنل باید APIKey بگذاری.',
+      'Recipient is on telecom blacklist': 'این شماره در لیست سیاه مخابرات است.',
+      'Melipayamak account documents incomplete': 'مدارک پنل ملی‌پیامک کامل نیست.',
+    };
+    return persian[detail] ?? `خطای پیامک: ${detail}`;
+  }
+  if (message.startsWith('Melipayamak SMS is not configured')) {
+    return 'تنظیمات پیامک (ملی‌پیامک) روی سرور کامل نیست.';
+  }
+
   if (message && !message.startsWith('Request failed:')) {
     return message;
   }

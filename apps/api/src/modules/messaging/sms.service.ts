@@ -12,7 +12,7 @@ export class SmsService {
     const appName = this.configService.get<string>('messaging.appName', 'BiteMate');
     const message =
       provider === 'melipayamak'
-        ? `کد تأیید ${appName}: ${code}`
+        ? `Code ${appName}: ${code}`
         : `${appName}: ${purpose} code ${code}`;
 
     if (provider === 'console') {
@@ -109,14 +109,21 @@ export class SmsService {
       0: 'Invalid Melipayamak username or API key',
       2: 'Insufficient Melipayamak credit',
       5: 'Invalid sender line (MELIPAYAMAK_FROM)',
+      7: 'SMS text blocked by operator filter',
       9: 'Dedicated line required; public lines cannot send via webservice',
+      11: 'Recipient is on telecom blacklist',
       12: 'Melipayamak account documents incomplete',
       15: 'SMS must include unsubscribe suffix (لغو11)',
       16: 'Recipient number not found',
       18: 'Invalid recipient number',
-      [-110]: 'Use APIKey as password, not panel password',
+      19: 'Hourly send limit exceeded',
+      35: 'Recipient is on telecom blacklist',
+      [-108]: 'Melipayamak blocked IP after failed attempts — contact support',
       [-109]: 'Add Render outbound IP ranges to Melipayamak allowed IPs',
+      [-110]: 'Use APIKey as password, not panel password',
+      108: 'Melipayamak blocked IP after failed attempts — contact support',
       109: 'Add Render outbound IP ranges to Melipayamak allowed IPs',
+      110: 'Use APIKey as password, not panel password',
     };
     if (Number.isFinite(status) && map[status]) {
       return map[status];

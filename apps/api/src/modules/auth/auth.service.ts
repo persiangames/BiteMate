@@ -508,12 +508,16 @@ export class AuthService {
     try {
       await this.messagingService.sendOtp(target, code, purposeLabel);
     } catch (error) {
+      const detail = error instanceof Error ? error.message : 'Unknown delivery error';
       this.logger.error(
-        `OTP delivery failed for ${target} (${purposeLabel})`,
+        `OTP delivery failed for ${target} (${purposeLabel}): ${detail}`,
         error instanceof Error ? error.stack : error,
       );
       if (!options?.silentOnDeliveryFailure) {
-        throw new ServiceUnavailableException('Unable to send verification code');
+        const nodeEnv = this.configService.get<string>('app.nodeEnv', 'development');
+        throw new ServiceUnavailableException(
+          nodeEnv === 'development' ? detail : 'Unable to send verification code',
+        );
       }
     }
 
