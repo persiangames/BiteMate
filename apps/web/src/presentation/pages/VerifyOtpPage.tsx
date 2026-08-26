@@ -5,21 +5,49 @@ import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { localizeError } from '@/presentation/i18n/localizeError';
 
+function maskDestination(value: string): string {
+  if (value.includes('@')) {
+    const [local, domain] = value.split('@');
+    if (!local || !domain) {
+      return value;
+    }
+    const visible = local.slice(0, Math.min(2, local.length));
+    return `${visible}${'*'.repeat(Math.max(1, local.length - visible.length))}@${domain}`;
+  }
+  const digits = value.replace(/\D/g, '');
+  if (digits.length <= 4) {
+    return value;
+  }
+  return `${digits.slice(0, 4)}${'*'.repeat(Math.max(3, digits.length - 6))}${digits.slice(-2)}`;
+}
+
 export function VerifyOtpPage() {
   const { user, accessToken, completeOtp } = useAuth();
   const { t } = useI18n();
   const destination = useMemo(
-    () => user?.phoneNumber || user?.email || '',
-    [user?.phoneNumber, user?.email],
+    () => user?.email || user?.phoneNumber || '',
+    [user?.email, user?.phoneNumber],
   );
   const channel = destination.includes('@') ? 'email' : 'phone';
   const [code, setCode] = useState('');
   const [devCode, setDevCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resendIn, setResendIn] = useState(0);
+
+  useEffect(() => {
+    if (resendIn <= 0) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setResendIn((current) => (current > 0 ? current - 1 : 0));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [resendIn]);
 
   async function sendCode() {
-    if (!accessToken || !destination) {
+    if (!accessToken || !destination || resendIn > 0) {
       return;
     }
     setLoading(true);
@@ -27,6 +55,8 @@ export function VerifyOtpPage() {
     try {
       const response = await requestOtp(accessToken, destination);
       setDevCode(response.devCode ?? null);
+      setSent(true);
+      setResendIn(response.expiresInSeconds ?? 60);
     } catch (err) {
       setError(localizeError(t, err, 'auth.otp.failed'));
     } finally {
@@ -70,14 +100,23 @@ export function VerifyOtpPage() {
 
         <label className="field">
           <span>{channel === 'email' ? t('auth.email') : t('auth.phone')}</span>
-          <input value={destination} readOnly />
+          <input value={maskDestination(destination)} readOnly />
         </label>
 
-        <button type="button" className="btn-secondary" onClick={() => void sendCode()} disabled={loading || !destination}>
-          {t('auth.otp.send')}
+        {sent ? <p className="hint">{t('auth.otp.sent')}</p> : null}
+
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => void sendCode()}
+          disabled={loading || !destination || resendIn > 0}
+        >
+          {resendIn > 0 ? t('auth.otp.resendIn', { seconds: resendIn }) : t('auth.otp.send')}
         </button>
 
-        {devCode && <p className="hint">{t('otp.dev', { code: devCode })}</p>}
+        {devCode && channel === 'email' ? (
+          <p className="hint">{t('otp.dev', { code: devCode })}</p>
+        ) : null}
 
         <form className="flow" onSubmit={handleVerify}>
           <label className="field">
@@ -86,6 +125,7 @@ export function VerifyOtpPage() {
               value={code}
               onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
               inputMode="numeric"
+              autoComplete="one-time-code"
               pattern="\d{6}"
               required
             />

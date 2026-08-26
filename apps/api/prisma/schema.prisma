@@ -29,6 +29,7 @@ enum AuthProvider {
 
 enum OtpPurpose {
   PHONE_VERIFICATION
+  EMAIL_VERIFICATION
   LOGIN
   PASSWORD_RESET
   PHONE_CHANGE

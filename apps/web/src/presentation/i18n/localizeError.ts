@@ -47,6 +47,9 @@ export function localizeError(
   if (message.startsWith('Melipayamak SMS is not configured')) {
     return 'تنظیمات پیامک (ملی‌پیامک) روی سرور کامل نیست.';
   }
+  if (message === 'Email SMTP is not configured') {
+    return 'تنظیمات ایمیل (SMTP) روی سرور کامل نیست.';
+  }
 
   if (message && !message.startsWith('Request failed:')) {
     return message;

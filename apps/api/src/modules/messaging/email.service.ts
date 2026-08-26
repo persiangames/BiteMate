@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
+import { buildOtpEmailContent, type OtpEmailPurpose } from './email-templates';
 
 @Injectable()
 export class EmailService {
@@ -31,11 +32,23 @@ export class EmailService {
   async sendOtpEmail(to: string, code: string, purpose: string): Promise<void> {
     const provider = this.configService.get<string>('messaging.email.provider', 'console');
     const appName = this.configService.get<string>('messaging.appName', 'BiteMate');
+    const appUrl = this.configService.get<string>('messaging.appUrl', 'https://www.bitemate.ir');
     const from = this.configService.get<string>('messaging.email.from', 'noreply@bitemate.ir');
     const fromName = this.configService.get<string>('messaging.email.fromName', 'BiteMate');
-    const subject = `${appName} verification code`;
-    const text = `Your ${appName} ${purpose} code is: ${code}\n\nThis code expires in a few minutes. If you did not request it, ignore this email.`;
-    const html = `<p>Your <strong>${appName}</strong> ${purpose} code is:</p><p style="font-size:24px;font-weight:700;letter-spacing:4px">${code}</p><p>If you did not request this, you can ignore this email.</p>`;
+    const expiresMinutes = Math.max(
+      1,
+      Math.round(
+        this.configService.get<number>('otp.expiresInSeconds', 300) / 60,
+      ),
+    );
+    const emailPurpose = (purpose as OtpEmailPurpose) || 'verification';
+    const { subject, text, html } = buildOtpEmailContent({
+      appName,
+      code,
+      purpose: emailPurpose,
+      appUrl,
+      expiresMinutes,
+    });
 
     if (provider === 'console') {
       this.logger.log(`[EMAIL:console] to=${to} subject=${subject} code=${code}`);
@@ -44,9 +57,10 @@ export class EmailService {
 
     const transporter = this.getTransporter();
     if (!transporter) {
-      this.logger.warn('SMTP not configured — OTP email logged to console instead');
-      this.logger.log(`[EMAIL:fallback] to=${to} code=${code}`);
-      return;
+      this.logger.error(
+        'Email SMTP not configured — set EMAIL_PROVIDER=smtp and SMTP_HOST, SMTP_USER, SMTP_PASS',
+      );
+      throw new Error('Email SMTP is not configured');
     }
 
     await transporter.sendMail({
@@ -56,5 +70,7 @@ export class EmailService {
       text,
       html,
     });
+
+    this.logger.log(`OTP email sent to ${to} (${emailPurpose})`);
   }
 }

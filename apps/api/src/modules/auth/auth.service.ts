@@ -127,9 +127,12 @@ export class AuthService {
 
     const destination = email ?? phoneNumber;
     if (destination) {
+      const purpose = email
+        ? OtpPurpose.EMAIL_VERIFICATION
+        : OtpPurpose.PHONE_VERIFICATION;
       void this.createAndSendOtp(
         destination,
-        OtpPurpose.PHONE_VERIFICATION,
+        purpose,
         user.id,
         'account verification',
         { silentOnDeliveryFailure: true },
@@ -281,9 +284,24 @@ export class AuthService {
           authProvider: firebaseUser.provider,
           emailVerified: firebaseUser.emailVerified,
           phoneVerified: false,
-          otpVerified: firebaseUser.emailVerified,
+          otpVerified: false,
         },
       });
+
+      if (firebaseUser.email) {
+        void this.createAndSendOtp(
+          firebaseUser.email,
+          OtpPurpose.EMAIL_VERIFICATION,
+          user.id,
+          'account verification',
+          { silentOnDeliveryFailure: true },
+        ).catch((error) => {
+          this.logger.error(
+            `Google signup OTP email could not be sent to ${firebaseUser.email}`,
+            error instanceof Error ? error.stack : error,
+          );
+        });
+      }
     } else {
       user = await this.prisma.user.update({
         where: { id: user.id },
@@ -374,9 +392,9 @@ export class AuthService {
   ): Promise<OtpRequestResponseDto> {
     return this.createAndSendOtp(
       destination,
-      OtpPurpose.PHONE_VERIFICATION,
+      this.accountVerificationPurpose(destination),
       userId,
-      'verification',
+      'account verification',
     );
   }
 
@@ -451,7 +469,7 @@ export class AuthService {
       throw new BadRequestException('Invalid reset request');
     }
 
-    const target = user.email ?? user.phoneNumber;
+    const target = this.resolveOtpTarget(user, identifier);
     if (!target) {
       throw new BadRequestException('Invalid reset request');
     }
@@ -531,7 +549,7 @@ export class AuthService {
       expiresInSeconds,
     };
 
-    if (this.messagingService.isConsoleOnly()) {
+    if (this.messagingService.isDevCodeEnabledFor(target)) {
       response.devCode = code;
     }
 
@@ -576,6 +594,12 @@ export class AuthService {
       where: { id: otp.id },
       data: { verified: true },
     });
+  }
+
+  private accountVerificationPurpose(destination: string): OtpPurpose {
+    return destination.includes('@')
+      ? OtpPurpose.EMAIL_VERIFICATION
+      : OtpPurpose.PHONE_VERIFICATION;
   }
 
   private normalizeDestination(value: string): string {
@@ -660,7 +684,11 @@ export class AuthService {
       throw new BadRequestException('Email or phone number is required');
     }
 
-    await this.assertValidOtp(destination, dto.code, OtpPurpose.PHONE_VERIFICATION);
+    await this.assertValidOtp(
+      destination,
+      dto.code,
+      this.accountVerificationPurpose(destination),
+    );
 
     const isEmail = destination.includes('@');
     const user = await this.prisma.user.update({

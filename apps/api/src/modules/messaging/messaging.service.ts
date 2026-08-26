@@ -11,6 +11,18 @@ export class MessagingService {
     private readonly smsService: SmsService,
   ) {}
 
+  isEmailDestination(destination: string): boolean {
+    return destination.trim().includes('@');
+  }
+
+  isDevCodeEnabledFor(destination: string): boolean {
+    if (this.isEmailDestination(destination)) {
+      return this.configService.get<string>('messaging.email.provider', 'console') === 'console';
+    }
+    return this.configService.get<string>('messaging.sms.provider', 'console') === 'console';
+  }
+
+  /** @deprecated Use isDevCodeEnabledFor(destination) for channel-aware dev codes. */
   isConsoleOnly(): boolean {
     const smsProvider = this.configService.get<string>('messaging.sms.provider', 'console');
     const emailProvider = this.configService.get<string>(
@@ -22,7 +34,7 @@ export class MessagingService {
 
   async sendOtp(destination: string, code: string, purposeLabel: string): Promise<void> {
     const target = destination.trim();
-    if (target.includes('@')) {
+    if (this.isEmailDestination(target)) {
       await this.emailService.sendOtpEmail(target.toLowerCase(), code, purposeLabel);
       return;
     }
