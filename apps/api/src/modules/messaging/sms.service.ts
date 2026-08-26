@@ -87,6 +87,20 @@ export class SmsService {
     return phoneNumber.trim();
   }
 
+  private async fetchWithTimeout(
+    url: string,
+    init: RequestInit,
+    timeoutMs = 10_000,
+  ): Promise<Response> {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...init, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
   private async sendMelipayamak(phoneNumber: string, message: string): Promise<void> {
     const username = this.configService.get<string>('messaging.sms.melipayamak.username');
     const password = this.configService.get<string>('messaging.sms.melipayamak.password');
@@ -108,11 +122,14 @@ export class SmsService {
       isFlash: 'false',
     });
 
-    const response = await fetch('https://rest.payamak-panel.com/api/SendSMS/SendSMS', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body,
-    });
+    const response = await this.fetchWithTimeout(
+      'https://rest.payamak-panel.com/api/SendSMS/SendSMS',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body,
+      },
+    );
 
     const payload = (await response.json().catch(() => null)) as
       | { RetStatus?: number; StrRetStatus?: string; Value?: string }

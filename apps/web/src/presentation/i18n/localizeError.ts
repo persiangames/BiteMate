@@ -4,6 +4,9 @@ export function localizeError(
   fallbackKey = 'error.generic',
 ): string {
   const message = err instanceof Error ? err.message.trim() : '';
+  if (message === 'Failed to fetch' || message === 'NetworkError when attempting to fetch resource.') {
+    return t('auth.error.network');
+  }
   const mapped: Record<string, string> = {
     'Post not found': 'error.loadFailed',
     'Username already taken': 'profile.username.taken',

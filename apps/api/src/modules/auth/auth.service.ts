@@ -123,16 +123,12 @@ export class AuthService {
 
     const destination = email ?? phoneNumber;
     if (destination) {
-      try {
-        await this.createAndSendOtp(
-          destination,
-          OtpPurpose.PHONE_VERIFICATION,
-          user.id,
-          'account verification',
-        );
-      } catch {
-        // Account is created; user can request a new code on the verify screen.
-      }
+      void this.createAndSendOtp(
+        destination,
+        OtpPurpose.PHONE_VERIFICATION,
+        user.id,
+        'account verification',
+      ).catch(() => undefined);
     }
 
     return this.buildAuthResponse(user);
