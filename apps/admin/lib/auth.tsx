@@ -82,7 +82,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (email: string, password: string) => {
     const result = await apiFetch<AuthResponseDto>('/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ identifier: email, password }),
     });
 
     if (!isAdminRole(result.user.role)) {
