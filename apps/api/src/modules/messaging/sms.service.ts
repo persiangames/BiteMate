@@ -10,7 +10,10 @@ export class SmsService {
   async sendOtpSms(phoneNumber: string, code: string, purpose: string): Promise<void> {
     const provider = this.configService.get<string>('messaging.sms.provider', 'console');
     const appName = this.configService.get<string>('messaging.appName', 'BiteMate');
-    const message = `${appName}: ${purpose} code ${code}`;
+    const message =
+      provider === 'melipayamak'
+        ? `کد تأیید ${appName}: ${code}`
+        : `${appName}: ${purpose} code ${code}`;
 
     if (provider === 'console') {
       this.logger.log(`[SMS:console] to=${phoneNumber} code=${code}`);
@@ -87,6 +90,38 @@ export class SmsService {
     return phoneNumber.trim();
   }
 
+  private formatMelipayamakMessage(message: string): string {
+    const normalized = message.trim();
+    if (/لغو\s*11/i.test(normalized)) {
+      return normalized;
+    }
+    return `${normalized}\nلغو11`;
+  }
+
+  private describeMelipayamakFailure(payload: {
+    RetStatus?: number;
+    StrRetStatus?: string;
+    Value?: string;
+  } | null): string {
+    const status = payload?.RetStatus;
+    const map: Record<number, string> = {
+      0: 'Invalid Melipayamak username or API key',
+      2: 'Insufficient Melipayamak credit',
+      5: 'Invalid sender line (MELIPAYAMAK_FROM)',
+      9: 'Dedicated line required; public lines cannot send via webservice',
+      12: 'Melipayamak account documents incomplete',
+      15: 'SMS must include unsubscribe suffix (لغو11)',
+      16: 'Recipient number not found',
+      18: 'Invalid recipient number',
+      [-110]: 'Use APIKey as password, not panel password',
+      [-109]: 'Render IP must be allowed in Melipayamak webservice settings',
+    };
+    if (status != null && map[status]) {
+      return map[status];
+    }
+    return payload?.StrRetStatus ?? payload?.Value ?? 'Unknown Melipayamak error';
+  }
+
   private async fetchWithTimeout(
     url: string,
     init: RequestInit,
@@ -113,36 +148,46 @@ export class SmsService {
     }
 
     const to = this.formatMelipayamakRecipient(phoneNumber);
+    const text = this.formatMelipayamakMessage(message);
     const body = new URLSearchParams({
       username,
       password,
       to,
       from,
-      text: message,
+      text,
       isFlash: 'false',
     });
 
-    const response = await this.fetchWithTimeout(
-      'https://rest.payamak-panel.com/api/SendSMS/SendSMS',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body,
-      },
-    );
+    let response: Response;
+    try {
+      response = await this.fetchWithTimeout(
+        'https://rest.payamak-panel.com/api/SendSMS/SendSMS',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body,
+        },
+      );
+    } catch (error) {
+      this.logger.error(`Melipayamak request failed for ${to}`, error);
+      throw error;
+    }
 
     const payload = (await response.json().catch(() => null)) as
       | { RetStatus?: number; StrRetStatus?: string; Value?: string }
       | null;
 
     if (!response.ok) {
-      throw new Error(`Melipayamak SMS failed: ${response.status}`);
+      throw new Error(`Melipayamak SMS failed: HTTP ${response.status}`);
     }
 
     if (payload?.RetStatus !== 1) {
-      const detail = payload?.StrRetStatus ?? payload?.Value ?? 'Unknown Melipayamak error';
+      const detail = this.describeMelipayamakFailure(payload);
+      this.logger.error(`Melipayamak rejected SMS to ${to}: ${detail}`);
       throw new Error(`Melipayamak SMS rejected: ${detail}`);
     }
+
+    this.logger.log(`Melipayamak SMS queued for ${to} (recId=${payload?.Value ?? 'ok'})`);
   }
 
   private async sendHttp(phoneNumber: string, message: string): Promise<void> {

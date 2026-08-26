@@ -40,6 +40,7 @@ import type {
   VerifyContactChangeDto,
 } from '../auth/dto/auth.dto';
 import { LocationService } from '../location/location.service';
+import { MessagingService } from '../messaging/messaging.service';
 import { RateLimiterService } from '../redis/rate-limiter.service';
 
 const publicUserSelect = {
@@ -76,6 +77,7 @@ export class UsersService {
     private readonly locationService: LocationService,
     private readonly configService: ConfigService,
     private readonly rateLimiter: RateLimiterService,
+    private readonly messagingService: MessagingService,
   ) {}
 
   async getProfile(userId: string): Promise<AuthUserDto> {
@@ -427,11 +429,16 @@ export class UsersService {
       },
     });
 
-    this.logger.log(
-      `Contact change OTP for ${dto.channel} ${destination} (user ${userId})`,
-    );
+    try {
+      await this.messagingService.sendOtp(
+        destination,
+        code,
+        dto.channel === 'email' ? 'email change' : 'phone change',
+      );
+    } catch (error) {
+      this.logger.error(`Failed to send contact-change OTP to ${destination}`, error);
+    }
 
-    const nodeEnv = this.configService.get<string>('app.nodeEnv', 'development');
     const response: OtpRequestResponseDto = {
       message:
         dto.channel === 'email'
@@ -440,9 +447,8 @@ export class UsersService {
       expiresInSeconds,
     };
 
-    if (nodeEnv !== 'production') {
+    if (this.messagingService.isConsoleOnly()) {
       response.devCode = code;
-      this.logger.warn(`DEV contact OTP for ${destination}: ${code}`);
     }
 
     return response;
@@ -688,14 +694,19 @@ export class UsersService {
         expiresAt: new Date(Date.now() + expiresInSeconds * 1000),
       },
     });
-    const nodeEnv = this.configService.get<string>('app.nodeEnv', 'development');
+
+    try {
+      await this.messagingService.sendOtp(destination, code, 'account deletion');
+    } catch (error) {
+      this.logger.error(`Failed to send delete-account OTP to ${destination}`, error);
+    }
+
     const response: OtpRequestResponseDto = {
       message: 'Verification code sent to confirm account deletion',
       expiresInSeconds,
     };
-    if (nodeEnv !== 'production') {
+    if (this.messagingService.isConsoleOnly()) {
       response.devCode = code;
-      this.logger.warn(`DEV delete-account OTP for ${destination}: ${code}`);
     }
     return response;
   }

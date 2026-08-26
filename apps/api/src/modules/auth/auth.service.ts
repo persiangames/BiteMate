@@ -504,13 +504,12 @@ export class AuthService {
       }
     }
 
-    const nodeEnv = this.configService.get<string>('app.nodeEnv', 'development');
     const response: OtpRequestResponseDto = {
       message: 'OTP sent successfully',
       expiresInSeconds,
     };
 
-    if (nodeEnv === 'development') {
+    if (this.messagingService.isConsoleOnly()) {
       response.devCode = code;
     }
 
