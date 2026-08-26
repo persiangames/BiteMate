@@ -54,6 +54,48 @@ export class EmailService {
     });
   }
 
+  private async sendViaResend(params: {
+    to: string;
+    from: string;
+    fromName: string;
+    subject: string;
+    text: string;
+    html: string;
+  }): Promise<void> {
+    const apiKey = this.configService.get<string>('messaging.email.resend.apiKey');
+    if (!apiKey) {
+      throw new Error('Resend API key is not configured (RESEND_API_KEY)');
+    }
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: `"${params.fromName}" <${params.from}>`,
+        to: [params.to],
+        subject: params.subject,
+        text: params.text,
+        html: params.html,
+      }),
+    });
+
+    const body = (await response.json().catch(() => ({}))) as {
+      message?: string;
+      name?: string;
+    };
+
+    if (!response.ok) {
+      const detail = body.message ?? body.name ?? response.statusText;
+      this.logger.error(`Resend API error (${response.status}): ${detail}`);
+      throw new Error(`Resend: ${detail}`);
+    }
+
+    this.logger.log(`OTP email sent via Resend to ${params.to}`);
+  }
+
   async sendOtpEmail(to: string, code: string, purpose: string): Promise<void> {
     const provider = this.configService.get<string>('messaging.email.provider', 'console');
     const appName = this.configService.get<string>('messaging.appName', 'BiteMate');
@@ -77,6 +119,12 @@ export class EmailService {
 
     if (provider === 'console') {
       this.logger.log(`[EMAIL:console] to=${to} subject=${subject} code=${code}`);
+      return;
+    }
+
+    if (provider === 'resend') {
+      await this.sendViaResend({ to, from, fromName, subject, text, html });
+      this.logger.log(`OTP email sent to ${to} (${emailPurpose})`);
       return;
     }
 

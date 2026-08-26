@@ -114,7 +114,33 @@ SMS content usually shows your **sender line**, not `bitemate.ir`. Use `APP_PUBL
 
 ## 3. Email (ایمیل)
 
-For OTP and password reset emails:
+### Render free tier — SMTP is blocked
+
+Render **blocks outbound SMTP** (ports 25, 465, 587) on **free** web services. Gmail SMTP will show `Connection timeout` even with correct credentials. Options:
+
+1. **Resend (recommended on Render free)** — HTTPS API, works on free tier
+2. **Upgrade Render API** to a paid instance — then Gmail SMTP can work
+3. **Mail hosting on bitemate.ir** — use SMTP from a provider that allows it, or Resend with your domain
+
+Development: keep `EMAIL_PROVIDER=console` — OTP codes appear in API logs and `devCode` in API responses.
+
+### Resend (production on Render free)
+
+1. Sign up at [resend.com](https://resend.com/)
+2. **API Keys** → create key → copy `re_...`
+3. **Domains** → add `bitemate.ir` → add the DNS records Resend shows in Cloudflare (SPF + DKIM)
+4. On Render (`bitemate-api` environment):
+
+```env
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=re_xxxxxxxx
+EMAIL_FROM=noreply@bitemate.ir
+EMAIL_FROM_NAME=BiteMate
+```
+
+Until the domain is verified, Resend may only allow test sends from `onboarding@resend.dev` to your signup email — verify `bitemate.ir` for production.
+
+### SMTP (local dev or paid hosting)
 
 ```env
 EMAIL_PROVIDER=smtp
@@ -127,9 +153,7 @@ SMTP_USER=noreply@bitemate.ir
 SMTP_PASS=your-mailbox-password
 ```
 
-Create `noreply@bitemate.ir` (or similar) in your hosting panel and enable SPF/DKIM for deliverability.
-
-Development: keep `EMAIL_PROVIDER=console` — OTP codes appear in API logs and `devCode` in API responses.
+Create `noreply@bitemate.ir` in your mail panel and enable SPF/DKIM for deliverability.
 
 ---
 

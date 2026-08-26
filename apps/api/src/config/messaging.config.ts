@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
 
 export type SmsProvider = 'console' | 'kavenegar' | 'melipayamak' | 'http';
-export type EmailProvider = 'console' | 'smtp';
+export type EmailProvider = 'console' | 'smtp' | 'resend';
 
 export const messagingConfig = registerAs('messaging', () => ({
   appName: process.env.APP_NAME ?? 'BiteMate',
@@ -29,6 +29,9 @@ export const messagingConfig = registerAs('messaging', () => ({
     provider: (process.env.EMAIL_PROVIDER ?? 'console') as EmailProvider,
     from: process.env.EMAIL_FROM ?? 'noreply@bitemate.ir',
     fromName: process.env.EMAIL_FROM_NAME ?? 'BiteMate',
+    resend: {
+      apiKey: process.env.RESEND_API_KEY?.trim() ?? '',
+    },
     smtp: {
       host: process.env.SMTP_HOST?.trim() ?? '',
       port: parseInt(process.env.SMTP_PORT ?? '587', 10),
