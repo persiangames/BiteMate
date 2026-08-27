@@ -453,7 +453,7 @@ export function RegisterPage() {
         )}
 
         <p className="hint">
-          {t('auth.already')} <Link to="/login">{t('auth.login')}</Link>
+          {t('auth.already')} <Link to="/login" state={{ authIntro: true }}>{t('auth.login')}</Link>
         </p>
       </section>
     </main>

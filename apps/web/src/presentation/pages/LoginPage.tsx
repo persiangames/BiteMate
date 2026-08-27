@@ -110,7 +110,7 @@ export function LoginPage() {
 
       <section className="ig-auth__card ig-auth__card--compact">
         <p>
-          {t('auth.signup.prompt')} <Link to="/register">{t('auth.register')}</Link>
+          {t('auth.signup.prompt')} <Link to="/register" state={{ authIntro: true }}>{t('auth.register')}</Link>
         </p>
       </section>
     </main>

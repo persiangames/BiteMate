@@ -1,0 +1,116 @@
+.auth-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 35%, rgba(255, 138, 0, 0.18), transparent 55%),
+    var(--color-bg);
+  animation: authIntroFadeIn 0.35s ease;
+}
+
+.auth-intro--exit {
+  animation: authIntroFadeOut 0.45s ease forwards;
+}
+
+.auth-intro__stage {
+  display: grid;
+  gap: 0.75rem;
+  place-items: center;
+}
+
+.auth-intro__logo {
+  width: min(52vw, 220px);
+  height: auto;
+  overflow: visible;
+}
+
+.auth-intro__people {
+  opacity: 0;
+  animation: authIntroPeople 0.5s ease 0.15s forwards;
+}
+
+.auth-intro__plate {
+  opacity: 0;
+  transform: translateY(36px) scale(0.55);
+  transform-origin: center;
+  animation: authIntroPlate 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards;
+}
+
+.auth-intro__pin {
+  opacity: 0;
+  transform: scale(0.82);
+  transform-origin: center 72%;
+  animation: authIntroPin 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.95s forwards;
+}
+
+.auth-intro__fork {
+  opacity: 0;
+  transform: translateX(28px);
+  animation: authIntroFork 0.45s ease 1.35s forwards;
+}
+
+.auth-intro__spoon {
+  opacity: 0;
+  transform: translateX(-28px);
+  animation: authIntroSpoon 0.45s ease 1.35s forwards;
+}
+
+.auth-intro__tagline {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  opacity: 0;
+  animation: authIntroTagline 0.4s ease 1.55s forwards;
+  background: linear-gradient(90deg, #ff8a00, #ff4b3e);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@keyframes authIntroFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes authIntroFadeOut {
+  to { opacity: 0; visibility: hidden; }
+}
+
+@keyframes authIntroPeople {
+  to { opacity: 1; }
+}
+
+@keyframes authIntroPlate {
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes authIntroPin {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes authIntroFork {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes authIntroSpoon {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes authIntroTagline {
+  to { opacity: 1; }
+}

@@ -16,7 +16,7 @@ export function LanguagePage() {
     try {
       await setLocale(selected);
       markLanguageSelected();
-      window.location.href = '/login';
+      window.location.href = '/';
     } finally {
       setLoading(false);
     }

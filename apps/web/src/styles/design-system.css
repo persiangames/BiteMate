@@ -234,6 +234,7 @@ html[dir='rtl'] .back-btn__icon {
   width: 40px;
   height: 40px;
   object-fit: contain;
+  object-position: center;
 }
 
 .brand-mark--sm .brand-mark__logo {

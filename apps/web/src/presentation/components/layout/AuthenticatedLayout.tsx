@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { DeviceLocationProvider } from '@/presentation/context/DeviceLocationContext';
 import { NotificationProvider } from '@/presentation/context/NotificationContext';
 import { AppHeader } from '@/presentation/components/layout/AppHeader';
+import { AppPageBackdrop } from '@/presentation/components/layout/AppPageBackdrop';
 import { isChatThreadPath } from '@/presentation/utils/chatTime';
 
 export function AuthenticatedLayout() {
@@ -11,8 +12,10 @@ export function AuthenticatedLayout() {
   return (
     <NotificationProvider>
       <DeviceLocationProvider>
-        {immersive ? null : <AppHeader />}
-        <Outlet />
+        <AppPageBackdrop>
+          {immersive ? null : <AppHeader />}
+          <Outlet />
+        </AppPageBackdrop>
       </DeviceLocationProvider>
     </NotificationProvider>
   );

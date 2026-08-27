@@ -56,7 +56,13 @@ import { RankingsPage } from '@/presentation/pages/RankingsPage';
 
 import { RegisterPage } from '@/presentation/pages/RegisterPage';
 
-import { SplashPage } from '@/presentation/pages/SplashPage';
+import { AboutPage } from '@/presentation/pages/AboutPage';
+import { FaqPage } from '@/presentation/pages/FaqPage';
+import { LandingPage } from '@/presentation/pages/LandingPage';
+
+import { AuthEntryLayout } from '@/presentation/components/layout/AuthEntryLayout';
+import { AppPageBackdrop } from '@/presentation/components/layout/AppPageBackdrop';
+import { MarketingShell } from '@/presentation/components/layout/MarketingShell';
 
 import { VerifyOtpPage } from '@/presentation/pages/VerifyOtpPage';
 
@@ -91,22 +97,34 @@ export function AppRouter() {
 
           <Routes>
 
-            <Route path="/" element={<SplashPage />} />
+            <Route
+              element={
+                <AppPageBackdrop>
+                  <MarketingShell />
+                </AppPageBackdrop>
+              }
+            >
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/faq" element={<FaqPage />} />
+            </Route>
 
             <Route element={<PublicShell />}>
 
               <Route path="/language" element={<LanguagePage />} />
 
-              <Route element={<GuestGate />}>
+              <Route element={<AuthEntryLayout />}>
+                <Route element={<GuestGate />}>
 
-                <Route path="/login" element={<LoginPage />} />
+                  <Route path="/login" element={<LoginPage />} />
 
-                <Route path="/register" element={<RegisterPage />} />
+                  <Route path="/register" element={<RegisterPage />} />
 
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                  <Route path="/reset-password" element={<ResetPasswordPage />} />
 
+                </Route>
               </Route>
 
               <Route element={<AuthGate />}>

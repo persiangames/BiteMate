@@ -1,18 +1,30 @@
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 
+const AUTH_ENTRY_PATHS = new Set([
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+]);
+
 export function BackButton() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { isAuthenticated } = useAuth();
   const { t } = useI18n();
 
   function goBack() {
+    if (!isAuthenticated && AUTH_ENTRY_PATHS.has(pathname)) {
+      navigate('/');
+      return;
+    }
     if (window.history.length > 1) {
       navigate(-1);
       return;
     }
-    navigate(isAuthenticated ? '/feed' : '/language');
+    navigate(isAuthenticated ? '/feed' : '/');
   }
 
   return (

@@ -1,24 +1,44 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/presentation/context/AuthContext';
 
 type BrandMarkProps = {
   size?: 'sm' | 'md';
   linked?: boolean;
+  homeTo?: string;
 };
 
 const ICON_PX = { sm: 36, md: 40 } as const;
 
-export function BrandMark({ size = 'md', linked = true }: BrandMarkProps) {
+const AUTH_ENTRY_PATHS = new Set([
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/language',
+]);
+
+export function BrandMark({ size = 'md', linked = true, homeTo }: BrandMarkProps) {
+  const { pathname } = useLocation();
   const { isAuthenticated, isOtpVerified } = useAuth();
   const px = ICON_PX[size];
-  const home =
-    isAuthenticated && isOtpVerified ? '/feed' : isAuthenticated ? '/verify-otp' : '/login';
+
+  let home = homeTo;
+  if (!home) {
+    if (AUTH_ENTRY_PATHS.has(pathname)) {
+      home = '/';
+    } else if (isAuthenticated && isOtpVerified) {
+      home = '/profile';
+    } else if (isAuthenticated) {
+      home = '/verify-otp';
+    } else {
+      home = '/';
+    }
+  }
 
   const mark = (
     <img
       className="brand-mark__logo"
-      src="/brand/icon-64.png"
-      srcSet="/brand/icon-32.png 1x, /brand/icon-64.png 2x, /brand/icon-96.png 3x"
+      src="/brand/icon-mark.svg"
       width={px}
       height={px}
       alt="BiteMate"

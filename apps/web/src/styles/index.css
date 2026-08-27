@@ -1,5 +1,8 @@
 @import './design-system.css';
 @import './responsive.css';
+@import './doodle-background.css';
+@import './auth-splash.css';
+@import './marketing.css';
 
 .page:not(.app-shell__content) {
   max-width: 920px;
