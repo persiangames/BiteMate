@@ -38,7 +38,7 @@ export function BrandMark({ size = 'md', linked = true, homeTo }: BrandMarkProps
   const mark = (
     <img
       className="brand-mark__logo"
-      src="/brand/icon-mark.svg"
+      src="/brand/icon-mark.png"
       width={px}
       height={px}
       alt="BiteMate"
