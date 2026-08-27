@@ -29,7 +29,6 @@ export function LandingPage() {
         <div className="landing-hero__glow" aria-hidden />
         <div className="landing-hero__inner">
           <BrandLockup size="xl" />
-          <p className="landing-hero__badge">{t('landing.hero.badge')}</p>
           <h1>{t('landing.hero.title')}</h1>
           <p className="landing-hero__subtitle">{t('landing.hero.subtitle')}</p>
           <div className="landing-hero__actions">

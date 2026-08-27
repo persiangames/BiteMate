@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap');
+
 .marketing-shell {
   min-height: 100dvh;
   display: flex;
@@ -32,9 +34,18 @@
 }
 
 .marketing-nav__word {
-  font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.15rem;
+  font-family: 'Caveat', 'Segoe Script', cursive;
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  transform: rotate(-2.5deg);
+  background: linear-gradient(180deg, #ffc107 8%, #ff8a00 42%, #ff4b3e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(60, 36, 21, 0.22));
+  user-select: none;
 }
 
 .marketing-nav__links {
@@ -98,16 +109,6 @@
   display: grid;
   gap: 0.85rem;
   justify-items: center;
-}
-
-.landing-hero__badge {
-  margin: 0;
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
-  background: var(--color-primary-soft);
-  color: var(--color-primary);
-  font-weight: 700;
-  font-size: 0.85rem;
 }
 
 .landing-hero h1 {
