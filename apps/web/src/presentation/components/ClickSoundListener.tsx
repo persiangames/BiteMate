@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { playClick } from '@/utils/playClick';
+import { useSound } from '@/presentation/context/SoundContext';
 
 const SELECTOR = [
   'button',
@@ -15,8 +16,13 @@ const SELECTOR = [
 ].join(',');
 
 export function ClickSoundListener() {
+  const { soundEnabled } = useSound();
+
   useEffect(() => {
     function onClick(event: MouseEvent) {
+      if (!soundEnabled) {
+        return;
+      }
       const target = event.target as HTMLElement | null;
       if (!target?.closest(SELECTOR)) {
         return;
@@ -26,7 +32,7 @@ export function ClickSoundListener() {
 
     document.addEventListener('click', onClick, true);
     return () => document.removeEventListener('click', onClick, true);
-  }, []);
+  }, [soundEnabled]);
 
   return null;
 }

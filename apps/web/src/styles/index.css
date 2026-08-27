@@ -22,6 +22,9 @@
   box-shadow: 0 0 0 1px var(--card-outline-glow), var(--shadow-glass);
   backdrop-filter: blur(18px);
   color: var(--color-dark);
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .card {
@@ -31,6 +34,9 @@
   border: 2px solid var(--card-outline);
   box-shadow: 0 0 0 1px var(--card-outline-glow);
   color: var(--color-dark);
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .toolbar {

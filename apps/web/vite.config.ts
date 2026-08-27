@@ -10,6 +10,23 @@ export default defineConfig({
       '@bitemate/shared': path.resolve(__dirname, '../../shared/src/index.ts'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/maplibre-gl')) {
+            return 'map';
+          }
+          if (id.includes('node_modules/react-router') || id.includes('node_modules/react-dom')) {
+            return 'vendor';
+          }
+          if (id.includes('node_modules/react/')) {
+            return 'vendor';
+          }
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     proxy: {

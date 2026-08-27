@@ -1,6 +1,8 @@
 import { BrandMark } from '@/presentation/components/brand/BrandMark';
+import { LanguageSwitcher } from '@/presentation/components/LanguageSwitcher';
 import { BackButton } from '@/presentation/components/layout/BackButton';
 import { NotificationBell } from '@/presentation/components/layout/NotificationBell';
+import { SettingsButton } from '@/presentation/components/layout/SettingsButton';
 
 export function AppHeader() {
   return (
@@ -9,7 +11,11 @@ export function AppHeader() {
         <BackButton />
         <BrandMark />
         <span className="app-header__spacer" />
-        <NotificationBell />
+        <div className="app-header__actions">
+          <LanguageSwitcher placement="header" />
+          <NotificationBell />
+          <SettingsButton />
+        </div>
       </div>
     </header>
   );

@@ -316,6 +316,8 @@ const RAW: Record<string, Row> = {
   'contact.checking': ['Checking…', 'در حال بررسی…', 'جارٍ التحقق…', '正在验证…', 'Vérification…', 'Wird geprüft…', 'जाँच हो रही है…', 'Verifica…', '確認中…', 'Проверка…', 'Comprobando…', 'Kontrol ediliyor…'],
 
   'settings.title': ['Settings', 'تنظیمات', 'الإعدادات', '设置', 'Paramètres', 'Einstellungen', 'सेटिंग्स', 'Impostazioni', '設定', 'Настройки', 'Ajustes', 'Ayarlar'],
+  'settings.profile': ['Profile settings', 'تنظیمات پروفایل', 'إعدادات الملف', '资料设置', 'Paramètres du profil', 'Profileinstellungen', 'प्रोफ़ाइल सेटिंग्स', 'Impostazioni profilo', 'プロフィール設定', 'Настройки профиля', 'Ajustes del perfil', 'Profil ayarları'],
+  'settings.sound': ['Button sounds', 'صدای دکمه‌ها', 'أصوات الأزرار', '按钮音效', 'Sons des boutons', 'Tastentöne', 'बटन ध्वनि', 'Suoni dei pulsanti', 'ボタン音', 'Звуки кнопок', 'Sonidos de botones', 'Düğme sesleri'],
   'settings.account': ['Account', 'حساب', 'الحساب', '账户', 'Compte', 'Konto', 'खाता', 'Account', 'アカウント', 'Аккаунт', 'Cuenta', 'Hesap'],
   'settings.language': ['Language', 'زبان', 'اللغة', '语言', 'Langue', 'Sprache', 'भाषा', 'Lingua', '言語', 'Язык', 'Idioma', 'Dil'],
   'settings.appearance': ['Appearance', 'ظاهر', 'المظهر', '外观', 'Apparence', 'Darstellung', 'दिखावट', 'Aspetto', '外観', 'Оформление', 'Apariencia', 'Görünüm'],

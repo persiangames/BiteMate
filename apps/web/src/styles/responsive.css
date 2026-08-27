@@ -37,6 +37,69 @@ iframe {
   width: min(100%, 920px);
 }
 
+/* Contain form controls inside bordered panels on all viewports */
+.panel,
+.glass-card,
+.auth-screen__panel,
+.card,
+.app-shell__content,
+.app-page-backdrop__content {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.flow,
+form.flow,
+.field,
+.searchable-select,
+.location-picker-block,
+.save-bar {
+  min-width: 0;
+  max-width: 100%;
+}
+
+input,
+select,
+textarea,
+button,
+.btn-primary,
+.btn-secondary {
+  max-width: 100%;
+}
+
+input[type='file'] {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+input[type='date'],
+input[type='datetime-local'],
+input[type='time'] {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.chip-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 100%;
+}
+
+.post-media,
+video.post-media,
+img.post-media {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
 /* Auth screens */
 .ig-auth {
   padding: clamp(1rem, 4vw, 2rem) clamp(0.75rem, 3vw, 1.5rem) calc(4rem + env(safe-area-inset-bottom, 0px));
@@ -62,8 +125,10 @@ iframe {
 }
 
 .auth-screen__panel {
-  width: min(100%, 560px);
-  margin-inline: auto;
+  width: min(100%, 520px);
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
 }
 
 /* Feed & cards */
