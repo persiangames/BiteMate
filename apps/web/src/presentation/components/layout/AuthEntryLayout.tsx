@@ -1,25 +1,34 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { AuthIntroSplash } from '@/presentation/components/brand/AuthIntroSplash';
+import { BiteMateLogoIntro } from '@/presentation/components/brand/BiteMateLogoIntro';
 
 const INTRO_ROUTES = new Set(['/login', '/register']);
 
 export function AuthEntryLayout() {
   const { pathname } = useLocation();
   const isIntroRoute = INTRO_ROUTES.has(pathname);
-  const [showContent, setShowContent] = useState(!isIntroRoute);
+  const [showIntro, setShowIntro] = useState(false);
+  const lastPlayedPath = useRef<string | null>(null);
 
   useEffect(() => {
     if (!isIntroRoute) {
-      setShowContent(true);
+      setShowIntro(false);
+      lastPlayedPath.current = null;
       return;
     }
-    setShowContent(false);
+    if (lastPlayedPath.current === pathname) {
+      return;
+    }
+    lastPlayedPath.current = pathname;
+    setShowIntro(true);
   }, [isIntroRoute, pathname]);
 
-  if (!showContent && isIntroRoute) {
-    return <AuthIntroSplash onDone={() => setShowContent(true)} />;
-  }
-
-  return <Outlet />;
+  return (
+    <>
+      <Outlet />
+      {showIntro && isIntroRoute ? (
+        <BiteMateLogoIntro onComplete={() => setShowIntro(false)} />
+      ) : null}
+    </>
+  );
 }
