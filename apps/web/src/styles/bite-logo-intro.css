@@ -1,4 +1,4 @@
-/* Logo intro — plays /brand/logo-animation.mp4 at 2× (~2s) */
+/* Logo intro — plays /brand/logo-animation.mp4 at 0.8× (~5s) */
 
 .bite-logo-intro {
   position: fixed;
@@ -8,7 +8,7 @@
   place-items: center;
   pointer-events: none;
   background: color-mix(in srgb, #fafafa 96%, #fff6ec);
-  animation: biteLogoIntroFade 2s ease forwards;
+  animation: biteLogoIntroFade 5s ease forwards;
 }
 
 html[data-theme='dark'] .bite-logo-intro {

@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 
-/** Source is 4s; played at 2× speed → ~2s on screen. */
-const PLAYBACK_RATE = 2;
-const INTRO_MS = 2000;
+/** Source is ~4s; played at 0.8× → ~5s on screen. */
+const PLAYBACK_RATE = 0.8;
+const INTRO_MS = 5000;
 const VIDEO_SRC = '/brand/logo-animation.mp4';
 
 type BiteMateLogoIntroProps = {
