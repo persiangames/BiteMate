@@ -228,9 +228,20 @@ export function ProfileEditPage() {
         return;
       }
 
+      const username = next.username.trim().toLowerCase();
+      const existingUsername = (user?.username ?? '').toLowerCase();
+      let usernamePayload: { username?: string } = {};
+      if (username && username !== existingUsername) {
+        if (!USERNAME_PATTERN.test(username)) {
+          setError(t('profile.username.invalid'));
+          return;
+        }
+        usernamePayload = { username };
+      }
+
       const updated = await updateProfile(accessToken, {
         fullName: next.fullName,
-        username: next.username.trim().toLowerCase(),
+        ...usernamePayload,
         bio: next.bio,
         country: next.country,
         city: next.city,
@@ -310,6 +321,7 @@ export function ProfileEditPage() {
           onChange={(next) => {
             setSaved(false);
             setForm((current) => ({ ...current, ...next }));
+            void persistProfile(next);
           }}
         />
 
@@ -329,7 +341,8 @@ export function ProfileEditPage() {
               value={form.username}
               onChange={(event) => setForm({ ...form, username: event.target.value.toLowerCase() })}
               pattern="[A-Za-z0-9_]{3,30}"
-              required
+              placeholder={t('profile.usernameHint')}
+              autoComplete="username"
             />
             {usernameStatus === 'checking' ? <small className="hint">{t('profile.usernameChecking')}</small> : null}
             {usernameStatus === 'available' ? <small className="hint username-ok">{t('profile.usernameOk')}</small> : null}

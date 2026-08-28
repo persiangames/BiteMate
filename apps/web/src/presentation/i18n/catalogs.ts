@@ -189,6 +189,7 @@ const RAW: Record<string, Row> = {
   'profile.title': ['Profile', 'پروفایل', 'الملف الشخصي', '个人资料', 'Profil', 'Profil', 'प्रोफ़ाइल', 'Profilo', 'プロフィール', 'Профиль', 'Perfil', 'Profil'],
   'profile.name': ['Name', 'نام', 'الاسم', '姓名', 'Nom', 'Name', 'नाम', 'Nome', '名前', 'Имя', 'Nombre', 'Ad'],
   'profile.username': ['Username', 'نام کاربری', 'اسم المستخدم', '用户名', 'Nom d’utilisateur', 'Benutzername', 'यूज़रनेम', 'Nome utente', 'ユーザー名', 'Имя пользователя', 'Usuario', 'Kullanıcı adı'],
+  'profile.usernameHint': ['your_name (3–30 letters, numbers, _)', 'your_name (۳–۳۰ حرف، عدد، _)', 'your_name (3–30 حرفًا أو رقمًا)', 'your_name（3–30 个字符）', 'your_name (3–30 caractères)', 'your_name (3–30 Zeichen)', 'your_name (3–30 अक्षर)', 'your_name (3–30 caratteri)', 'your_name（3〜30文字）', 'your_name (3–30 символов)', 'your_name (3–30 caracteres)', 'your_name (3–30 karakter)'],
   'profile.bio': ['Bio', 'معرفی', 'نبذة', '简介', 'Bio', 'Bio', 'बायो', 'Bio', '自己紹介', 'О себе', 'Bio', 'Biyografi'],
   'profile.country': ['Country', 'کشور', 'البلد', '国家', 'Pays', 'Land', 'देश', 'Paese', '国', 'Страна', 'País', 'Ülke'],
   'profile.city': ['City', 'شهر', 'المدينة', '城市', 'Ville', 'Stadt', 'शहर', 'Città', '都市', 'Город', 'Ciudad', 'Şehir'],

@@ -189,11 +189,16 @@ export class UpdateProfileDto {
   fullName?: string;
 
   @IsOptional()
-  @Transform(({ value }) =>
-    typeof value === 'string' ? value.trim().toLowerCase() : value,
-  )
+  @Transform(({ value }) => {
+    if (typeof value !== 'string') {
+      return value;
+    }
+    const trimmed = value.trim().toLowerCase();
+    return trimmed.length > 0 ? trimmed : undefined;
+  })
+  @ValidateIf((_, value) => value != null && value !== '')
   @IsString()
-  @Matches(/^[a-zA-Z0-9_]{3,30}$/)
+  @Matches(USERNAME_PATTERN)
   username?: string;
 
   @IsOptional()
