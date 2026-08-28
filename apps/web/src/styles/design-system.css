@@ -491,7 +491,7 @@ textarea {
   transform: translateX(-50%);
   width: min(calc(100% - 1.5rem), 560px);
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 0.25rem;
   padding: 0.55rem;
   border-radius: 999px;

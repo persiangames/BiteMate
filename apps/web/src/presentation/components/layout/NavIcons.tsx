@@ -75,6 +75,15 @@ export function NavChatIcon() {
   );
 }
 
+export function NavPeopleIcon() {
+  return (
+    <svg {...iconProps}>
+      <circle cx="11" cy="11" r="6.5" stroke="currentColor" strokeWidth="1.8" />
+      <path d="M20 20l-4.2-4.2" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 export function NavProfileIcon() {
   return (
     <svg {...iconProps}>

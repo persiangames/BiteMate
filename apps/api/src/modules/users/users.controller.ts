@@ -62,9 +62,11 @@ export class UsersController {
   @Get('search')
   @RequireOtpVerified()
   searchUsers(
+    @Query('q') rawQuery: string,
     @Query() query: SearchUsersQueryDto,
   ): Promise<UserSearchHitDto[]> {
-    return this.usersService.searchUsers(query.q);
+    const usernameOnly = typeof rawQuery === 'string' && rawQuery.trim().startsWith('@');
+    return this.usersService.searchUsers(query.q, 20, usernameOnly);
   }
 
   @Get('by-username/:username')

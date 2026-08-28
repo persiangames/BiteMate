@@ -6,6 +6,10 @@ import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import type { UserRole } from '@bitemate/shared';
 
+function normalizeUsernameInput(value: string): string {
+  return value.trim().replace(/^@+/, '').replace(/\s+/g, '');
+}
+
 export function SearchPage() {
   const { accessToken } = useAuth();
   const { t } = useI18n();
@@ -14,27 +18,28 @@ export function SearchPage() {
   const [results, setResults] = useState<Awaited<ReturnType<typeof searchUsers>>>([]);
   const [loading, setLoading] = useState(false);
 
+  const username = normalizeUsernameInput(query);
+
   useEffect(() => {
     if (!accessToken) {
       return;
     }
 
-    const trimmed = query.trim().replace(/^@/, '');
-    if (trimmed.length < 2) {
+    if (username.length < 1) {
       setResults([]);
       return;
     }
 
     setLoading(true);
     const timer = window.setTimeout(() => {
-      void searchUsers(accessToken, trimmed)
+      void searchUsers(accessToken, `@${username}`)
         .then(setResults)
         .catch(() => setResults([]))
         .finally(() => setLoading(false));
     }, 300);
 
     return () => window.clearTimeout(timer);
-  }, [accessToken, query]);
+  }, [accessToken, username]);
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -47,20 +52,29 @@ export function SearchPage() {
   return (
     <main className="page search-page">
       <section className="panel flow">
-        <h1>{t('search.title')}</h1>
+        <h1>{t('nav.people')}</h1>
+        <p className="hint">{t('search.hint')}</p>
         <form className="search-page__form" onSubmit={handleSubmit}>
-          <input
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder={t('search.placeholder')}
-            autoComplete="off"
-            spellCheck={false}
-          />
+          <label className="search-page__input-wrap">
+            <span className="search-page__at" aria-hidden>
+              @
+            </span>
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(normalizeUsernameInput(event.target.value))}
+              placeholder={t('search.usernamePlaceholder')}
+              autoComplete="off"
+              spellCheck={false}
+              inputMode="search"
+              autoCapitalize="none"
+              autoCorrect="off"
+            />
+          </label>
         </form>
 
         {loading ? <p className="hint">{t('search.loading')}</p> : null}
-        {!loading && query.trim().length >= 2 && results.length === 0 ? (
+        {!loading && username.length >= 1 && results.length === 0 ? (
           <p className="hint">{t('search.empty')}</p>
         ) : null}
 

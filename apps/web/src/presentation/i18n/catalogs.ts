@@ -138,11 +138,13 @@ const RAW: Record<string, Row> = {
   'feed.loading': ['Loading feed…', 'در حال بارگذاری خانه…', 'جارٍ تحميل الخلاصة…', '正在加载动态…', 'Chargement du fil…', 'Feed wird geladen…', 'फ़ीड लोड हो रहा है…', 'Caricamento del feed…', 'フィードを読み込み中…', 'Загрузка ленты…', 'Cargando inicio…', 'Akış yükleniyor…'],
   'feed.more': ['Load more', 'موارد بیشتر', 'تحميل المزيد', '加载更多', 'Charger plus', 'Mehr laden', 'और लोड करें', 'Carica altro', 'さらに読み込む', 'Загрузить ещё', 'Cargar más', 'Daha fazla yükle'],
   'feed.post': ['Post', 'پست', 'منشور', '发帖', 'Publier', 'Beitrag', 'पोस्ट', 'Post', '投稿', 'Публикация', 'Publicar', 'Gönderi'],
+  'feed.retry': ['Try again', 'تلاش دوباره', 'حاول مرة أخرى', '重试', 'Réessayer', 'Erneut versuchen', 'फिर से कोशिश करें', 'Riprova', '再試行', 'Повторить', 'Reintentar', 'Tekrar dene'],
 
   'nav.feed': ['Feed', 'خانه', 'الرئيسية', '动态', 'Fil', 'Feed', 'फ़ीड', 'Feed', 'フィード', 'Лента', 'Inicio', 'Akış'],
   'nav.nearby': ['Nearby', 'نزدیک', 'قريب', '附近', 'À proximité', 'In der Nähe', 'आस-पास', 'Vicino', '近く', 'Рядом', 'Cerca', 'Yakınımdakiler'],
   'nav.meetups': ['Meetups', 'قرارها', 'لقاءات', '聚会', 'Rencontres', 'Treffen', 'मुलाकातें', 'Incontri', 'ミートアップ', 'Встречи', 'Quedadas', 'Buluşmalar'],
   'nav.chat': ['Chat', 'گفتگو', 'الدردشة', '聊天', 'Discussion', 'Chat', 'चैट', 'Chat', 'チャット', 'Чат', 'Chat', 'Sohbet'],
+  'nav.people': ['People', 'افراد', 'الأشخاص', '用户', 'Personnes', 'Personen', 'लोग', 'Persone', 'ユーザー', 'Люди', 'Personas', 'Kişiler'],
   'nav.profile': ['Profile', 'پروفایل', 'الملف', '个人资料', 'Profil', 'Profil', 'प्रोफ़ाइल', 'Profilo', 'プロフィール', 'Профиль', 'Perfil', 'Profil'],
   'nav.main': ['Main navigation', 'منوی اصلی', 'التنقل الرئيسي', '主导航', 'Navigation principale', 'Hauptnavigation', 'मुख्य नेविगेशन', 'Navigazione principale', 'メインナビゲーション', 'Основная навигация', 'Navegación principal', 'Ana menü'],
 
@@ -393,6 +395,8 @@ const RAW: Record<string, Row> = {
   'chat.recording': ['Recording… {seconds}s', 'در حال ضبط… {seconds} ثانیه', 'جارٍ التسجيل… {seconds} ث', '录制中… {seconds}秒', 'Enregistrement… {seconds}s', 'Aufnahme… {seconds}s', 'रिकॉर्डिंग… {seconds}s', 'Registrazione… {seconds}s', '録音中… {seconds}秒', 'Запись… {seconds}с', 'Grabando… {seconds}s', 'Kayıt… {seconds}s'],
   'search.title': ['Search', 'جستجو', 'بحث', '搜索', 'Rechercher', 'Suchen', 'खोज', 'Cerca', '検索', 'Поиск', 'Buscar', 'Ara'],
   'search.placeholder': ['Search people', 'جستجوی افراد', 'ابحث عن أشخاص', '搜索用户', 'Rechercher des personnes', 'Personen suchen', 'लोग खोजें', 'Cerca persone', 'ユーザーを検索', 'Поиск людей', 'Buscar personas', 'Kişi ara'],
+  'search.usernamePlaceholder': ['username', 'نام کاربری', 'اسم المستخدم', '用户名', 'nom d’utilisateur', 'Benutzername', 'यूज़रनेम', 'nome utente', 'ユーザー名', 'имя пользователя', 'nombre de usuario', 'kullanıcı adı'],
+  'search.hint': ['Search members by @username', 'جستجوی اعضا با @نام‌کاربری', 'ابحث عن الأعضاء بـ @اسم المستخدم', '通过 @用户名 搜索成员', 'Rechercher des membres par @nom', 'Mitglieder per @Benutzername suchen', '@username से सदस्य खोजें', 'Cerca membri con @username', '@ユーザー名でメンバーを検索', 'Ищите участников по @username', 'Busca miembros por @usuario', '@kullanıcı adı ile ara'],
   'search.loading': ['Searching…', 'در حال جستجو…', 'جارٍ البحث…', '搜索中…', 'Recherche…', 'Suche…', 'खोज रहे हैं…', 'Ricerca…', '検索中…', 'Поиск…', 'Buscando…', 'Aranıyor…'],
   'search.empty': ['No users found.', 'کاربری پیدا نشد.', 'لم يُعثر على مستخدمين.', '未找到用户。', 'Aucun utilisateur trouvé.', 'Keine Nutzer gefunden.', 'कोई उपयोगकर्ता नहीं मिला।', 'Nessun utente trovato.', 'ユーザーが見つかりません。', 'Пользователи не найдены.', 'No se encontraron usuarios.', 'Kullanıcı bulunamadı.'],
   'search.followers': ['{count} followers', '{count} دنبال‌کننده', '{count} متابع', '{count} 粉丝', '{count} abonnés', '{count} Follower', '{count} फ़ॉलोअर', '{count} follower', 'フォロワー {count}', '{count} подписчиков', '{count} seguidores', '{count} takipçi'],

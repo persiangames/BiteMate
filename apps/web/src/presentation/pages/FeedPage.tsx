@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { PostDto } from '@bitemate/shared';
-import { fetchFeed } from '@/data/repositories/feedRepository';
+import { fetchFeed, fetchUserPosts } from '@/data/repositories/feedRepository';
 import { isDemoAccessToken } from '@/data/demo/demoSession';
 import { PostCard } from '@/presentation/components/PostCard';
 import { useAuth } from '@/presentation/context/AuthContext';
@@ -50,8 +50,13 @@ const DEMO_POSTS: PostDto[] = [
   },
 ];
 
+async function loadOwnPosts(accessToken: string, userId: string): Promise<PostDto[]> {
+  const response = await fetchUserPosts(accessToken, userId);
+  return response.items ?? [];
+}
+
 export function FeedPage() {
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
   const { t } = useI18n();
   const [posts, setPosts] = useState<PostDto[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
@@ -62,6 +67,7 @@ export function FeedPage() {
   const loadFeed = useCallback(
     async (nextCursor?: string | null, append = false) => {
       if (!accessToken) {
+        setLoading(false);
         return;
       }
 
@@ -69,6 +75,7 @@ export function FeedPage() {
         setPosts(DEMO_POSTS);
         setHasMore(false);
         setLoading(false);
+        setError(null);
         return;
       }
 
@@ -77,16 +84,46 @@ export function FeedPage() {
 
       try {
         const response = await fetchFeed(accessToken, nextCursor ?? undefined);
-        setPosts((current) => (append ? [...current, ...response.items] : response.items));
+        const items = response.items ?? [];
+
+        if (!append && items.length === 0 && user?.id && !nextCursor) {
+          const ownPosts = await loadOwnPosts(accessToken, user.id);
+          if (ownPosts.length > 0) {
+            setPosts(ownPosts);
+            setCursor(null);
+            setHasMore(false);
+            return;
+          }
+        }
+
+        setPosts((current) => (append ? [...current, ...items] : items));
         setCursor(response.nextCursor);
         setHasMore(response.hasMore);
-      } catch (err) {
-        setError(err instanceof Error ? t('error.loadFailed') : t('error.loadFailed'));
+      } catch {
+        if (!append && user?.id) {
+          try {
+            const ownPosts = await loadOwnPosts(accessToken, user.id);
+            if (ownPosts.length > 0) {
+              setPosts(ownPosts);
+              setCursor(null);
+              setHasMore(false);
+              setError(null);
+              return;
+            }
+          } catch {
+            // Keep the feed error below.
+          }
+        }
+
+        setError(t('error.loadFailed'));
+        if (!append) {
+          setPosts([]);
+        }
       } finally {
         setLoading(false);
       }
     },
-    [accessToken],
+    [accessToken, t, user?.id],
   );
 
   useEffect(() => {
@@ -111,7 +148,14 @@ export function FeedPage() {
       </header>
 
       {loading && posts.length === 0 && <p className="hint">{t('feed.loading')}</p>}
-      {error && <p className="error">{error}</p>}
+      {error ? (
+        <div className="feed-page__error">
+          <p className="error">{error}</p>
+          <button type="button" className="btn-secondary" disabled={loading} onClick={() => void loadFeed()}>
+            {t('feed.retry')}
+          </button>
+        </div>
+      ) : null}
 
       <div className="feed-list">
         {posts.map((post) =>
@@ -134,7 +178,7 @@ export function FeedPage() {
           ),
         )}
       </div>
-      {!loading && posts.length === 0 ? <p className="hint">{t('feed.empty')}</p> : null}
+      {!loading && !error && posts.length === 0 ? <p className="hint">{t('feed.empty')}</p> : null}
 
       {hasMore && (
         <button type="button" className="btn-secondary" disabled={loading} onClick={() => loadFeed(cursor, true)}>

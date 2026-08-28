@@ -167,7 +167,8 @@ export function AppRouter() {
                       <Route element={<AuthenticatedLayout />}>
                         <Route element={<AppShell />}>
                           <Route path="/feed" element={<FeedPage />} />
-                          <Route path="/search" element={<SearchPage />} />
+                          <Route path="/people" element={<SearchPage />} />
+                          <Route path="/search" element={<Navigate to="/people" replace />} />
                           <Route path="/discover" element={<DiscoverPage />} />
                           <Route path="/meetups" element={<MeetupsPage />} />
                           <Route path="/chats" element={<ChatsPage />} />

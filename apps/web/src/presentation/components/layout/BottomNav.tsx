@@ -5,14 +5,16 @@ import {
   NavFeedIcon,
   NavMeetupsIcon,
   NavNearbyIcon,
+  NavPeopleIcon,
   NavProfileIcon,
 } from '@/presentation/components/layout/NavIcons';
 
 const TABS = [
-  { to: '/feed', match: ['/feed', '/search'], icon: NavFeedIcon },
+  { to: '/feed', match: ['/feed'], icon: NavFeedIcon },
   { to: '/discover', match: ['/discover', '/marketplace'], icon: NavNearbyIcon },
   { to: '/meetups', match: ['/meetups'], icon: NavMeetupsIcon },
   { to: '/chats', match: ['/chats'], icon: NavChatIcon },
+  { to: '/people', match: ['/people', '/search'], icon: NavPeopleIcon },
   { to: '/profile', match: ['/profile', '/settings', '/wallet', '/notifications', '/rankings', '/premium', '/bookings', '/u/'], icon: NavProfileIcon },
 ] as const;
 
@@ -28,6 +30,7 @@ export function BottomNav() {
     '/discover': t('nav.nearby'),
     '/meetups': t('nav.meetups'),
     '/chats': t('nav.chat'),
+    '/people': t('nav.people'),
     '/profile': t('nav.profile'),
   } as const;
 

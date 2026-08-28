@@ -62,15 +62,19 @@ export class FeedService {
 
     let nearbyIds: string[] = [];
     if (viewer.liveLatitude != null && viewer.liveLongitude != null) {
-      const nearbyUsers = await this.geoLocationService.findNearby({
-        latitude: viewer.liveLatitude,
-        longitude: viewer.liveLongitude,
-        radiusKm: 50,
-        excludeUserId: userId,
-      });
-      nearbyIds = nearbyUsers
-        .map((user) => user.id)
-        .filter((id) => !followingIds.includes(id));
+      try {
+        const nearbyUsers = await this.geoLocationService.findNearby({
+          latitude: viewer.liveLatitude,
+          longitude: viewer.liveLongitude,
+          radiusKm: 50,
+          excludeUserId: userId,
+        });
+        nearbyIds = nearbyUsers
+          .map((user) => user.id)
+          .filter((id) => !followingIds.includes(id));
+      } catch {
+        nearbyIds = [];
+      }
     }
 
     const ownSince = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -162,10 +166,12 @@ export class FeedService {
     const postIds = selected.map((item) => item.id);
     const sourceMap = new Map(selected.map((item) => [item.id, item.source]));
 
-    const posts = await this.prisma.post.findMany({
-      where: { id: { in: postIds } },
-      include: POST_INCLUDE,
-    });
+    const posts = postIds.length
+      ? await this.prisma.post.findMany({
+          where: { id: { in: postIds } },
+          include: POST_INCLUDE,
+        })
+      : [];
 
     const [likedRows, followingAuthorRows] = await Promise.all([
       this.prisma.postLike.findMany({

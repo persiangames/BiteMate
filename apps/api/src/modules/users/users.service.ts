@@ -113,7 +113,7 @@ export class UsersService {
     return {};
   }
 
-  async searchUsers(query: string, limit = 20): Promise<UserSearchHitDto[]> {
+  async searchUsers(query: string, limit = 20, usernameOnly = false): Promise<UserSearchHitDto[]> {
     const q = query.trim().replace(/^@/, '');
     if (!q) {
       return [];
@@ -123,10 +123,14 @@ export class UsersService {
       where: {
         isActive: true,
         deletedAt: null,
-        OR: [
-          { username: { contains: q, mode: 'insensitive' } },
-          { fullName: { contains: q, mode: 'insensitive' } },
-        ],
+        ...(usernameOnly
+          ? { username: { contains: q, mode: 'insensitive' } }
+          : {
+              OR: [
+                { username: { contains: q, mode: 'insensitive' } },
+                { fullName: { contains: q, mode: 'insensitive' } },
+              ],
+            }),
       },
       take: limit,
       orderBy: [{ followerCount: 'desc' }, { username: 'asc' }],
