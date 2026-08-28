@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
-/** Bump when replacing public/brand/logo-animation.mp4 to bust browser cache. */
-const VIDEO_VERSION = '2';
-const VIDEO_SRC = `/brand/logo-animation.mp4?v=${VIDEO_VERSION}`;
+import { LOGO_ANIMATION_VERSION } from '@/presentation/components/brand/logo-animation.version';
+
+const VIDEO_SRC = `/brand/logo-animation.mp4?v=${LOGO_ANIMATION_VERSION}`;
 const FADE_OUT_MS = 450;
 
 type BiteMateLogoIntroProps = {
