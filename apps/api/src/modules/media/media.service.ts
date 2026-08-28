@@ -80,6 +80,15 @@ export class MediaService {
     };
   }
 
+  async processDocumentUpload(file: Express.Multer.File): Promise<ProcessedMedia> {
+    return {
+      buffer: file.buffer,
+      mediaType: 'VIDEO',
+      extension: extname(file.originalname) || '.bin',
+      contentType: file.mimetype,
+    };
+  }
+
   async uploadProcessedMedia(processed: ProcessedMedia): Promise<{
     mediaUrl: string;
     thumbnailUrl: string | null;

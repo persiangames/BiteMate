@@ -1,7 +1,7 @@
 export const CHAT_TYPES = ['DIRECT', 'MEETUP_GROUP'] as const;
 export type ChatType = (typeof CHAT_TYPES)[number];
 
-export const CHAT_MESSAGE_TYPES = ['TEXT', 'IMAGE', 'VIDEO', 'VOICE'] as const;
+export const CHAT_MESSAGE_TYPES = ['TEXT', 'IMAGE', 'VIDEO', 'VOICE', 'FILE'] as const;
 export type ChatMessageType = (typeof CHAT_MESSAGE_TYPES)[number];
 
 export interface ChatParticipantDto {

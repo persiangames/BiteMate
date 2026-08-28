@@ -20,8 +20,8 @@ export class Message {
   @Prop({ required: true, index: true })
   senderId!: string;
 
-  @Prop({ required: true, enum: ['TEXT', 'IMAGE', 'VIDEO', 'VOICE'] })
-  type!: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE';
+  @Prop({ required: true, enum: ['TEXT', 'IMAGE', 'VIDEO', 'VOICE', 'FILE'] })
+  type!: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE' | 'FILE';
 
   @Prop()
   content?: string;

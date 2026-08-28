@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { DeleteAccountSection } from '@/presentation/components/settings/DeleteAccountSection';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { useSound } from '@/presentation/context/SoundContext';
@@ -57,6 +58,8 @@ export function SettingsPage() {
           >
             {t('profile.logout')}
           </button>
+
+          <DeleteAccountSection />
         </div>
       </section>
     </main>

@@ -1,0 +1,212 @@
+
+/* Chat input bar — Instagram-style composer */
+.chat-input-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.chat-input-bar__icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.chat-input-bar__icon-btn:hover,
+.chat-input-bar__icon-btn.is-recording {
+  color: var(--color-primary);
+  background: rgba(255, 107, 74, 0.12);
+}
+
+.chat-input-bar__plus.is-active {
+  transform: rotate(45deg);
+}
+
+.attach__menu--sheet {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 10rem;
+}
+
+.attach__menu--sheet button {
+  border: 0;
+  background: transparent;
+  text-align: start;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.attach__menu--sheet button:hover {
+  background: rgba(255, 107, 74, 0.1);
+}
+
+.chat-input-bar__recording {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 107, 74, 0.08);
+}
+
+.chat-input-bar__recording-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 999px;
+  background: #ff3b30;
+  animation: chat-rec-pulse 1s ease-in-out infinite;
+}
+
+@keyframes chat-rec-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.85); }
+}
+
+.bubble__file {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: inherit;
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.app-header__search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  color: inherit;
+}
+
+.search-page__form input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--card-outline);
+  background: var(--surface);
+}
+
+.search-page__results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.search-page__hit {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.65rem 0.35rem;
+  border-radius: var(--radius-md);
+  color: inherit;
+  text-decoration: none;
+}
+
+.search-page__hit:hover {
+  background: rgba(255, 107, 74, 0.08);
+}
+
+.search-page__meta {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.search-page__bio {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  color: var(--color-muted);
+  font-size: 0.92rem;
+}
+
+.profile-completion {
+  margin: 0.75rem 0;
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 107, 74, 0.08);
+  border: 1px solid rgba(255, 107, 74, 0.18);
+}
+
+.profile-completion__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.45rem;
+}
+
+.profile-completion__track {
+  height: 0.45rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.profile-completion__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff6b4a, #ffb347);
+  transition: width 0.45s ease;
+}
+
+.profile-completion--done {
+  background: rgba(46, 204, 113, 0.1);
+  border-color: rgba(46, 204, 113, 0.25);
+}
+
+.profile-completion--done .profile-completion__fill {
+  background: linear-gradient(90deg, #2ecc71, #58d68d);
+}
+
+.profile-gate {
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255, 107, 74, 0.25);
+}
+
+.glass-card.is-disabled {
+  opacity: 0.55;
+  pointer-events: none;
+  user-select: none;
+}
+
+.settings-danger {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--card-outline);
+}
+
+.settings-row--danger {
+  width: 100%;
+  display: grid;
+  gap: 0.25rem;
+  text-align: start;
+  border: 0;
+  background: transparent;
+  padding: 0.35rem 0;
+  cursor: pointer;
+  color: #d64545;
+}
+
+.settings-danger__panel {
+  margin-top: 0.75rem;
+}
+
+.settings-danger__confirm {
+  border-color: #d64545;
+  color: #d64545;
+}

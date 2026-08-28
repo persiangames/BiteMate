@@ -60,6 +60,9 @@ const publicUserSelect = {
   favoriteCuisines: true,
   favoriteFoods: true,
   lookingToEat: true,
+  interests: true,
+  relationshipStatus: true,
+  hasChildren: true,
   followerCount: true,
   followingCount: true,
 } as const;
@@ -86,10 +89,31 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    return mapUserToAuthDto(user);
+    const context = await this.loadCompletionContext(user.id, user.role);
+    return mapUserToAuthDto(user, context);
   }
 
-  async searchUsers(query: string, limit = 8): Promise<UserSearchHitDto[]> {
+  private async loadCompletionContext(userId: string, role: AuthUserDto['role']) {
+    if (role === 'HOME_CHEF') {
+      const profile = await this.prisma.homeChefProfile.findUnique({
+        where: { userId },
+        include: { menuItems: { select: { id: true }, take: 1 } },
+      });
+      return {
+        hasHomeChefProfile: Boolean(profile),
+        hasHomeChefMenu: (profile?.menuItems.length ?? 0) > 0,
+      };
+    }
+
+    if (role === 'RESTAURANT_OWNER' || role === 'CAFE_OWNER' || role === 'FOOD_TRUCK_OWNER') {
+      const count = await this.prisma.restaurant.count({ where: { ownerId: userId } });
+      return { hasRestaurantListing: count > 0 };
+    }
+
+    return {};
+  }
+
+  async searchUsers(query: string, limit = 20): Promise<UserSearchHitDto[]> {
     const q = query.trim().replace(/^@/, '');
     if (!q) {
       return [];
@@ -99,16 +123,21 @@ export class UsersService {
       where: {
         isActive: true,
         deletedAt: null,
-        username: { contains: q, mode: 'insensitive' },
+        OR: [
+          { username: { contains: q, mode: 'insensitive' } },
+          { fullName: { contains: q, mode: 'insensitive' } },
+        ],
       },
       take: limit,
-      orderBy: { username: 'asc' },
+      orderBy: [{ followerCount: 'desc' }, { username: 'asc' }],
       select: {
         id: true,
         username: true,
         fullName: true,
         profileImage: true,
         role: true,
+        followerCount: true,
+        bio: true,
       },
     });
   }
@@ -196,6 +225,9 @@ export class UsersService {
       favoriteCuisines?: string[];
       favoriteFoods?: string[];
       lookingToEat?: boolean;
+      interests?: string[];
+      relationshipStatus?: PublicUserDto['relationshipStatus'];
+      hasChildren?: boolean | null;
       followerCount: number;
       followingCount: number;
     },
@@ -247,6 +279,9 @@ export class UsersService {
       favoriteCuisines: user.favoriteCuisines ?? [],
       favoriteFoods: user.favoriteFoods ?? [],
       lookingToEat: user.lookingToEat ?? false,
+      interests: (user.interests ?? []) as PublicUserDto['interests'],
+      relationshipStatus: user.relationshipStatus ?? null,
+      hasChildren: user.hasChildren ?? null,
     };
   }
 
@@ -363,11 +398,15 @@ export class UsersService {
           favoriteCuisines: dto.favoriteCuisines,
           favoriteFoods: dto.favoriteFoods,
           lookingToEat: dto.lookingToEat,
+          interests: dto.interests,
+          relationshipStatus: dto.relationshipStatus,
+          hasChildren: dto.hasChildren,
         },
       });
 
       await this.locationService.syncRedisIndex(user);
-      return mapUserToAuthDto(user);
+      const context = await this.loadCompletionContext(user.id, user.role);
+      return mapUserToAuthDto(user, context);
     } catch (error) {
       this.throwUniqueConflict(error);
       throw error;

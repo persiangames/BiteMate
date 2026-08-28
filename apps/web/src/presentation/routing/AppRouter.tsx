@@ -67,6 +67,9 @@ const ForgotPasswordPage = lazy(() =>
 const ResetPasswordPage = lazy(() =>
   import('@/presentation/pages/ResetPasswordPage').then((m) => ({ default: m.ResetPasswordPage })),
 );
+const SearchPage = lazy(() =>
+  import('@/presentation/pages/SearchPage').then((m) => ({ default: m.SearchPage })),
+);
 const SettingsPage = lazy(() =>
   import('@/presentation/pages/SettingsPage').then((m) => ({ default: m.SettingsPage })),
 );
@@ -164,6 +167,7 @@ export function AppRouter() {
                       <Route element={<AuthenticatedLayout />}>
                         <Route element={<AppShell />}>
                           <Route path="/feed" element={<FeedPage />} />
+                          <Route path="/search" element={<SearchPage />} />
                           <Route path="/discover" element={<DiscoverPage />} />
                           <Route path="/meetups" element={<MeetupsPage />} />
                           <Route path="/chats" element={<ChatsPage />} />

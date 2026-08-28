@@ -28,6 +28,8 @@ import {
   USERNAME_PATTERN,
   USER_ROLES,
   normalizePhoneInput,
+  PROFILE_INTERESTS,
+  RELATIONSHIP_STATUSES,
   type AvailabilityStatus,
   type EducationLevel,
   type Gender,
@@ -281,6 +283,20 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsBoolean()
   lookingToEat?: boolean;
+
+  @IsOptional()
+  @IsArray()
+  @IsIn(PROFILE_INTERESTS, { each: true })
+  @ArrayMaxSize(12)
+  interests?: string[];
+
+  @IsOptional()
+  @IsIn(RELATIONSHIP_STATUSES)
+  relationshipStatus?: (typeof RELATIONSHIP_STATUSES)[number];
+
+  @IsOptional()
+  @IsBoolean()
+  hasChildren?: boolean;
 }
 
 export class UpdateLocaleDto {

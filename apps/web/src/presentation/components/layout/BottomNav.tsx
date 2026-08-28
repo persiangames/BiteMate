@@ -9,7 +9,7 @@ import {
 } from '@/presentation/components/layout/NavIcons';
 
 const TABS = [
-  { to: '/feed', match: ['/feed'], icon: NavFeedIcon },
+  { to: '/feed', match: ['/feed', '/search'], icon: NavFeedIcon },
   { to: '/discover', match: ['/discover', '/marketplace'], icon: NavNearbyIcon },
   { to: '/meetups', match: ['/meetups'], icon: NavMeetupsIcon },
   { to: '/chats', match: ['/chats'], icon: NavChatIcon },

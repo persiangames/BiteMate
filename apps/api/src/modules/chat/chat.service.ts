@@ -289,6 +289,8 @@ export class ChatService {
         return '🎬 Video';
       case 'VOICE':
         return '🎤 Voice message';
+      case 'FILE':
+        return '📎 File';
       default:
         return 'New message';
     }

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import type { ChatMessageDto, ChatSummaryDto, ChatTypingEventDto } from '@bitemate/shared';
-import { MessageComposer } from '@/presentation/components/MessageComposer';
+import type { ChatMessageDto, ChatSummaryDto, ChatTypingEventDto, ChatMessageType } from '@bitemate/shared';
+import { ChatInputBar } from '@/presentation/components/ChatInputBar';
 import {
   connectRealtime,
   emitTyping,
@@ -41,7 +41,6 @@ export function ChatThreadPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [attachOpen, setAttachOpen] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const typingTimeoutRef = useRef<number | null>(null);
   const scrollerRef = useRef<HTMLDivElement | null>(null);
@@ -192,10 +191,9 @@ export function ChatThreadPage() {
     }
   }
 
-  async function handleMediaUpload(file: File, type: 'IMAGE' | 'VIDEO' | 'VOICE') {
+  async function handleMediaUpload(file: File, type: ChatMessageType) {
     if (!accessToken || !chatId) return;
 
-    setAttachOpen(false);
     setUploading(true);
     setError(null);
 
@@ -206,6 +204,7 @@ export function ChatThreadPage() {
         type,
         mediaUrl: uploaded.mediaUrl,
         mediaMimeType: file.type,
+        content: type === 'FILE' ? file.name : undefined,
       });
       setMessages((current) => [...current, message]);
     } catch {
@@ -304,6 +303,17 @@ export function ChatThreadPage() {
                   {message.type === 'VOICE' && message.mediaUrl ? (
                     <audio src={resolveMediaUrl(message.mediaUrl)} controls className="bubble__audio" />
                   ) : null}
+                  {message.type === 'FILE' && message.mediaUrl ? (
+                    <a
+                      href={resolveMediaUrl(message.mediaUrl)}
+                      className="bubble__file"
+                      target="_blank"
+                      rel="noreferrer"
+                      download
+                    >
+                      📎 {message.content ?? t('chat.file')}
+                    </a>
+                  ) : null}
                   <span className="bubble__meta">
                     <time dateTime={message.createdAt}>{formatMessageTime(message.createdAt, locale)}</time>
                     {mine ? (
@@ -331,78 +341,13 @@ export function ChatThreadPage() {
       </div>
 
       <div className="thread-composer">
-        <MessageComposer
-          variant="thread"
+        <ChatInputBar
           value={content}
           onChange={handleTyping}
           onSend={() => void handleSend()}
-          placeholder={t('chat.placeholder')}
-          disabled={uploading}
-          leading={
-            <div className="attach">
-              <button
-                type="button"
-                className="attach__btn"
-                aria-label={t('chat.attach')}
-                onClick={() => setAttachOpen((open) => !open)}
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
-                  <path
-                    d="M12 5v14M5 12h14"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </button>
-              {attachOpen ? (
-                <div className="attach__menu">
-                  <label>
-                    {t('chat.photo')}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      hidden
-                      disabled={uploading}
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) void handleMediaUpload(file, 'IMAGE');
-                        event.target.value = '';
-                      }}
-                    />
-                  </label>
-                  <label>
-                    {t('chat.video')}
-                    <input
-                      type="file"
-                      accept="video/*"
-                      hidden
-                      disabled={uploading}
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) void handleMediaUpload(file, 'VIDEO');
-                        event.target.value = '';
-                      }}
-                    />
-                  </label>
-                  <label>
-                    {t('chat.voice')}
-                    <input
-                      type="file"
-                      accept="audio/*"
-                      hidden
-                      disabled={uploading}
-                      onChange={(event) => {
-                        const file = event.target.files?.[0];
-                        if (file) void handleMediaUpload(file, 'VOICE');
-                        event.target.value = '';
-                      }}
-                    />
-                  </label>
-                </div>
-              ) : null}
-            </div>
-          }
+          onUpload={(file, type) => void handleMediaUpload(file, type)}
+          disabled={loading}
+          uploading={uploading}
         />
         {error ? <p className="error">{error}</p> : null}
       </div>

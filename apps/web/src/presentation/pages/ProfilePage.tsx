@@ -6,6 +6,7 @@ import { fetchWalletBalance } from '@/data/repositories/walletRepository';
 import { fetchUserPosts } from '@/data/repositories/feedRepository';
 import { fetchPublicUserById } from '@/data/repositories/profileRepository';
 import { Avatar } from '@/presentation/components/Avatar';
+import { ProfileCompletionBar } from '@/presentation/components/profile/ProfileCompletionBar';
 import { DiningPrefsBlock } from '@/presentation/components/DiningPrefsBlock';
 import { ProfileSocialBar } from '@/presentation/components/ProfileSocialBar';
 import { formatPlace } from '@/data/localize';
@@ -102,6 +103,7 @@ export function ProfilePage() {
             ))}
           </div>
           <Link to="/profile/edit" className="btn-secondary">{t('profile.edit')}</Link>
+          <ProfileCompletionBar />
           {social ? <ProfileSocialBar profile={social} basePath="/profile" /> : null}
         </div>
       </section>

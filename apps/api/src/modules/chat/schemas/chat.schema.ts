@@ -29,8 +29,8 @@ export class Chat {
   @Prop()
   lastMessagePreview?: string;
 
-  @Prop({ enum: ['TEXT', 'IMAGE', 'VIDEO', 'VOICE'] })
-  lastMessageType?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE';
+  @Prop({ enum: ['TEXT', 'IMAGE', 'VIDEO', 'VOICE', 'FILE'] })
+  lastMessageType?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'VOICE' | 'FILE';
 }
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);

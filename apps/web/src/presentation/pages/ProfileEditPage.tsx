@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { AVAILABILITY_STATUSES, EDUCATION_LEVELS, GENDERS, MEAL_SLOTS } from '@bitemate/shared';
-import type { AvailabilityStatus, EducationLevel, Gender, MealSlot, UserRole } from '@bitemate/shared';
+import { AVAILABILITY_STATUSES, EDUCATION_LEVELS, GENDERS, MEAL_SLOTS, PROFILE_INTERESTS, RELATIONSHIP_STATUSES } from '@bitemate/shared';
+import type { AvailabilityStatus, EducationLevel, Gender, MealSlot, UserRole, ProfileInterest, RelationshipStatus } from '@bitemate/shared';
 import { geocodeCity } from '@/data/geo/geocode';
 import {
   citySelectOptions,
@@ -15,6 +15,7 @@ import {
   checkUsernameAvailable,
   updateProfile,
 } from '@/data/repositories/profileRepository';
+import { ProfileCompletionBar } from '@/presentation/components/profile/ProfileCompletionBar';
 import { ContactChangePanel } from '@/presentation/components/ContactChangePanel';
 import { LocationPickerMap } from '@/presentation/components/LocationPickerMap';
 import { ProfileMediaEditor } from '@/presentation/components/ProfileMediaEditor';
@@ -59,6 +60,9 @@ export function ProfileEditPage() {
     favoriteCuisines: (user?.favoriteCuisines ?? []).join(', '),
     favoriteFoods: (user?.favoriteFoods ?? []).join(', '),
     lookingToEat: user?.lookingToEat ?? false,
+    interests: (user?.interests ?? []) as ProfileInterest[],
+    relationshipStatus: (user?.relationshipStatus ?? '') as RelationshipStatus | '',
+    hasChildren: user?.hasChildren ?? null,
   });
   const [neighborhood, setNeighborhood] = useState<string | null>(null);
   const [usernameStatus, setUsernameStatus] = useState<'idle' | 'checking' | 'available' | 'taken' | 'invalid'>(
@@ -104,6 +108,9 @@ export function ProfileEditPage() {
       favoriteCuisines: (user.favoriteCuisines ?? []).join(', '),
       favoriteFoods: (user.favoriteFoods ?? []).join(', '),
       lookingToEat: user.lookingToEat ?? false,
+      interests: (user.interests ?? []) as ProfileInterest[],
+      relationshipStatus: (user.relationshipStatus ?? '') as RelationshipStatus | '',
+      hasChildren: user.hasChildren ?? null,
     }));
   }, [user]);
 
@@ -232,6 +239,9 @@ export function ProfileEditPage() {
         favoriteCuisines: splitTags(next.favoriteCuisines),
         favoriteFoods: splitTags(next.favoriteFoods),
         lookingToEat: next.lookingToEat,
+        interests: next.interests,
+        relationshipStatus: next.relationshipStatus || undefined,
+        hasChildren: next.hasChildren ?? undefined,
       });
       updateUser(updated);
       setSaved(true);
@@ -260,6 +270,7 @@ export function ProfileEditPage() {
     <main className="page">
       <section className="panel flow">
         <h1>{t('profile.edit')}</h1>
+        <ProfileCompletionBar />
         <p>{t('profile.edit.hint')}</p>
         <div className="save-bar">
           <button
@@ -366,6 +377,64 @@ export function ProfileEditPage() {
                   {t(`dining.education.${item}`)}
                 </option>
               ))}
+            </select>
+          </label>
+          <div>
+            <span className="field-label">{t('profile.interests')}</span>
+            <div className="chip-cloud">
+              {PROFILE_INTERESTS.map((interest) => {
+                const selected = form.interests.includes(interest);
+                return (
+                  <button
+                    key={interest}
+                    type="button"
+                    className={`filter-chip${selected ? ' active' : ''}`}
+                    onClick={() =>
+                      setForm({
+                        ...form,
+                        interests: selected
+                          ? form.interests.filter((item) => item !== interest)
+                          : [...form.interests, interest].slice(0, 12),
+                      })
+                    }
+                  >
+                    {t(`profile.interest.${interest}`)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <label className="field">
+            <span>{t('profile.relationship')}</span>
+            <select
+              value={form.relationshipStatus}
+              onChange={(event) =>
+                setForm({ ...form, relationshipStatus: event.target.value as RelationshipStatus | '' })
+              }
+            >
+              <option value="">{t('dining.any')}</option>
+              {RELATIONSHIP_STATUSES.map((item) => (
+                <option key={item} value={item}>
+                  {t(`profile.relationship.${item}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>{t('profile.hasChildren')}</span>
+            <select
+              value={form.hasChildren === null ? '' : form.hasChildren ? 'yes' : 'no'}
+              onChange={(event) =>
+                setForm({
+                  ...form,
+                  hasChildren:
+                    event.target.value === '' ? null : event.target.value === 'yes',
+                })
+              }
+            >
+              <option value="">{t('dining.any')}</option>
+              <option value="yes">{t('common.yes')}</option>
+              <option value="no">{t('common.no')}</option>
             </select>
           </label>
           <div>

@@ -1,9 +1,10 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   EDUCATION_LEVELS,
   GENDERS,
   MEAL_SLOTS,
+  MIN_PROFILE_COMPLETION_FOR_ACTIONS,
   type EducationLevel,
   type FoodIntentDto,
   type Gender,
@@ -129,7 +130,7 @@ export function MeetupsPage() {
 
   async function handleCreate(event: FormEvent) {
     event.preventDefault();
-    if (!accessToken || latitude === null || longitude === null) return;
+    if (!accessToken || latitude === null || longitude === null || profileLocked) return;
 
     setLoading(true);
     setError(null);
@@ -248,13 +249,31 @@ export function MeetupsPage() {
     }
   }
 
+  const profileLocked =
+    (user?.profileCompletionPercent ?? 0) < MIN_PROFILE_COMPLETION_FOR_ACTIONS;
+
   return (
     <div className="app-screen">
       <header className="screen-header">
         <h1>{t('meetups.title')}</h1>
       </header>
 
-      <section className="glass-card flow">
+      {profileLocked ? (
+        <section className="glass-card profile-gate">
+          <h2>{t('profile.completion.gateTitle')}</h2>
+          <p className="hint">
+            {t('profile.completion.gateHint', {
+              percent: user?.profileCompletionPercent ?? 0,
+              min: MIN_PROFILE_COMPLETION_FOR_ACTIONS,
+            })}
+          </p>
+          <Link to="/profile/edit" className="btn-primary">
+            {t('profile.completion.action')}
+          </Link>
+        </section>
+      ) : null}
+
+      <section className={`glass-card flow${profileLocked ? ' is-disabled' : ''}`}>
         <p className="hint">
           Matching engine connects you by food preference, distance, time window, rating, and reliability.
         </p>

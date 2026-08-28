@@ -33,13 +33,21 @@ export class MediaController {
       throw new BadRequestException('Media file is required');
     }
 
-    const allowed = ['image/', 'video/', 'audio/'];
+    const allowed = ['image/', 'video/', 'audio/', 'application/', 'text/'];
     if (!allowed.some((prefix) => file.mimetype.startsWith(prefix))) {
       throw new BadRequestException('Only image, video, and audio uploads are supported');
     }
 
     if (file.mimetype.startsWith('audio/')) {
       const processed = await this.mediaService.processAudioUpload(file);
+      return this.mediaService.uploadProcessedMedia(processed);
+    }
+
+    if (
+      file.mimetype.startsWith('application/') ||
+      (file.mimetype.startsWith('text/') && !file.mimetype.startsWith('text/html'))
+    ) {
+      const processed = await this.mediaService.processDocumentUpload(file);
       return this.mediaService.uploadProcessedMedia(processed);
     }
 

@@ -1,6 +1,7 @@
 import type { EducationLevel, Gender, MealSlot } from '../types/dining.types';
 import type { AvailabilityStatus } from '../types/location.types';
 import type { UserRole } from '../types/platform.types';
+import type { ProfileInterest, RelationshipStatus } from '../types/profile.types';
 
 export interface UpdateLiveLocationRequestDto {
   latitude: number;
@@ -52,6 +53,8 @@ export interface UserSearchHitDto {
   fullName: string | null;
   profileImage: string | null;
   role: UserRole | null;
+  followerCount: number;
+  bio: string | null;
 }
 
 export interface PublicUserDto {
@@ -76,6 +79,9 @@ export interface PublicUserDto {
   favoriteCuisines: string[];
   favoriteFoods: string[];
   lookingToEat: boolean;
+  interests: ProfileInterest[];
+  relationshipStatus: RelationshipStatus | null;
+  hasChildren: boolean | null;
 }
 
 export type ProfileMeetupRole = 'hosted' | 'attended';
@@ -115,4 +121,6 @@ export interface NearbyQueryDto {
   foodType?: string;
   foodName?: string;
   lookingToEat?: boolean;
+  interests?: ProfileInterest[];
+  relationshipStatus?: RelationshipStatus;
 }

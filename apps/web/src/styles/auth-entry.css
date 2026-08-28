@@ -1,0 +1,92 @@
+/* Auth forms — reveal after logo intro fades out */
+
+.auth-entry-shell:not(.auth-entry-shell--ready) .ig-auth__card,
+.auth-entry-shell:not(.auth-entry-shell--ready) .auth-screen__panel {
+  opacity: 0;
+  transform: translateY(36px) scale(0.96);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.auth-entry-shell--ready .ig-auth__card,
+.auth-entry-shell--ready .auth-screen__panel {
+  opacity: 1;
+  transform: none;
+  filter: none;
+  pointer-events: auto;
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.55s ease;
+  transition-delay: 0.12s;
+}
+
+.auth-entry-shell--ready .ig-auth__card .brand-lockup,
+.auth-entry-shell--ready .auth-screen__panel .brand-lockup {
+  animation: auth-brand-pop 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both;
+}
+
+.auth-entry-shell--ready .ig-auth__form input,
+.auth-entry-shell--ready .ig-auth__form button,
+.auth-entry-shell--ready .auth-screen__panel .flow > * {
+  animation: auth-field-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.auth-entry-shell--ready .ig-auth__form input:nth-child(1),
+.auth-entry-shell--ready .auth-screen__panel .flow > *:nth-child(1) {
+  animation-delay: 0.28s;
+}
+
+.auth-entry-shell--ready .ig-auth__form input:nth-child(2),
+.auth-entry-shell--ready .auth-screen__panel .flow > *:nth-child(2) {
+  animation-delay: 0.36s;
+}
+
+.auth-entry-shell--ready .ig-auth__form input:nth-child(3),
+.auth-entry-shell--ready .auth-screen__panel .flow > *:nth-child(3) {
+  animation-delay: 0.44s;
+}
+
+.auth-entry-shell--ready .ig-auth__form button,
+.auth-entry-shell--ready .auth-screen__panel .flow > *:nth-child(n + 4) {
+  animation-delay: 0.52s;
+}
+
+@keyframes auth-brand-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes auth-field-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-entry-shell:not(.auth-entry-shell--ready) .ig-auth__card,
+  .auth-entry-shell:not(.auth-entry-shell--ready) .auth-screen__panel {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    pointer-events: auto;
+  }
+
+  .auth-entry-shell--ready .ig-auth__card .brand-lockup,
+  .auth-entry-shell--ready .ig-auth__form input,
+  .auth-entry-shell--ready .ig-auth__form button,
+  .auth-entry-shell--ready .auth-screen__panel .flow > * {
+    animation: none;
+  }
+}

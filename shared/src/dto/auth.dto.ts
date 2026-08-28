@@ -1,6 +1,7 @@
 import type { EducationLevel, Gender, MealSlot } from '../types/dining.types';
 import type { AvailabilityStatus } from '../types/location.types';
 import type { AuthProvider, SupportedLocale, UserRole } from '../types/platform.types';
+import type { RelationshipStatus } from '../types/profile.types';
 
 export interface AuthTokensDto {
   accessToken: string;
@@ -42,6 +43,10 @@ export interface AuthUserDto {
   favoriteCuisines: string[];
   favoriteFoods: string[];
   lookingToEat: boolean;
+  interests: string[];
+  relationshipStatus: RelationshipStatus | null;
+  hasChildren: boolean | null;
+  profileCompletionPercent: number;
 }
 
 export interface AuthResponseDto {
@@ -123,6 +128,9 @@ export interface UpdateProfileRequestDto {
   favoriteCuisines?: string[];
   favoriteFoods?: string[];
   lookingToEat?: boolean;
+  interests?: string[];
+  relationshipStatus?: RelationshipStatus | null;
+  hasChildren?: boolean | null;
 }
 
 export type ContactChangeChannel = 'email' | 'phone';
