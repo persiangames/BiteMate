@@ -46,6 +46,7 @@ export function mealFromCategory(category?: string | null): MealSlot | null {
   if (value === 'afternoon') return 'AFTERNOON';
   if (value === 'snack') return 'SNACK';
   if (value === 'dinner') return 'DINNER';
+  if (value === 'beverage' || value === 'drinks') return 'BEVERAGE';
   if (value === 'breakfast' || value === 'BREAKFAST') return 'BREAKFAST';
   return null;
 }

@@ -35,6 +35,7 @@ import {
   citySelectOptions,
   countrySelectOptions,
   dishSelectOptions,
+  dishSelectOptionsForFoodType,
   foodTypeSelectOptions,
   localizeFoodType,
 } from '@/data/localize';
@@ -64,7 +65,10 @@ export function MeetupsPage() {
   const countryOptions = useMemo(() => countrySelectOptions(locale), [locale]);
   const cityOptions = useMemo(() => citySelectOptions(country, locale), [country, locale]);
   const cuisineOptions = useMemo(() => foodTypeSelectOptions(locale), [locale]);
-  const dishOptions = useMemo(() => dishSelectOptions(locale), [locale]);
+  const dishOptions = useMemo(
+    () => dishSelectOptionsForFoodType(foodType, locale),
+    [foodType, locale],
+  );
 
   const [myIntents, setMyIntents] = useState<FoodIntentDto[]>([]);
   const [activeIntent, setActiveIntent] = useState<FoodIntentDto | null>(null);
@@ -289,14 +293,20 @@ export function MeetupsPage() {
             options={cuisineOptions}
             placeholder={t('dining.foodTypeHint')}
             allowCustom
-            onChange={setFoodType}
+            onChange={(value) => {
+              setFoodType(value);
+              setFoodName('');
+            }}
           />
           <SearchableSelect
             label={t('dining.foodName')}
             value={foodName}
             options={dishOptions}
-            placeholder={t('dining.foodNameHint')}
+            placeholder={
+              foodType ? t('dining.foodNameHint') : t('dining.selectFoodTypeFirst')
+            }
             allowCustom
+            disabled={!foodType}
             onChange={setFoodName}
           />
           <label className="field">

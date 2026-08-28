@@ -271,7 +271,7 @@ html[dir='rtl'] .back-btn__icon {
   height: 40px;
   object-fit: contain;
   object-position: center;
-  border-radius: 8px;
+  background: transparent;
 }
 
 .brand-mark--sm .brand-mark__logo {

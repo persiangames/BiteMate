@@ -1,4 +1,5 @@
 export const FOOD_TYPES = [
+  'Beverages / Drinks only',
   'Iranian / Persian',
   'Italian',
   'French',

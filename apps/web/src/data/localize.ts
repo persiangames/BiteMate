@@ -1,4 +1,5 @@
 import { FAMOUS_DISHES, FOOD_TYPES } from '@/data/food/catalog';
+import { dishesForFoodType } from '@/data/food/dish-by-cuisine';
 import { DISH_LABELS, FOOD_TYPE_LABELS } from '@/data/food/labels';
 import { COUNTRY_LABELS } from '@/data/geo/country-labels';
 import { PLACE_LABELS as PLACE_LABELS_CORE } from '@/data/geo/place-labels';
@@ -98,6 +99,17 @@ export function foodTypeSelectOptions(locale: string): SelectOption[] {
 export function dishSelectOptions(locale: string): SelectOption[] {
   return sortOptions(
     FAMOUS_DISHES.map((value) => ({
+      value,
+      label: localizeDish(value, locale),
+    })),
+    locale,
+  );
+}
+
+export function dishSelectOptionsForFoodType(foodType: string, locale: string): SelectOption[] {
+  const dishes = dishesForFoodType(foodType);
+  return sortOptions(
+    dishes.map((value) => ({
       value,
       label: localizeDish(value, locale),
     })),

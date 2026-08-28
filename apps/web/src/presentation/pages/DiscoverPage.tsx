@@ -16,6 +16,7 @@ import {
   citySelectOptions,
   countrySelectOptions,
   dishSelectOptions,
+  dishSelectOptionsForFoodType,
   foodTypeSelectOptions,
   formatPlace,
   localizeDish,
@@ -92,7 +93,10 @@ export function DiscoverPage() {
     [filters.country, locale],
   );
   const cuisineOptions = useMemo(() => foodTypeSelectOptions(locale), [locale]);
-  const dishOptions = useMemo(() => dishSelectOptions(locale), [locale]);
+  const dishOptions = useMemo(
+    () => dishSelectOptionsForFoodType(filters.foodType, locale),
+    [filters.foodType, locale],
+  );
 
   useEffect(() => {
     const next = gps.fix
@@ -314,14 +318,17 @@ export function DiscoverPage() {
             options={cuisineOptions}
             placeholder={t('dining.foodTypeHint')}
             allowCustom
-            onChange={(foodType) => setFilters({ ...filters, foodType })}
+            onChange={(foodType) => setFilters({ ...filters, foodType, foodName: '' })}
           />
           <SearchableSelect
             label={t('dining.foodName')}
             value={filters.foodName}
             options={dishOptions}
-            placeholder={t('dining.foodNameHint')}
+            placeholder={
+              filters.foodType ? t('dining.foodNameHint') : t('dining.selectFoodTypeFirst')
+            }
             allowCustom
+            disabled={!filters.foodType}
             onChange={(foodName) => setFilters({ ...filters, foodName })}
           />
           <label className="field checkbox">

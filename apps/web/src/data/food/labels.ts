@@ -1,6 +1,7 @@
 import { L, type LabelRow } from '@/data/i18n-lists';
 
 export const FOOD_TYPE_LABELS: Record<string, LabelRow> = {
+  'Beverages / Drinks only': L('Beverages / Drinks only', { fa: 'فقط نوشیدنی', ar: 'مشروبات فقط', zh: '仅饮品', fr: 'Boissons uniquement', de: 'Nur Getränke', hi: 'केवल पेय', it: 'Solo bevande', ja: 'ドリンクのみ', ru: 'Только напитки', es: 'Solo bebidas', tr: 'Sadece içecek' }),
   'Iranian / Persian': L('Iranian / Persian', { fa: 'ایرانی / پارسی', ar: 'إيراني / فارسي', zh: '伊朗 / 波斯', fr: 'Iranien / persan', de: 'Iranisch / persisch', hi: 'ईरानी / फ़ारसी', it: 'Iraniana / persiana', ja: 'イラン / ペルシャ', ru: 'Иранская / персидская', es: 'Iraní / persa', tr: 'İran / Fars' }),
   Italian: L('Italian', { fa: 'ایتالیایی', ar: 'إيطالي', zh: '意大利菜', fr: 'Italien', de: 'Italienisch', hi: 'इतालवी', it: 'Italiano', ja: 'イタリア料理', ru: 'Итальянская', es: 'Italiana', tr: 'İtalyan' }),
   French: L('French', { fa: 'فرانسوی', ar: 'فرنسي', zh: '法国菜', fr: 'Français', de: 'Französisch', hi: 'फ़्रांसीसी', it: 'Francese', ja: 'フランス料理', ru: 'Французская', es: 'Francesa', tr: 'Fransız' }),
@@ -275,4 +276,23 @@ export const DISH_LABELS: Record<string, LabelRow> = {
   Cheesecake: L('Cheesecake', { fa: 'چیزکیک', ar: 'تشيز كيك', zh: '芝士蛋糕', fr: 'Cheesecake', de: 'Käsekuchen', hi: 'चीज़केक', it: 'Cheesecake', ja: 'チーズケーキ', ru: 'Чизкейк', es: 'Tarta de queso', tr: 'Cheesecake' }),
   Brownie: L('Brownie', { fa: 'براونی', ar: 'براوني', zh: '布朗尼', fr: 'Brownie', de: 'Brownie', hi: 'ब्राउनी', it: 'Brownie', ja: 'ブラウニー', ru: 'Брауни', es: 'Brownie', tr: 'Brownie' }),
   'Apple pie': L('Apple pie', { fa: 'پای سیب', ar: 'فطيرة تفاح', zh: '苹果派', fr: 'Tarte aux pommes', de: 'Apfelkuchen', hi: 'एपल पाई', it: 'Torta di mele', ja: 'アップルパイ', ru: 'Яблочный пирог', es: 'Tarta de manzana', tr: 'Elmalı turta' }),
+  Espresso: L('Espresso', { fa: 'اسپرسو', ar: 'إسpresso', zh: '浓缩咖啡', fr: 'Espresso', de: 'Espresso', hi: 'एस्प्रेसो', it: 'Espresso', ja: 'エスプレッソ', ru: 'Эспрессо', es: 'Espresso', tr: 'Espresso' }),
+  Cappuccino: L('Cappuccino', { fa: 'کاپوچینو', ar: 'كابتشينو', zh: '卡布奇诺', fr: 'Cappuccino', de: 'Cappuccino', hi: 'कैपुचिनो', it: 'Cappuccino', ja: 'カプチーノ', ru: 'Капучино', es: 'Cappuccino', tr: 'Cappuccino' }),
+  Latte: L('Latte', { fa: 'لاته', ar: 'لاتيه', zh: '拿铁', fr: 'Latte', de: 'Latte', hi: 'लट्टे', it: 'Latte', ja: 'ラテ', ru: 'Латте', es: 'Latte', tr: 'Latte' }),
+  Americano: L('Americano', { fa: 'آمریکano', ar: 'أمريكano', zh: '美式咖啡', fr: 'Americano', de: 'Americano', hi: 'अमेरिकानो', it: 'Americano', ja: 'アメリカーノ', ru: 'Американо', es: 'Americano', tr: 'Americano' }),
+  'Matcha latte': L('Matcha latte', { fa: 'ماچا لاته', ar: 'ماتشا لاتيه', zh: '抹茶拿铁', fr: 'Matcha latte', de: 'Matcha-Latte', hi: 'माचा लट्टे', it: 'Matcha latte', ja: '抹茶ラテ', ru: 'Матча-латте', es: 'Matcha latte', tr: 'Matcha latte' }),
+  'Turkish coffee': L('Turkish coffee', { fa: 'قهوه ترک', ar: 'قهوة تركية', zh: '土耳其咖啡', fr: 'Café turc', de: 'Türkischer Kaffee', hi: 'तुर्की कॉफ़ी', it: 'Caffè turco', ja: 'トルココーヒー', ru: 'Турецкий кофе', es: 'Café turco', tr: 'Türk kahvesi' }),
+  'Persian tea': L('Persian tea', { fa: 'چای ایرانی', ar: 'شاي فارسي', zh: '波斯茶', fr: 'Thé persan', de: 'Persischer Tee', hi: 'फ़ारसी चाय', it: 'Tè persiano', ja: 'ペルシャ茶', ru: 'Персидский чай', es: 'Té persa', tr: 'Fars çayı' }),
+  'Iced tea': L('Iced tea', { fa: 'آیس‌تی', ar: 'شاي مثلج', zh: '冰茶', fr: 'Thé glacé', de: 'Eistee', hi: 'आइस्ड टी', it: 'Tè freddo', ja: 'アイスティー', ru: 'Холодный чай', es: 'Té helado', tr: 'Soğuk çay' }),
+  'Fresh juice': L('Fresh juice', { fa: 'آب‌میوه تازه', ar: 'عصير طازج', zh: '鲜榨果汁', fr: 'Jus frais', de: 'Frischsaft', hi: 'ताज़ा जूस', it: 'Succo fresco', ja: 'フレッシュジュース', ru: 'Свежий сок', es: 'Zumo fresco', tr: 'Taze meyve suyu' }),
+  Smoothie: L('Smoothie', { fa: 'اسموتی', ar: 'سموذي', zh: '思慕雪', fr: 'Smoothie', de: 'Smoothie', hi: 'स्मूदी', it: 'Smoothie', ja: 'スムージー', ru: 'Смузи', es: 'Batido', tr: 'Smoothie' }),
+  Milkshake: L('Milkshake', { fa: 'میلک‌شیک', ar: 'ميلك شيك', zh: '奶昔', fr: 'Milkshake', de: 'Milchshake', hi: 'मिल्कशेक', it: 'Milkshake', ja: 'ミルクセーキ', ru: 'Молочный коктейль', es: 'Batido de leche', tr: 'Milkshake' }),
+  'Craft beer': L('Craft beer', { fa: 'آبجوی دست‌ساز', ar: 'بيرة حرفية', zh: '精酿啤酒', fr: 'Bière artisanale', de: 'Craft Beer', hi: 'क्राफ्ट बीयर', it: 'Birra artigianale', ja: 'クラフトビール', ru: 'Кraft beer', es: 'Cerveza artesanal', tr: 'Craft bira' }),
+  'Wine tasting': L('Wine tasting', { fa: 'چشیدن شراب', ar: 'تذوق النبيذ', zh: '品酒', fr: 'Dégustation de vin', de: 'Weinprobe', hi: 'वाइन टेस्टिंग', it: 'Degustazione vini', ja: 'ワインテイスティング', ru: 'Дегустация вин', es: 'Cata de vinos', tr: 'Şarap tadımı' }),
+  Cocktails: L('Cocktails', { fa: 'کوکتل', ar: 'كوكتيلات', zh: '鸡尾酒', fr: 'Cocktails', de: 'Cocktails', hi: 'कॉकटेल', it: 'Cocktail', ja: 'カクテル', ru: 'Коктейли', es: 'Cócteles', tr: 'Kokteyl' }),
+  Mocktails: L('Mocktails', { fa: 'موکتل', ar: 'موكتيلات', zh: '无酒精鸡尾酒', fr: 'Mocktails', de: 'Mocktails', hi: 'मॉकटेल', it: 'Analcolici', ja: 'モクテル', ru: 'Безалкогольные коктейли', es: 'Cócteles sin alcohol', tr: 'Mocktail' }),
+  'Bubble tea': L('Bubble tea', { fa: 'بابل‌تی', ar: 'شاي الفقاعات', zh: '珍珠奶茶', fr: 'Bubble tea', de: 'Bubble Tea', hi: 'बबल टी', it: 'Bubble tea', ja: 'タピオカミルクティー', ru: 'Бubble tea', es: 'Bubble tea', tr: 'Bubble tea' }),
+  'Hot chocolate': L('Hot chocolate', { fa: 'هات‌چاکلت', ar: 'شوكولاتة ساخنة', zh: '热巧克力', fr: 'Chocolat chaud', de: 'Heiße Schokolade', hi: 'हॉट चॉकलेट', it: 'Cioccolata calda', ja: 'ホットチョコレート', ru: 'Горячий шоколад', es: 'Chocolate caliente', tr: 'Sıcak çikolata' }),
+  'Soft drink': L('Soft drink', { fa: 'نوشابه', ar: 'مشروب غازي', zh: '软饮', fr: 'Soda', de: 'Softdrink', hi: 'सॉफ्ट ड्रिंक', it: 'Bibita', ja: 'ソフトドリンク', ru: 'Газировка', es: 'Refresco', tr: 'Gazlı içecek' }),
+  'Mineral water': L('Mineral water', { fa: 'آب معدنی', ar: 'مياه معدنية', zh: '矿泉水', fr: 'Eau minérale', de: 'Mineralwasser', hi: 'मिनरल वॉटर', it: 'Acqua minerale', ja: 'ミネラルウォーター', ru: 'Минеральная вода', es: 'Agua mineral', tr: 'Maden suyu' }),
 };

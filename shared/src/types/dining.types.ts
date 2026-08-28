@@ -11,7 +11,7 @@ export const EDUCATION_LEVELS = [
 ] as const;
 export type EducationLevel = (typeof EDUCATION_LEVELS)[number];
 
-export const MEAL_SLOTS = ['BREAKFAST', 'LUNCH', 'AFTERNOON', 'DINNER', 'SNACK'] as const;
+export const MEAL_SLOTS = ['BREAKFAST', 'LUNCH', 'AFTERNOON', 'DINNER', 'BEVERAGE', 'SNACK'] as const;
 export type MealSlot = (typeof MEAL_SLOTS)[number];
 
 export function ageFromDateOfBirth(dateOfBirth: string | Date | null | undefined): number | null {
