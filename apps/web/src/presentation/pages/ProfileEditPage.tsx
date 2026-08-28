@@ -6,7 +6,7 @@ import { geocodeCity } from '@/data/geo/geocode';
 import {
   citySelectOptions,
   countrySelectOptions,
-  dishSelectOptions,
+  dishSelectOptionsForFoodTypeField,
   foodTypeSelectOptions,
   localizeDishes,
   localizeFoodTypes,
@@ -77,7 +77,11 @@ export function ProfileEditPage() {
   const countryOptions = useMemo(() => countrySelectOptions(locale), [locale]);
   const cityOptions = useMemo(() => citySelectOptions(form.country, locale), [form.country, locale]);
   const cuisineOptions = useMemo(() => foodTypeSelectOptions(locale), [locale]);
-  const dishOptions = useMemo(() => dishSelectOptions(locale), [locale]);
+  const dishOptions = useMemo(
+    () => dishSelectOptionsForFoodTypeField(form.favoriteCuisines, locale),
+    [form.favoriteCuisines, locale],
+  );
+  const hasFoodTypeSelection = splitTags(form.favoriteCuisines).length > 0;
 
   useEffect(() => {
     if (!user) {
@@ -469,14 +473,20 @@ export function ProfileEditPage() {
             placeholder={t('dining.foodTypeHint')}
             allowCustom
             formatSelected={(value) => localizeFoodTypes(value, locale)}
-            onChange={(favoriteCuisines) => setForm({ ...form, favoriteCuisines })}
+            onChange={(favoriteCuisines) =>
+              setForm({ ...form, favoriteCuisines, favoriteFoods: '' })
+            }
           />
           <SearchableSelect
+            key={form.favoriteCuisines || 'no-food-type'}
             label={t('dining.foodName')}
             value={form.favoriteFoods}
             options={dishOptions}
-            placeholder={t('dining.foodNameHint')}
+            placeholder={
+              hasFoodTypeSelection ? t('dining.foodNameHint') : t('dining.selectFoodTypeFirst')
+            }
             allowCustom
+            disabled={!hasFoodTypeSelection}
             formatSelected={(value) => localizeDishes(value, locale)}
             onChange={(favoriteFoods) => setForm({ ...form, favoriteFoods })}
           />

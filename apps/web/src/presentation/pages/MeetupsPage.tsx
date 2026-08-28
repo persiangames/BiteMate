@@ -34,10 +34,10 @@ import {
 import {
   citySelectOptions,
   countrySelectOptions,
-  dishSelectOptions,
   dishSelectOptionsForFoodType,
   foodTypeSelectOptions,
   localizeFoodType,
+  resolveCanonicalFoodType,
 } from '@/data/localize';
 import { SearchableSelect } from '@/presentation/components/SearchableSelect';
 import { useAuth } from '@/presentation/context/AuthContext';
@@ -294,11 +294,12 @@ export function MeetupsPage() {
             placeholder={t('dining.foodTypeHint')}
             allowCustom
             onChange={(value) => {
-              setFoodType(value);
+              setFoodType(resolveCanonicalFoodType(value));
               setFoodName('');
             }}
           />
           <SearchableSelect
+            key={foodType || 'no-food-type'}
             label={t('dining.foodName')}
             value={foodName}
             options={dishOptions}

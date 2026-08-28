@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/presentation/context/AuthContext';
+import { ICON_MARK_VERSION } from '@/presentation/components/brand/icon-mark.version';
 
 type BrandMarkProps = {
   size?: 'sm' | 'md';
@@ -38,7 +39,7 @@ export function BrandMark({ size = 'md', linked = true, homeTo }: BrandMarkProps
   const mark = (
     <img
       className="brand-mark__logo"
-      src="/brand/icon-mark.png"
+      src={`/brand/icon-mark.png?v=${ICON_MARK_VERSION}`}
       width={px}
       height={px}
       alt="BiteMate"

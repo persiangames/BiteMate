@@ -1,5 +1,6 @@
 import { FAMOUS_DISHES, FOOD_TYPES } from '@/data/food/catalog';
-import { dishesForFoodType } from '@/data/food/dish-by-cuisine';
+import { dishesForFoodType, dishesForFoodTypes } from '@/data/food/dish-by-cuisine';
+import { resolveCanonicalFoodType, splitFoodTypeField } from '@/data/food/resolve-food-type';
 import { DISH_LABELS, FOOD_TYPE_LABELS } from '@/data/food/labels';
 import { COUNTRY_LABELS } from '@/data/geo/country-labels';
 import { PLACE_LABELS as PLACE_LABELS_CORE } from '@/data/geo/place-labels';
@@ -107,7 +108,7 @@ export function dishSelectOptions(locale: string): SelectOption[] {
 }
 
 export function dishSelectOptionsForFoodType(foodType: string, locale: string): SelectOption[] {
-  const dishes = dishesForFoodType(foodType);
+  const dishes = dishesForFoodType(resolveCanonicalFoodType(foodType));
   return sortOptions(
     dishes.map((value) => ({
       value,
@@ -116,6 +117,31 @@ export function dishSelectOptionsForFoodType(foodType: string, locale: string): 
     locale,
   );
 }
+
+export function dishSelectOptionsForFoodTypes(foodTypes: string[], locale: string): SelectOption[] {
+  const dishes = dishesForFoodTypes(foodTypes.map(resolveCanonicalFoodType));
+  return sortOptions(
+    dishes.map((value) => ({
+      value,
+      label: localizeDish(value, locale),
+    })),
+    locale,
+  );
+}
+
+/** Dish picker options for a comma-separated food-type field (profile filters, etc.). */
+export function dishSelectOptionsForFoodTypeField(foodTypeField: string, locale: string): SelectOption[] {
+  const foodTypes = splitFoodTypeField(foodTypeField);
+  if (foodTypes.length === 0) {
+    return [];
+  }
+  if (foodTypes.length === 1) {
+    return dishSelectOptionsForFoodType(foodTypes[0], locale);
+  }
+  return dishSelectOptionsForFoodTypes(foodTypes, locale);
+}
+
+export { resolveCanonicalFoodType };
 
 export function isoForCountry(countryName: string): string | undefined {
   return WORLD_COUNTRIES.find((country) => country.name === countryName)?.iso;

@@ -4,18 +4,16 @@ import { fileURLToPath } from 'node:url';
 
 /**
  * One-time local utility — run manually after replacing icon-mark.source.png:
- *   cd apps/web && npx --yes sharp-cli ... OR from repo root with api's sharp:
- *   node apps/web/scripts/make-icon-transparent.mjs
+ *   cd apps/web && node scripts/make-icon-transparent.mjs
  *
  * Not hooked into prebuild: icon-mark.png is committed; Render web has no sharp dependency.
  */
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const INPUT = path.join(ROOT, 'public/brand/icon-mark.png');
 const OUTPUT = path.join(ROOT, 'public/brand/icon-mark.png');
-const BACKUP = path.join(ROOT, 'public/brand/icon-mark.source.png');
+const SOURCE = path.join(ROOT, 'public/brand/icon-mark.source.png');
 
-const THRESHOLD = 248;
+const LIGHT_THRESHOLD = 235;
 
 async function main() {
   let sharp;
@@ -26,16 +24,12 @@ async function main() {
     process.exit(0);
   }
 
-  if (!fs.existsSync(INPUT)) {
-    console.error(`Missing ${INPUT}`);
+  if (!fs.existsSync(SOURCE)) {
+    console.error(`Missing ${SOURCE}`);
     process.exit(1);
   }
 
-  if (!fs.existsSync(BACKUP)) {
-    fs.copyFileSync(INPUT, BACKUP);
-  }
-
-  const { data, info } = await sharp(BACKUP)
+  const { data, info } = await sharp(SOURCE)
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
@@ -45,7 +39,9 @@ async function main() {
     const r = pixels[i];
     const g = pixels[i + 1];
     const b = pixels[i + 2];
-    if (r >= THRESHOLD && g >= THRESHOLD && b >= THRESHOLD) {
+    const isLight = r >= LIGHT_THRESHOLD && g >= LIGHT_THRESHOLD && b >= LIGHT_THRESHOLD;
+    const isNeutral = Math.abs(r - g) <= 8 && Math.abs(g - b) <= 8 && Math.abs(r - b) <= 8;
+    if (isLight || (isNeutral && r >= 220)) {
       pixels[i + 3] = 0;
     }
   }

@@ -1,4 +1,5 @@
 import { FAMOUS_DISHES } from '@/data/food/catalog';
+import { resolveCanonicalFoodType } from '@/data/food/resolve-food-type';
 
 /** Dishes shown when food type is "Beverages / Drinks only". */
 export const BEVERAGE_DISHES = [
@@ -217,7 +218,7 @@ for (const drink of BEVERAGE_DISHES) {
 }
 
 export function dishesForFoodType(foodType: string): string[] {
-  const normalized = foodType.trim();
+  const normalized = resolveCanonicalFoodType(foodType);
   if (!normalized) {
     return [];
   }
@@ -226,15 +227,24 @@ export function dishesForFoodType(foodType: string): string[] {
     return [...BEVERAGE_DISHES];
   }
 
-  const matched = FAMOUS_DISHES.filter((dish) => {
+  return FAMOUS_DISHES.filter((dish) => {
     const cuisines = DISH_TO_CUISINES[dish];
     return cuisines?.includes(normalized);
   });
+}
 
-  if (matched.length > 0) {
-    return matched;
+export function dishesForFoodTypes(foodTypes: string[]): string[] {
+  const seen = new Set<string>();
+  const dishes: string[] = [];
+
+  for (const foodType of foodTypes) {
+    for (const dish of dishesForFoodType(foodType)) {
+      if (!seen.has(dish)) {
+        seen.add(dish);
+        dishes.push(dish);
+      }
+    }
   }
 
-  const keyword = normalized.toLowerCase();
-  return FAMOUS_DISHES.filter((dish) => dish.toLowerCase().includes(keyword));
+  return dishes;
 }

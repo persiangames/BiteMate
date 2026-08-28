@@ -15,12 +15,12 @@ import type {
 import {
   citySelectOptions,
   countrySelectOptions,
-  dishSelectOptions,
   dishSelectOptionsForFoodType,
   foodTypeSelectOptions,
   formatPlace,
   localizeDish,
   localizeFoodType,
+  resolveCanonicalFoodType,
 } from '@/data/localize';
 import { fetchMyIntents } from '@/data/repositories/intentRepository';
 import { fetchMyMeetups, sendMeetupInvite } from '@/data/repositories/meetupRepository';
@@ -217,6 +217,8 @@ export function DiscoverPage() {
         </button>
       </div>
 
+      {showMap ? <NearbyMap center={center} nearbyUsers={nearbyUsers} /> : null}
+
       {showFilters ? (
         <section className="glass-card flow discover-filters">
           <label className="field">
@@ -318,9 +320,16 @@ export function DiscoverPage() {
             options={cuisineOptions}
             placeholder={t('dining.foodTypeHint')}
             allowCustom
-            onChange={(foodType) => setFilters({ ...filters, foodType, foodName: '' })}
+            onChange={(foodType) =>
+              setFilters({
+                ...filters,
+                foodType: resolveCanonicalFoodType(foodType),
+                foodName: '',
+              })
+            }
           />
           <SearchableSelect
+            key={filters.foodType || 'no-food-type'}
             label={t('dining.foodName')}
             value={filters.foodName}
             options={dishOptions}
@@ -482,8 +491,6 @@ export function DiscoverPage() {
           </ul>
         )}
       </section>
-
-      {showMap ? <NearbyMap center={center} nearbyUsers={nearbyUsers} /> : null}
     </div>
   );
 }
