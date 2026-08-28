@@ -15,12 +15,12 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  color: rgba(255, 75, 62, 0.14);
+  color: rgba(63, 63, 70, 0.14);
   overflow: hidden;
 }
 
 html[data-theme='dark'] .doodle-bg {
-  color: rgba(255, 138, 0, 0.12);
+  color: rgba(113, 113, 122, 0.12);
 }
 
 .doodle-bg__svg {

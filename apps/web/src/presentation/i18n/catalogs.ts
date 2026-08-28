@@ -168,6 +168,8 @@ const RAW: Record<string, Row> = {
 
   'profile.edit': ['Edit profile', 'ویرایش پروفایل', 'تعديل الملف', '编辑资料', 'Modifier le profil', 'Profil bearbeiten', 'प्रोफ़ाइल संपादित करें', 'Modifica profilo', 'プロフィールを編集', 'Редактировать профиль', 'Editar perfil', 'Profili düzenle'],
   'profile.follow': ['Follow', 'دنبال کردن', 'متابعة', '关注', 'Suivre', 'Folgen', 'फ़ॉलो', 'Segui', 'フォロー', 'Подписаться', 'Seguir', 'Takip et'],
+  'profile.message': ['Message', 'پیام', 'رسالة', '发消息', 'Message', 'Nachricht', 'संदेश', 'Messaggio', 'メッセージ', 'Сообщение', 'Mensaje', 'Mesaj'],
+  'profile.messageFailed': ['Could not open chat.', 'باز کردن گفتگو انجام نشد.', 'تعذر فتح المحادثة.', '无法打开聊天。', 'Impossible d’ouvrir la discussion.', 'Chat konnte nicht geöffnet werden.', 'चैट नहीं खुल सकी।', 'Impossibile aprire la chat.', 'チャットを開けませんでした。', 'Не удалось открыть чат.', 'No se pudo abrir el chat.', 'Sohbet açılamadı.'],
   'profile.unfollow': ['Unfollow', 'لغو دنبال', 'إلغاء المتابعة', '取消关注', 'Ne plus suivre', 'Entfolgen', 'अनफ़ॉलो', 'Smetti di seguire', 'フォロー解除', 'Отписаться', 'Dejar de seguir', 'Takipten çık'],
   'profile.followers': ['Followers', 'دنبال‌کننده‌ها', 'المتابعون', '粉丝', 'Abonnés', 'Follower', 'फ़ॉलोअर्स', 'Follower', 'フォロワー', 'Подписчики', 'Seguidores', 'Takipçiler'],
   'profile.following': ['Following', 'دنبال‌شده‌ها', 'يتابع', '关注中', 'Abonnements', 'Folgt', 'फ़ॉलोइंग', 'Seguiti', 'フォロー中', 'Подписки', 'Seguidos', 'Takip'],

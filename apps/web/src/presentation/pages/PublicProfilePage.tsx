@@ -6,6 +6,7 @@ import { fetchPublicUser } from '@/data/repositories/profileRepository';
 import { formatPlace } from '@/data/localize';
 import { Avatar } from '@/presentation/components/Avatar';
 import { DiningPrefsBlock } from '@/presentation/components/DiningPrefsBlock';
+import { ProfileMessageButton } from '@/presentation/components/ProfileMessageButton';
 import { ProfileSocialBar } from '@/presentation/components/ProfileSocialBar';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
@@ -80,15 +81,18 @@ export function PublicProfilePage() {
           <Avatar name={name} imageUrl={profile.profileImage} size="lg" />
         </div>
         <div className="ig-profile__identity">
-          <div>
-            <h1>{name}</h1>
-            <p className="hint">
-              @{profile.username ?? 'bitemate-user'}
-              {' · '}
-              {profile.city || profile.country
-                ? formatPlace(profile.city, profile.country, locale)
-                : t('profile.global')}
-            </p>
+          <div className="ig-profile__headline">
+            <div>
+              <h1>{name}</h1>
+              <p className="hint">
+                @{profile.username ?? 'bitemate-user'}
+                {' · '}
+                {profile.city || profile.country
+                  ? formatPlace(profile.city, profile.country, locale)
+                  : t('profile.global')}
+              </p>
+            </div>
+            {!isSelf ? <ProfileMessageButton userId={profile.id} /> : null}
           </div>
           {profile.role ? (
             <div className="badge-row">

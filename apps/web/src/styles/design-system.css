@@ -1,13 +1,15 @@
 :root {
-  --color-primary: #ff4b3e;
-  --color-primary-soft: rgba(255, 75, 62, 0.12);
-  --color-secondary: #ff8a00;
-  --color-dark: #0f0f0f;
+  --color-primary: #3f3f46;
+  --color-primary-contrast: #ffffff;
+  --color-primary-soft: rgba(63, 63, 70, 0.1);
+  --color-secondary: #52525b;
+  --color-accent: #27272a;
+  --color-dark: #18181b;
   --color-bg: #f4f4f5;
-  --color-success: #2ecc71;
-  --color-error: #e74c3c;
-  --color-muted: #6b7280;
-  --color-border: rgba(15, 15, 15, 0.08);
+  --color-success: #16a34a;
+  --color-error: #dc2626;
+  --color-muted: #71717a;
+  --color-border: rgba(24, 24, 27, 0.1);
   --surface: #ffffff;
   --surface-2: #f4f4f5;
   --surface-muted: #e4e4e7;
@@ -17,16 +19,18 @@
   --shadow-soft: 0 12px 40px rgba(15, 15, 15, 0.08);
   --shadow-glass: 0 8px 32px rgba(15, 15, 15, 0.06);
   --glass-bg: #ffffff;
-  --glass-border: rgba(15, 15, 15, 0.08);
+  --glass-border: rgba(24, 24, 27, 0.08);
   --font-display: 'Times New Roman', Times, serif;
   --font-ui: 'Times New Roman', Times, serif;
   --nav-height: 72px;
   --header-height: 56px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --color-brand-brown: #3c2415;
+  --color-brand-brown: #27272a;
   --primary: var(--color-primary);
-  --card-outline: rgba(255, 75, 62, 0.42);
-  --card-outline-glow: rgba(255, 138, 0, 0.2);
+  --card-outline: rgba(63, 63, 70, 0.2);
+  --card-outline-glow: rgba(82, 82, 91, 0.1);
+  --gradient-brand: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  --shadow-primary: 0 10px 24px rgba(24, 24, 27, 0.14);
 }
 
 html[lang='fa'],
@@ -57,13 +61,17 @@ html[lang='hi'] {
 
 html[data-theme='dark'] {
   color-scheme: dark;
-  --color-dark: #f5f5f7;
+  --color-dark: #fafafa;
   --color-bg: #000000;
   --color-muted: #a1a1aa;
   --color-border: rgba(255, 255, 255, 0.12);
-  --color-error: #ff6b6b;
+  --color-error: #f87171;
   --color-success: #4ade80;
-  --color-primary-soft: rgba(255, 75, 62, 0.2);
+  --color-primary: #e4e4e7;
+  --color-primary-contrast: #18181b;
+  --color-secondary: #d4d4d8;
+  --color-accent: #fafafa;
+  --color-primary-soft: rgba(228, 228, 231, 0.12);
   --surface: #1c1c1e;
   --surface-2: #2c2c2e;
   --surface-muted: #3a3a3c;
@@ -71,8 +79,9 @@ html[data-theme='dark'] {
   --glass-border: rgba(255, 255, 255, 0.1);
   --shadow-soft: 0 12px 40px rgba(0, 0, 0, 0.45);
   --shadow-glass: 0 8px 24px rgba(0, 0, 0, 0.35);
-  --card-outline: rgba(255, 138, 0, 0.55);
-  --card-outline-glow: rgba(255, 75, 62, 0.24);
+  --card-outline: rgba(228, 228, 231, 0.22);
+  --card-outline-glow: rgba(161, 161, 170, 0.12);
+  --shadow-primary: 0 10px 24px rgba(0, 0, 0, 0.35);
 }
 
 html[data-theme='dark'] body {
@@ -82,8 +91,8 @@ html[data-theme='dark'] body {
 
 html[data-theme='dark'] .location-badge,
 html[data-theme='dark'] .restaurant-tag {
-  color: #fdba74;
-  background: rgba(255, 138, 0, 0.18);
+  color: #e4e4e7;
+  background: rgba(228, 228, 231, 0.14);
 }
 
 html[data-theme='dark'] .ig-profile__identity .avatar,
@@ -184,8 +193,8 @@ body {
   font-family: var(--font-ui);
   color: var(--color-dark);
   background:
-    radial-gradient(circle at top right, rgba(255, 138, 0, 0.08), transparent 28%),
-    radial-gradient(circle at top left, rgba(255, 75, 62, 0.08), transparent 24%),
+    radial-gradient(circle at top right, rgba(113, 113, 122, 0.08), transparent 28%),
+    radial-gradient(circle at top left, rgba(82, 82, 91, 0.06), transparent 24%),
     var(--color-bg);
 }
 
@@ -389,10 +398,10 @@ html[dir='rtl'] .back-btn__icon {
   gap: 0.5rem;
   padding: 0.85rem 1.2rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
-  color: #fff;
+  background: var(--gradient-brand);
+  color: var(--color-primary-contrast);
   font-weight: 600;
-  box-shadow: 0 10px 24px rgba(255, 75, 62, 0.24);
+  box-shadow: var(--shadow-primary);
 }
 
 .btn-primary:disabled {
@@ -507,15 +516,15 @@ textarea {
   gap: 0.2rem;
   padding: 0.5rem 0.15rem;
   border-radius: 999px;
-  color: #ff8a00;
+  color: #a1a1aa;
   font-size: 0.68rem;
   font-weight: 700;
   text-align: center;
 }
 
 .bottom-nav__item.active {
-  color: #fff;
-  background: linear-gradient(135deg, #ff4b3e, #ff8a00);
+  color: var(--color-primary-contrast);
+  background: var(--gradient-brand);
 }
 
 .bottom-nav__icon {
@@ -817,7 +826,7 @@ textarea {
   gap: 0.35rem;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  background: rgba(255, 138, 0, 0.12);
+  background: rgba(113, 113, 122, 0.12);
   color: #b45309;
   font-size: 0.82rem;
   font-weight: 600;
@@ -1019,7 +1028,7 @@ textarea {
 .badge-pill {
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  background: rgba(255, 75, 62, 0.1);
+  background: rgba(63, 63, 70, 0.1);
   color: var(--color-primary);
   font-size: 0.78rem;
   font-weight: 700;
@@ -1074,7 +1083,7 @@ textarea {
   max-width: 80%;
   padding: 0.75rem 0.9rem;
   border-radius: 18px 18px 4px 18px;
-  background: linear-gradient(135deg, rgba(255, 75, 62, 0.14), rgba(255, 138, 0, 0.18));
+  background: linear-gradient(135deg, rgba(63, 63, 70, 0.14), rgba(113, 113, 122, 0.18));
 }
 
 .chat-message--theirs {
@@ -1557,7 +1566,7 @@ body:has(.thread-screen) .language-switcher--floating {
   height: 160px;
   overflow: hidden;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  background: linear-gradient(135deg, #111827, #ff4b3e 70%);
+  background: linear-gradient(135deg, #111827, #52525b 70%);
 }
 
 .ig-profile__cover img,
@@ -1590,6 +1599,41 @@ body:has(.thread-screen) .language-switcher--floating {
   padding: 0.25rem 1rem 1.1rem 1rem;
   text-align: start;
   color: var(--color-dark);
+}
+
+.ig-profile__headline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.profile-message__btn {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 2px solid var(--color-primary);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.profile-message__btn:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.profile-message__btn:disabled {
+  opacity: 0.6;
+}
+
+.profile-message__error {
+  margin: 0.35rem 0 0;
+  font-size: 0.82rem;
+  color: var(--color-error);
 }
 
 .ig-profile__identity h1 {
@@ -1969,7 +2013,7 @@ html[dir='rtl'] .composer__send-fab svg {
 }
 
 .star-rating__on {
-  color: #ff8a00;
+  color: #71717a;
 }
 
 .star-rating__off {
@@ -2017,14 +2061,14 @@ html[dir='rtl'] .composer__send-fab svg {
 .food-chip {
   border-radius: 999px;
   padding: 0.25rem 0.65rem;
-  background: rgba(255, 138, 0, 0.14);
+  background: rgba(113, 113, 122, 0.14);
   color: var(--color-secondary);
   font-size: 0.78rem;
   font-weight: 600;
 }
 
 .food-chip--name {
-  background: rgba(255, 75, 62, 0.12);
+  background: rgba(63, 63, 70, 0.12);
   color: var(--color-primary);
 }
 
@@ -2445,8 +2489,8 @@ html[dir='rtl'] .thread-header__back svg {
   flex-direction: column;
   gap: 0.12rem;
   background:
-    radial-gradient(circle at 12% 0%, rgba(255, 138, 0, 0.07), transparent 42%),
-    radial-gradient(circle at 88% 100%, rgba(255, 75, 62, 0.06), transparent 38%),
+    radial-gradient(circle at 12% 0%, rgba(113, 113, 122, 0.07), transparent 42%),
+    radial-gradient(circle at 88% 100%, rgba(63, 63, 70, 0.06), transparent 38%),
     var(--color-bg);
 }
 
@@ -2500,8 +2544,8 @@ html[dir='rtl'] .thread-header__back svg {
 .bubble--mine {
   margin-inline-start: auto;
   border-radius: 18px 18px 4px 18px;
-  background: linear-gradient(135deg, #ff4b3e, #ff8a00);
-  color: #fff;
+  background: var(--gradient-brand);
+  color: var(--color-primary-contrast);
 }
 
 .bubble--theirs {
@@ -2526,7 +2570,7 @@ html[dir='rtl'] .bubble--theirs {
 }
 
 .bubble--mine .bubble__sender {
-  color: #fff;
+  color: var(--color-primary-contrast);
 }
 
 .bubble__text {

@@ -7,7 +7,7 @@
   display: grid;
   place-items: center;
   pointer-events: none;
-  background: color-mix(in srgb, #fafafa 96%, #fff6ec);
+  background: color-mix(in srgb, #fafafa 96%, #f4f4f5);
   opacity: 1;
   visibility: visible;
   transition: opacity 0.45s ease, visibility 0.45s ease;
