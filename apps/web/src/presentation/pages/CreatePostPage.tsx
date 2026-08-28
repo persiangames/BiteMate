@@ -22,7 +22,7 @@ import { LocationPickerMap } from '@/presentation/components/LocationPickerMap';
 
 import { PeopleTagPicker, type SelectedTag } from '@/presentation/components/PeopleTagPicker';
 
-import { SaveFeedback } from '@/presentation/components/SaveFeedback';
+import { UploadProgressBar } from '@/presentation/components/UploadProgressBar';
 
 import { SearchableSelect } from '@/presentation/components/SearchableSelect';
 
@@ -119,6 +119,10 @@ export function CreatePostPage() {
   const [mediaKind, setMediaKind] = useState<'IMAGE' | 'VIDEO' | null>(null);
 
   const [loading, setLoading] = useState(false);
+
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const [uploadLabel, setUploadLabel] = useState<string | null>(null);
 
   const [error, setError] = useState<string | null>(null);
 
@@ -528,6 +532,10 @@ export function CreatePostPage() {
 
     setSaved(false);
 
+    setUploadProgress(0);
+
+    setUploadLabel(t('post.preparing'));
+
 
 
     try {
@@ -536,15 +544,47 @@ export function CreatePostPage() {
 
       let thumbnailUrl: string | undefined;
 
+
+
       if (prepared.poster) {
 
-        const poster = await uploadMedia(accessToken, prepared.poster);
+        setUploadLabel(t('post.uploading'));
+
+        const poster = await uploadMedia(accessToken, prepared.poster, (percent) => {
+
+          setUploadProgress(Math.round(percent * 0.25));
+
+        });
 
         thumbnailUrl = normalizeMediaUrlForStorage(poster.mediaUrl);
 
       }
 
-      const uploaded = await uploadMedia(accessToken, prepared.file);
+
+
+      setUploadLabel(t('post.uploading'));
+
+      const uploaded = await uploadMedia(
+
+        accessToken,
+
+        prepared.file,
+
+        (percent) => {
+
+          setUploadProgress(prepared.poster ? 25 + Math.round(percent * 0.65) : Math.round(percent * 0.9));
+
+        },
+
+      );
+
+
+
+      setUploadLabel(t('post.publishing'));
+
+      setUploadProgress(92);
+
+
 
       await createPost(accessToken, {
 
@@ -574,11 +614,19 @@ export function CreatePostPage() {
 
 
 
+      setUploadProgress(100);
+
+      setUploadLabel(null);
+
       setSaved(true);
 
-      window.setTimeout(() => navigate('/feed'), 900);
+      window.setTimeout(() => navigate('/feed', { replace: true }), 1400);
 
     } catch (err) {
+
+      setUploadLabel(null);
+
+      setUploadProgress(0);
 
       if (err instanceof ApiError) {
 
@@ -799,6 +847,10 @@ export function CreatePostPage() {
 
 
           <SaveFeedback saved={saved} error={error} successKey="post.saved" />
+
+          {loading && uploadLabel ? (
+            <UploadProgressBar percent={uploadProgress} label={uploadLabel} />
+          ) : null}
 
 
 

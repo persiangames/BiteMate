@@ -1,7 +1,7 @@
 import { compressImageFile } from '@/utils/compressImage';
 
-export const MAX_CLIP_SECONDS = 15;
-export const MAX_VIDEO_BYTES = 12 * 1024 * 1024;
+export const MAX_CLIP_SECONDS = 30;
+export const MAX_VIDEO_BYTES = 48 * 1024 * 1024;
 
 function readVideoMeta(file: File): Promise<{ duration: number; width: number; height: number }> {
   return new Promise((resolve, reject) => {

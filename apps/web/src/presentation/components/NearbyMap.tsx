@@ -20,13 +20,30 @@ function isValidCoord(latitude: number, longitude: number) {
   );
 }
 
+function RecenterIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" aria-hidden>
+      <circle cx="12" cy="12" r="3.5" stroke="currentColor" strokeWidth="1.8" />
+      <path
+        d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export function NearbyMap({ center, nearbyUsers }: NearbyMapProps) {
   const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const selfMarkerRef = useRef<maplibregl.Marker | null>(null);
   const markersRef = useRef<maplibregl.Marker[]>([]);
+  const centerRef = useRef(center);
   const [failed, setFailed] = useState(false);
+
+  centerRef.current = center;
 
   useEffect(() => {
     const container = containerRef.current;
@@ -74,7 +91,6 @@ export function NearbyMap({ center, nearbyUsers }: NearbyMapProps) {
       }
       mapRef.current = null;
     };
-    // Map is created once; later GPS updates use setCenter.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -111,9 +127,34 @@ export function NearbyMap({ center, nearbyUsers }: NearbyMapProps) {
       );
   }, [nearbyUsers]);
 
+  function recenterOnSelf() {
+    const next = centerRef.current;
+    if (!mapRef.current || !isValidCoord(next.latitude, next.longitude)) {
+      return;
+    }
+    mapRef.current.easeTo({
+      center: [next.longitude, next.latitude],
+      zoom: Math.max(mapRef.current.getZoom(), 13),
+      duration: 700,
+    });
+    selfMarkerRef.current?.setLngLat([next.longitude, next.latitude]);
+  }
+
   return (
-    <div ref={containerRef} className="map-container">
-      {failed ? <div className="map-placeholder">{t('nearby.mapFailed')}</div> : null}
+    <div className="map-picker">
+      <div ref={containerRef} className="map-container">
+        {failed ? <div className="map-placeholder">{t('nearby.mapFailed')}</div> : null}
+      </div>
+      {!failed ? (
+        <button
+          type="button"
+          className="map-picker__recenter"
+          aria-label={t('map.recenter')}
+          onClick={recenterOnSelf}
+        >
+          <RecenterIcon />
+        </button>
+      ) : null}
     </div>
   );
 }

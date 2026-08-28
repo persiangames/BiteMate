@@ -30,14 +30,17 @@ export function LanguageSwitcher({ placement = 'floating' }: LanguageSwitcherPro
   const inApp = isAuthenticated && isOtpVerified;
 
   useEffect(() => {
-    function onPointerDown(event: PointerEvent) {
+    if (!open) {
+      return;
+    }
+    function onClick(event: MouseEvent) {
       if (!rootRef.current?.contains(event.target as Node)) {
         setOpen(false);
       }
     }
-    document.addEventListener('pointerdown', onPointerDown);
-    return () => document.removeEventListener('pointerdown', onPointerDown);
-  }, []);
+    document.addEventListener('click', onClick);
+    return () => document.removeEventListener('click', onClick);
+  }, [open]);
 
   if (placement === 'floating' && inApp) {
     return null;
@@ -65,7 +68,10 @@ export function LanguageSwitcher({ placement = 'floating' }: LanguageSwitcherPro
         aria-expanded={open}
         aria-haspopup="listbox"
         aria-label={t('language.title')}
-        onClick={() => setOpen((current) => !current)}
+        onClick={(event) => {
+          event.stopPropagation();
+          setOpen((current) => !current);
+        }}
       >
         <span className="language-switcher__icon" aria-hidden>
           <GlobeIcon />
