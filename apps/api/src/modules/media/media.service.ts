@@ -134,10 +134,6 @@ export class MediaService {
     }
 
     const uploadDir = this.configService.get<string>('storage.localUploadDir', 'uploads');
-    const publicBaseUrl = this.configService.get<string>(
-      'storage.publicBaseUrl',
-      'http://localhost:3000/uploads',
-    );
 
     if (!existsSync(uploadDir)) {
       mkdirSync(uploadDir, { recursive: true });
@@ -146,16 +142,17 @@ export class MediaService {
     const mediaPath = join(uploadDir, mediaKey.replace(/\//g, '_'));
     writeFileSync(mediaPath, processed.buffer);
 
-    let thumbnailUrl: string | null = null;
     if (processed.thumbnailBuffer && thumbnailKey) {
       const thumbPath = join(uploadDir, thumbnailKey.replace(/\//g, '_'));
       writeFileSync(thumbPath, processed.thumbnailBuffer);
-      thumbnailUrl = `${publicBaseUrl}/${thumbnailKey.replace(/\//g, '_')}`;
     }
 
+    const fileName = mediaKey.replace(/\//g, '_');
+    const thumbFileName = thumbnailKey?.replace(/\//g, '_') ?? null;
+
     return {
-      mediaUrl: `${publicBaseUrl}/${mediaKey.replace(/\//g, '_')}`,
-      thumbnailUrl,
+      mediaUrl: `/uploads/${fileName}`,
+      thumbnailUrl: thumbFileName ? `/uploads/${thumbFileName}` : null,
       mediaType: processed.mediaType,
     };
   }

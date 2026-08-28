@@ -25,6 +25,7 @@ import { useAuth } from '@/presentation/context/AuthContext';
 import { useDeviceLocation } from '@/presentation/context/DeviceLocationContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { localizeError } from '@/presentation/i18n/localizeError';
+import { normalizeMediaUrlForStorage } from '@/utils/mediaUrl';
 
 const USERNAME_PATTERN = /^[A-Za-z0-9_]{3,30}$/;
 
@@ -210,8 +211,12 @@ export function ProfileEditPage() {
     try {
       if (mediaOnly) {
         const updated = await updateProfile(accessToken, {
-          ...(patch?.profileImage ? { profileImage: patch.profileImage } : {}),
-          ...(patch?.coverImage ? { coverImage: patch.coverImage } : {}),
+          ...(patch?.profileImage
+            ? { profileImage: normalizeMediaUrlForStorage(patch.profileImage) }
+            : {}),
+          ...(patch?.coverImage
+            ? { coverImage: normalizeMediaUrlForStorage(patch.coverImage) }
+            : {}),
         });
         updateUser(updated);
         setForm((current) => ({
@@ -229,8 +234,16 @@ export function ProfileEditPage() {
         bio: next.bio,
         country: next.country,
         city: next.city,
-        profileImage: next.profileImage.startsWith('blob:') ? user?.profileImage ?? undefined : next.profileImage,
-        coverImage: next.coverImage.startsWith('blob:') ? user?.coverImage ?? undefined : next.coverImage,
+        profileImage: next.profileImage.startsWith('blob:')
+          ? user?.profileImage ?? undefined
+          : next.profileImage
+            ? normalizeMediaUrlForStorage(next.profileImage)
+            : undefined,
+        coverImage: next.coverImage.startsWith('blob:')
+          ? user?.coverImage ?? undefined
+          : next.coverImage
+            ? normalizeMediaUrlForStorage(next.coverImage)
+            : undefined,
         liveLocationEnabled: next.liveLocationEnabled,
         invisibleMode: next.invisibleMode,
         availabilityStatus: next.availabilityStatus,

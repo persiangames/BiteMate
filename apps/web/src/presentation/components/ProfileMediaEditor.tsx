@@ -4,7 +4,7 @@ import { AvatarStudio } from '@/presentation/components/AvatarStudio';
 import { ImageCropModal } from '@/presentation/components/ImageCropModal';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { localizeError } from '@/presentation/i18n/localizeError';
-import { resolveMediaUrl } from '@/utils/mediaUrl';
+import { resolveMediaUrl, normalizeMediaUrlForStorage } from '@/utils/mediaUrl';
 
 type ProfileMediaEditorProps = {
   accessToken: string;
@@ -56,10 +56,11 @@ export function ProfileMediaEditor({
     setShowStudio(false);
     try {
       const uploaded = await uploadMedia(accessToken, file);
+      const storedUrl = normalizeMediaUrlForStorage(uploaded.mediaUrl);
       if (kind === 'cover') {
-        onChange({ coverImage: uploaded.mediaUrl });
+        onChange({ coverImage: storedUrl });
       } else {
-        onChange({ profileImage: uploaded.mediaUrl });
+        onChange({ profileImage: storedUrl });
       }
     } catch (err) {
       setError(localizeError(t, err, 'profile.upload.failed'));
