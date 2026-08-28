@@ -3,6 +3,7 @@ import { geocodeCity, searchPlaces, type PlaceHit } from '@/data/geo/geocode';
 import { filterCountries, filterCities, searchWorldCities } from '@/data/geo/world';
 import { countrySelectOptions, formatPlace, localizeCity, localizeCountry } from '@/data/localize';
 import { ApiError } from '@/data/api/client';
+import { getAccessToken } from '@/data/api/sessionBridge';
 import { uploadMedia } from '@/data/api/uploadClient';
 import { isDemoAccessToken } from '@/data/demo/demoSession';
 import { createPost } from '@/data/repositories/feedRepository';
@@ -18,9 +19,10 @@ import { useI18n } from '@/presentation/context/I18nContext';
 import { localizeError } from '@/presentation/i18n/localizeError';
 import { MAX_CLIP_SECONDS, preparePostMedia } from '@/utils/prepareMedia';
 import { normalizeMediaUrlForStorage } from '@/utils/mediaUrl';
+import type { PostDto } from '@bitemate/shared';
 
 type PostComposerProps = {
-  onPublished?: () => void;
+  onPublished?: (post: PostDto) => void;
 };
 
 function buildLocationLabel(
@@ -294,26 +296,28 @@ export function PostComposer({ onPublished }: PostComposerProps) {
     setUploadLabel(t('post.preparing'));
 
     try {
+      const sessionToken = getAccessToken() ?? accessToken;
       const prepared = await preparePostMedia(file);
       let thumbnailUrl: string | undefined;
 
       if (prepared.poster) {
         setUploadLabel(t('post.uploading'));
-        const poster = await uploadMedia(accessToken, prepared.poster, (percent) => {
+        const poster = await uploadMedia(sessionToken, prepared.poster, (percent) => {
           setUploadProgress(Math.round(percent * 0.25));
         });
         thumbnailUrl = normalizeMediaUrlForStorage(poster.mediaUrl);
       }
 
       setUploadLabel(t('post.uploading'));
-      const uploaded = await uploadMedia(accessToken, prepared.file, (percent) => {
+      const uploaded = await uploadMedia(getAccessToken() ?? sessionToken, prepared.file, (percent) => {
         setUploadProgress(prepared.poster ? 25 + Math.round(percent * 0.65) : Math.round(percent * 0.9));
       });
 
       setUploadLabel(t('post.publishing'));
       setUploadProgress(92);
 
-      await createPost(accessToken, {
+      const publishToken = getAccessToken() ?? sessionToken;
+      const created = await createPost(publishToken, {
         caption: caption || undefined,
         mediaType: uploaded.mediaType,
         mediaUrl: normalizeMediaUrlForStorage(uploaded.mediaUrl),
@@ -330,7 +334,7 @@ export function PostComposer({ onPublished }: PostComposerProps) {
       setUploadProgress(100);
       setUploadLabel(null);
       setSaved(true);
-      window.setTimeout(() => onPublished?.(), 900);
+      window.setTimeout(() => onPublished?.(created), 900);
     } catch (err) {
       setUploadLabel(null);
       setUploadProgress(0);

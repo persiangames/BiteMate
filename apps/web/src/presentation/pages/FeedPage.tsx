@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import type { PostDto } from '@bitemate/shared';
+import { ApiError } from '@/data/api/client';
 import { fetchFeed, fetchUserPosts } from '@/data/repositories/feedRepository';
 import { isDemoAccessToken } from '@/data/demo/demoSession';
 import { PostCard } from '@/presentation/components/PostCard';
@@ -50,19 +51,52 @@ const DEMO_POSTS: PostDto[] = [
   },
 ];
 
+type FeedLocationState = {
+  newPost?: PostDto;
+};
+
 async function loadOwnPosts(accessToken: string, userId: string): Promise<PostDto[]> {
   const response = await fetchUserPosts(accessToken, userId);
   return response.items ?? [];
 }
 
+function mergePosts(current: PostDto[], incoming: PostDto[]): PostDto[] {
+  const seen = new Set<string>();
+  const merged: PostDto[] = [];
+
+  for (const post of [...incoming, ...current]) {
+    if (seen.has(post.id)) {
+      continue;
+    }
+    seen.add(post.id);
+    merged.push(post);
+  }
+
+  return merged;
+}
+
 export function FeedPage() {
   const { accessToken, user } = useAuth();
   const { t } = useI18n();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<PostDto[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const state = location.state as FeedLocationState | null;
+    const newPost = state?.newPost;
+    if (!newPost) {
+      return;
+    }
+
+    setPosts((current) => mergePosts(current, [newPost]));
+    setError(null);
+    navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   const loadFeed = useCallback(
     async (nextCursor?: string | null, append = false) => {
@@ -89,22 +123,22 @@ export function FeedPage() {
         if (!append && items.length === 0 && user?.id && !nextCursor) {
           const ownPosts = await loadOwnPosts(accessToken, user.id);
           if (ownPosts.length > 0) {
-            setPosts(ownPosts);
+            setPosts((current) => mergePosts(current, ownPosts));
             setCursor(null);
             setHasMore(false);
             return;
           }
         }
 
-        setPosts((current) => (append ? [...current, ...items] : items));
+        setPosts((current) => (append ? [...current, ...items.filter((p) => !current.some((c) => c.id === p.id))] : mergePosts(items, current)));
         setCursor(response.nextCursor);
         setHasMore(response.hasMore);
-      } catch {
+      } catch (err) {
         if (!append && user?.id) {
           try {
             const ownPosts = await loadOwnPosts(accessToken, user.id);
             if (ownPosts.length > 0) {
-              setPosts(ownPosts);
+              setPosts((current) => mergePosts(current, ownPosts));
               setCursor(null);
               setHasMore(false);
               setError(null);
@@ -115,9 +149,16 @@ export function FeedPage() {
           }
         }
 
-        setError(t('error.loadFailed'));
+        if (err instanceof ApiError && err.status === 401) {
+          setError(t('error.sessionExpired'));
+        } else if (err instanceof ApiError && err.message) {
+          setError(err.message);
+        } else {
+          setError(t('error.loadFailed'));
+        }
+
         if (!append) {
-          setPosts([]);
+          setPosts((current) => (current.length ? current : []));
         }
       } finally {
         setLoading(false);

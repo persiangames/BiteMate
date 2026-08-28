@@ -14,6 +14,24 @@ export class ApiError extends Error {
   }
 }
 
+function readBearerFromInit(init?: RequestInit): string | null {
+  if (!init?.headers) {
+    return null;
+  }
+
+  const headers = new Headers(init.headers);
+  const auth = headers.get('Authorization');
+  if (auth?.startsWith('Bearer ')) {
+    return auth.slice(7);
+  }
+
+  return null;
+}
+
+function resolveRequestToken(init?: RequestInit): string | null {
+  return getAccessToken() ?? readBearerFromInit(init);
+}
+
 function mergeHeaders(init?: RequestInit, accessToken?: string | null): Headers {
   const headers = new Headers(init?.headers);
   if (!headers.has('Accept')) {
@@ -23,7 +41,7 @@ function mergeHeaders(init?: RequestInit, accessToken?: string | null): Headers 
   if (!isFormData && !headers.has('Content-Type') && init?.body) {
     headers.set('Content-Type', 'application/json');
   }
-  if (accessToken && !headers.has('Authorization')) {
+  if (accessToken) {
     headers.set('Authorization', `Bearer ${accessToken}`);
   }
   return headers;
@@ -51,10 +69,10 @@ async function parseError(response: Response): Promise<ApiError> {
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
-  const firstToken = getAccessToken();
+  const token = resolveRequestToken(init);
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
-    headers: mergeHeaders(init, firstToken),
+    headers: mergeHeaders(init, token),
   });
 
   if (response.status === 401 && !path.includes('/auth/refresh') && !path.includes('/auth/login')) {
@@ -86,5 +104,6 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 }
 
 export function authHeaders(accessToken?: string | null): HeadersInit {
-  return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+  const token = getAccessToken() ?? accessToken;
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }

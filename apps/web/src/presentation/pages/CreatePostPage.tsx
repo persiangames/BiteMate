@@ -15,7 +15,7 @@ export function CreatePostPage() {
         </Link>
       </header>
 
-      <PostComposer onPublished={() => navigate('/feed', { replace: true })} />
+      <PostComposer onPublished={(post) => navigate('/feed', { replace: true, state: { newPost: post } })} />
     </div>
   );
 }

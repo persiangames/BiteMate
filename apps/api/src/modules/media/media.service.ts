@@ -44,10 +44,20 @@ export class MediaService {
     const mediaType: MediaType = isVideo ? 'VIDEO' : 'IMAGE';
 
     if (isVideo) {
+      const extension = (extname(file.originalname) || '.mp4').toLowerCase();
+      const contentType =
+        file.mimetype ||
+        (extension === '.webm'
+          ? 'video/webm'
+          : extension === '.mov'
+            ? 'video/quicktime'
+            : 'video/mp4');
+
       return {
         buffer: file.buffer,
         mediaType,
-        extension: extname(file.originalname) || '.mp4',
+        extension,
+        contentType,
       };
     }
 

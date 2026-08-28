@@ -95,7 +95,7 @@ export async function uploadMedia(
   file: File,
   onProgress?: UploadProgressHandler,
 ): Promise<MediaUploadResult> {
-  let token = accessToken || getAccessToken() || '';
+  let token = getAccessToken() ?? accessToken ?? '';
   let response = await xhrUpload(token, file, onProgress);
 
   if (response.status === 401) {
