@@ -1,17 +1,19 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-/** Source is ~4s; played at 0.8× → ~5s on screen. */
-const PLAYBACK_RATE = 0.8;
-const INTRO_MS = 5000;
-const VIDEO_SRC = '/brand/logo-animation.mp4';
+/** Bump when replacing public/brand/logo-animation.mp4 to bust browser cache. */
+const VIDEO_VERSION = '2';
+const VIDEO_SRC = `/brand/logo-animation.mp4?v=${VIDEO_VERSION}`;
+const FADE_OUT_MS = 450;
 
 type BiteMateLogoIntroProps = {
   onComplete?: () => void;
 };
 
 export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const doneRef = useRef(false);
+  const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
     const finish = () => {
@@ -34,15 +36,38 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
       return;
     }
 
-    video.playbackRate = PLAYBACK_RATE;
-    const fallbackTimer = window.setTimeout(finish, INTRO_MS + 150);
+    let fallbackTimer = 0;
 
-    const onEnded = () => {
+    const beginFadeOut = () => {
       window.clearTimeout(fallbackTimer);
-      finish();
+      setFadeOut(true);
+      window.setTimeout(finish, FADE_OUT_MS);
     };
 
+    const scheduleFallback = () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) {
+        fallbackTimer = window.setTimeout(beginFadeOut, 6000);
+        return;
+      }
+      const ms = (video.duration / video.playbackRate) * 1000 + 250;
+      fallbackTimer = window.setTimeout(beginFadeOut, ms);
+    };
+
+    const onLoaded = () => {
+      scheduleFallback();
+    };
+
+    const onEnded = () => {
+      beginFadeOut();
+    };
+
+    video.playbackRate = 1;
+    video.addEventListener('loadedmetadata', onLoaded);
     video.addEventListener('ended', onEnded);
+
+    if (video.readyState >= 1) {
+      scheduleFallback();
+    }
 
     void video.play().catch(() => {
       window.clearTimeout(fallbackTimer);
@@ -51,6 +76,7 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
 
     return () => {
       window.clearTimeout(fallbackTimer);
+      video.removeEventListener('loadedmetadata', onLoaded);
       video.removeEventListener('ended', onEnded);
     };
   }, [onComplete]);
@@ -63,7 +89,11 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
   }
 
   return (
-    <div className="bite-logo-intro" aria-hidden>
+    <div
+      ref={rootRef}
+      className={`bite-logo-intro${fadeOut ? ' bite-logo-intro--fade-out' : ''}`}
+      aria-hidden
+    >
       <video
         ref={videoRef}
         className="bite-logo-intro__video"

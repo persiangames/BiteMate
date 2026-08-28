@@ -1,4 +1,4 @@
-/* Logo intro — plays /brand/logo-animation.mp4 at 0.8× (~5s) */
+/* Logo intro — public/brand/logo-animation.mp4 (natural speed, fades when video ends) */
 
 .bite-logo-intro {
   position: fixed;
@@ -8,11 +8,18 @@
   place-items: center;
   pointer-events: none;
   background: color-mix(in srgb, #fafafa 96%, #fff6ec);
-  animation: biteLogoIntroFade 5s ease forwards;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.45s ease, visibility 0.45s ease;
 }
 
 html[data-theme='dark'] .bite-logo-intro {
   background: color-mix(in srgb, var(--color-bg) 94%, #1a1008);
+}
+
+.bite-logo-intro--fade-out {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .bite-logo-intro__video {
@@ -23,20 +30,8 @@ html[data-theme='dark'] .bite-logo-intro {
   background: transparent;
 }
 
-@keyframes biteLogoIntroFade {
-  0%,
-  90% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .bite-logo-intro {
-    animation: none;
     display: none;
   }
 }
