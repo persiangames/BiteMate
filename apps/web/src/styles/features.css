@@ -407,6 +407,80 @@
   border-bottom: 1px solid var(--card-outline);
 }
 
+/* Instagram-style post composer */
+.post-create-page {
+  max-width: 680px;
+  margin: 0 auto;
+  padding-bottom: 5rem;
+}
+
+.post-composer__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.post-composer__stage {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #111827;
+  min-height: min(62vw, 420px);
+  display: grid;
+  place-items: center;
+}
+
+.post-composer__preview {
+  width: 100%;
+  max-height: min(72vh, 520px);
+  object-fit: contain;
+  display: block;
+  background: #111827;
+}
+
+.post-composer__picker {
+  display: grid;
+  gap: 0.75rem;
+  place-items: center;
+  text-align: center;
+  padding: 2rem 1.25rem;
+}
+
+.post-composer__picker-title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.post-composer__picker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: center;
+}
+
+.post-composer__change-media {
+  position: absolute;
+  top: 0.75rem;
+  inset-inline-end: 0.75rem;
+  z-index: 2;
+}
+
+.post-composer__extras-toggle {
+  justify-self: start;
+  padding-inline: 0;
+}
+
+.post-composer__submit {
+  width: 100%;
+}
+
+.post-composer__extras .location-picker-block {
+  margin-top: 0.25rem;
+}
+
 .wallet-tx__amount {
   font-weight: 600;
   white-space: nowrap;
