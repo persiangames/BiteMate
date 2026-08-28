@@ -1,5 +1,6 @@
 import type { FeedSourceType, PostDto, PostTagDto, PostTagRole } from '@bitemate/shared';
 import type { Post, PostTag, User } from '@prisma/client';
+import { normalizeStoredMediaPath } from '../../common/media-url';
 
 const AUTHOR_SELECT = {
   id: true,
@@ -46,8 +47,8 @@ export function mapPostToDto(
     id: post.id,
     caption: post.caption,
     mediaType: post.mediaType,
-    mediaUrl: post.mediaUrl,
-    thumbnailUrl: post.thumbnailUrl,
+    mediaUrl: normalizeStoredMediaPath(post.mediaUrl) ?? post.mediaUrl,
+    thumbnailUrl: normalizeStoredMediaPath(post.thumbnailUrl),
     restaurantTag: post.restaurantTag,
     tags: mapPostTags(post.tags),
     locationLabel: post.locationLabel,

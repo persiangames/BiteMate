@@ -15,7 +15,7 @@ import { SaveFeedback } from '@/presentation/components/SaveFeedback';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { localizeError } from '@/presentation/i18n/localizeError';
-import { resolveMediaUrl } from '@/utils/mediaUrl';
+import { PostMedia } from '@/presentation/components/PostMedia';
 
 interface PostCardProps {
   post: PostDto;
@@ -163,17 +163,12 @@ export function PostCard({ post, accessToken, onUpdate }: PostCardProps) {
         ) : null}
       </header>
 
-      {post.mediaType === 'IMAGE' ? (
-        <img src={resolveMediaUrl(post.mediaUrl)} alt={post.caption ?? ''} className="post-media" />
-      ) : (
-        <video
-          src={resolveMediaUrl(post.mediaUrl)}
-          poster={resolveMediaUrl(post.thumbnailUrl) ?? undefined}
-          controls
-          playsInline
-          className="post-media"
-        />
-      )}
+      <PostMedia
+        mediaType={post.mediaType}
+        mediaUrl={post.mediaUrl}
+        thumbnailUrl={post.thumbnailUrl}
+        alt={post.caption ?? ''}
+      />
 
       {editing ? (
         <div className="flow">

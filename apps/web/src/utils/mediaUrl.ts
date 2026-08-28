@@ -13,7 +13,60 @@ export function uploadsPublicBase(): string {
     return `${apiBase}/uploads`;
   }
 
+  if (typeof window !== 'undefined') {
+    return `${window.location.origin}/uploads`;
+  }
+
   return '/uploads';
+}
+
+export function uploadUrlCandidates(stored: string | null | undefined): string[] {
+  if (!stored) {
+    return [];
+  }
+
+  const trimmed = stored.trim();
+  if (!trimmed) {
+    return [];
+  }
+
+  if (trimmed.startsWith('blob:') || trimmed.startsWith('data:') || trimmed.startsWith('/brand/')) {
+    return [trimmed];
+  }
+
+  const candidates: string[] = [];
+  const seen = new Set<string>();
+
+  function add(url: string | undefined) {
+    if (!url || seen.has(url)) {
+      return;
+    }
+    seen.add(url);
+    candidates.push(url);
+  }
+
+  const uploadPath = extractUploadPath(trimmed);
+  if (uploadPath) {
+    add(resolveUploadPath(uploadPath));
+    if (typeof window !== 'undefined') {
+      add(`${window.location.origin}${uploadPath}`);
+    }
+    const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
+    if (apiBase?.startsWith('http')) {
+      const apiUploads = apiBase.endsWith('/api')
+        ? `${apiBase.slice(0, -4)}/uploads`
+        : `${apiBase}/uploads`;
+      add(`${apiUploads}${uploadPath.slice('/uploads'.length)}`);
+    }
+  }
+
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    add(trimmed);
+  }
+
+  add(resolveUploadPath(trimmed));
+
+  return candidates;
 }
 
 function extractUploadPath(value: string): string | null {
@@ -58,25 +111,8 @@ function resolveUploadPath(stored: string): string {
 
 /** Resolve a stored media path/URL for use in `<img src>` / `<video src>`. */
 export function resolveMediaUrl(url?: string | null): string | undefined {
-  if (!url) {
-    return undefined;
-  }
-  if (url.startsWith('blob:') || url.startsWith('data:') || url.startsWith('/brand/')) {
-    return url;
-  }
-
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    try {
-      const parsed = new URL(url);
-      if (!parsed.pathname.startsWith('/uploads/')) {
-        return url;
-      }
-    } catch {
-      return url;
-    }
-  }
-
-  return resolveUploadPath(url);
+  const candidates = uploadUrlCandidates(url);
+  return candidates[0];
 }
 
 /** Store relative upload paths so media survives host changes in dev/prod. */

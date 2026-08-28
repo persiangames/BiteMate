@@ -19,6 +19,7 @@ import { GamificationService } from '../growth/gamification.service';
 import { GeoLocationService } from '../location/geo-location.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { mapPostToDto, POST_INCLUDE } from './post.mapper';
+import { normalizeStoredMediaPath } from '../../common/media-url';
 import {
   computeTrendingScore,
   FeedCursor,
@@ -270,8 +271,8 @@ export class PostsService {
         authorId: userId,
         caption: dto.caption,
         mediaType: dto.mediaType,
-        mediaUrl: dto.mediaUrl,
-        thumbnailUrl: dto.thumbnailUrl,
+        mediaUrl: normalizeStoredMediaPath(dto.mediaUrl) ?? dto.mediaUrl,
+        thumbnailUrl: normalizeStoredMediaPath(dto.thumbnailUrl ?? null),
         restaurantTag: dto.restaurantTag,
         locationLabel: dto.locationLabel,
         locationLat: dto.locationLat,

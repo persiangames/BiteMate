@@ -724,6 +724,11 @@ textarea {
   background: #111827;
 }
 
+.post-media--missing {
+  min-height: 12rem;
+  background: linear-gradient(145deg, #1f2937, #111827);
+}
+
 .post-actions {
   display: flex;
   gap: 0.5rem;
