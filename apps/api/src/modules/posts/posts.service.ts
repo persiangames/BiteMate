@@ -368,6 +368,22 @@ export class PostsService {
     });
   }
 
+  async deletePost(userId: string, postId: string): Promise<{ message: string }> {
+    const existing = await this.prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, authorId: true },
+    });
+    if (!existing) {
+      throw new NotFoundException('Post not found');
+    }
+    if (existing.authorId !== userId) {
+      throw new ForbiddenException('You can only delete your own posts');
+    }
+
+    await this.prisma.post.delete({ where: { id: postId } });
+    return { message: 'Post deleted' };
+  }
+
   async toggleLike(userId: string, postId: string): Promise<LikeResponseDto> {
     const post = await this.prisma.post.findUnique({ where: { id: postId } });
     if (!post) {

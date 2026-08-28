@@ -58,6 +58,16 @@ export async function updatePost(
   });
 }
 
+export async function deletePost(
+  accessToken: string,
+  postId: string,
+): Promise<{ message: string }> {
+  return apiFetch<{ message: string }>(`/posts/${postId}`, {
+    method: 'DELETE',
+    headers: authHeaders(accessToken),
+  });
+}
+
 export async function toggleLike(
   accessToken: string,
   postId: string,

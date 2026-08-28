@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -56,6 +57,15 @@ export class PostsController {
     @Body() dto: UpdatePostDto,
   ): Promise<PostDto> {
     return this.postsService.updatePost(user.sub, postId, dto);
+  }
+
+  @Delete('posts/:id')
+  @RequireOtpVerified()
+  deletePost(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') postId: string,
+  ): Promise<{ message: string }> {
+    return this.postsService.deletePost(user.sub, postId);
   }
 
   @Get('feed')

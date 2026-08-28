@@ -97,6 +97,10 @@ export function FeedPage() {
     setPosts((current) => current.map((post) => (post.id === updated.id ? updated : post)));
   }
 
+  function removePost(postId: string) {
+    setPosts((current) => current.filter((post) => post.id !== postId));
+  }
+
   return (
     <div className="app-screen feed-page">
       <header className="screen-header">
@@ -125,6 +129,7 @@ export function FeedPage() {
               post={post}
               accessToken={accessToken!}
               onUpdate={updatePost}
+              onDelete={removePost}
             />
           ),
         )}

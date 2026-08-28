@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { MediaType } from '@bitemate/shared';
 import { uploadUrlCandidates } from '@/utils/mediaUrl';
 
@@ -14,10 +14,13 @@ export function PostMedia({ mediaType, mediaUrl, thumbnailUrl, alt = '', classNa
   const mediaCandidates = useMemo(() => uploadUrlCandidates(mediaUrl), [mediaUrl]);
   const posterCandidates = useMemo(() => uploadUrlCandidates(thumbnailUrl), [thumbnailUrl]);
   const [mediaIndex, setMediaIndex] = useState(0);
-  const [posterIndex, setPosterIndex] = useState(0);
+
+  useEffect(() => {
+    setMediaIndex(0);
+  }, [mediaUrl]);
 
   const mediaSrc = mediaCandidates[mediaIndex];
-  const posterSrc = posterCandidates[posterIndex];
+  const posterSrc = posterCandidates[0];
 
   function tryNextMedia() {
     setMediaIndex((current) => (current + 1 < mediaCandidates.length ? current + 1 : current));

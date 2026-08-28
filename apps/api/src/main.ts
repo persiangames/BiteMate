@@ -69,12 +69,19 @@ async function bootstrap(): Promise<void> {
     mkdirSync(uploadDir, { recursive: true });
   }
 
-  app.useStaticAssets(join(process.cwd(), uploadDir), {
+  const absoluteUploadDir = join(process.cwd(), uploadDir);
+  const uploadStaticHeaders = (res: { setHeader: (name: string, value: string) => void }) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+  };
+
+  app.useStaticAssets(absoluteUploadDir, {
     prefix: '/uploads/',
-    setHeaders: (res) => {
-      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-    },
+    setHeaders: uploadStaticHeaders,
+  });
+  app.useStaticAssets(absoluteUploadDir, {
+    prefix: `/${apiPrefix}/uploads/`,
+    setHeaders: uploadStaticHeaders,
   });
   app.useLogger(resolveLogLevels(logLevel));
   app.setGlobalPrefix(apiPrefix);

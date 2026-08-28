@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import type { PostDto } from '@bitemate/shared';
 import {
   addComment,
+  deletePost,
   fetchComments,
   sharePost,
   toggleFollow,
@@ -21,9 +22,10 @@ interface PostCardProps {
   post: PostDto;
   accessToken: string;
   onUpdate: (post: PostDto) => void;
+  onDelete?: (postId: string) => void;
 }
 
-export function PostCard({ post, accessToken, onUpdate }: PostCardProps) {
+export function PostCard({ post, accessToken, onUpdate, onDelete }: PostCardProps) {
   const { user } = useAuth();
   const { t } = useI18n();
   const [commentText, setCommentText] = useState('');
@@ -123,6 +125,24 @@ export function PostCard({ post, accessToken, onUpdate }: PostCardProps) {
     }
   }
 
+  async function handleDelete() {
+    if (!window.confirm(t('post.deleteConfirm'))) {
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setSaved(false);
+    try {
+      await deletePost(accessToken, post.id);
+      onDelete?.(post.id);
+    } catch (err) {
+      setError(localizeError(t, err, 'post.deleteFailed'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const authorName = post.author.fullName ?? post.author.username ?? t('post.user');
 
   return (
@@ -171,7 +191,7 @@ export function PostCard({ post, accessToken, onUpdate }: PostCardProps) {
       />
 
       {editing ? (
-        <div className="flow">
+        <div className="flow post-edit-panel">
           <label className="field">
             <span>{t('post.caption')}</span>
             <textarea
@@ -181,14 +201,37 @@ export function PostCard({ post, accessToken, onUpdate }: PostCardProps) {
             />
           </label>
           <SaveFeedback saved={saved} error={error} successKey="save.success" />
-          <button
-            type="button"
-            className="btn-primary"
-            disabled={loading}
-            onClick={() => void saveCaption()}
-          >
-            {loading ? t('save.saving') : t('post.saveCaption')}
-          </button>
+          <div className="post-edit-panel__actions">
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={loading}
+              onClick={() => void saveCaption()}
+            >
+              {loading ? t('save.saving') : t('post.saveCaption')}
+            </button>
+            <button
+              type="button"
+              className="btn-ghost"
+              disabled={loading}
+              onClick={() => {
+                setEditing(false);
+                setCaptionDraft(post.caption ?? '');
+                setError(null);
+                setSaved(false);
+              }}
+            >
+              {t('common.cancel')}
+            </button>
+            <button
+              type="button"
+              className="btn-danger"
+              disabled={loading}
+              onClick={() => void handleDelete()}
+            >
+              {t('post.delete')}
+            </button>
+          </div>
         </div>
       ) : (
         post.caption ? <p>{post.caption}</p> : null

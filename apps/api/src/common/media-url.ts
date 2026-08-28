@@ -13,6 +13,10 @@ export function normalizeStoredMediaPath(url: string | null | undefined): string
     return trimmed;
   }
 
+  if (trimmed.startsWith('/api/uploads/')) {
+    return trimmed.replace(/^\/api/, '');
+  }
+
   if (trimmed.startsWith('uploads/')) {
     return `/${trimmed}`;
   }

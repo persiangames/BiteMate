@@ -1,4 +1,4 @@
-/** Public base for uploaded media (absolute API URL or same-origin `/uploads` in dev). */
+/** Public base for uploaded media (absolute API URL or same-origin `/api/uploads` in dev). */
 export function uploadsPublicBase(): string {
   const explicit = import.meta.env.VITE_UPLOADS_BASE_URL?.replace(/\/$/, '');
   if (explicit) {
@@ -7,17 +7,18 @@ export function uploadsPublicBase(): string {
 
   const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
   if (apiBase?.startsWith('http')) {
-    if (apiBase.endsWith('/api')) {
-      return `${apiBase.slice(0, -4)}/uploads`;
-    }
     return `${apiBase}/uploads`;
   }
 
   if (typeof window !== 'undefined') {
-    return `${window.location.origin}/uploads`;
+    return `${window.location.origin}/api/uploads`;
   }
 
-  return '/uploads';
+  return '/api/uploads';
+}
+
+function uploadFileSuffix(uploadPath: string): string {
+  return uploadPath.slice('/uploads'.length);
 }
 
 export function uploadUrlCandidates(stored: string | null | undefined): string[] {
@@ -47,17 +48,23 @@ export function uploadUrlCandidates(stored: string | null | undefined): string[]
 
   const uploadPath = extractUploadPath(trimmed);
   if (uploadPath) {
-    add(resolveUploadPath(uploadPath));
-    if (typeof window !== 'undefined') {
-      add(`${window.location.origin}${uploadPath}`);
-    }
+    const suffix = uploadFileSuffix(uploadPath);
     const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
+
     if (apiBase?.startsWith('http')) {
-      const apiUploads = apiBase.endsWith('/api')
-        ? `${apiBase.slice(0, -4)}/uploads`
-        : `${apiBase}/uploads`;
-      add(`${apiUploads}${uploadPath.slice('/uploads'.length)}`);
+      add(`${apiBase}/uploads${suffix}`);
+      if (apiBase.endsWith('/api')) {
+        add(`${apiBase.slice(0, -4)}/uploads${suffix}`);
+      }
     }
+
+    if (typeof window !== 'undefined') {
+      add(`${window.location.origin}/api/uploads${suffix}`);
+      add(`${window.location.origin}/uploads${suffix}`);
+    }
+
+    add(`${uploadsPublicBase()}${suffix}`);
+    add(resolveUploadPath(trimmed));
   }
 
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
@@ -73,8 +80,14 @@ function extractUploadPath(value: string): string | null {
   if (value.startsWith('/uploads/')) {
     return value;
   }
+  if (value.startsWith('/api/uploads/')) {
+    return value.replace(/^\/api/, '');
+  }
   if (value.startsWith('uploads/')) {
     return `/${value}`;
+  }
+  if (value.startsWith('api/uploads/')) {
+    return `/${value.replace(/^api\//, '')}`;
   }
 
   try {
@@ -82,6 +95,9 @@ function extractUploadPath(value: string): string | null {
       value.startsWith('http://') || value.startsWith('https://')
         ? new URL(value)
         : new URL(value, 'http://local');
+    if (parsed.pathname.startsWith('/api/uploads/')) {
+      return parsed.pathname.replace(/^\/api/, '');
+    }
     if (parsed.pathname.startsWith('/uploads/')) {
       return `${parsed.pathname}${parsed.search}`;
     }
@@ -101,12 +117,7 @@ function resolveUploadPath(stored: string): string {
     return stored;
   }
 
-  const base = uploadsPublicBase();
-  if (base.startsWith('/')) {
-    return uploadPath;
-  }
-
-  return `${base}${uploadPath.slice('/uploads'.length)}`;
+  return `${uploadsPublicBase()}${uploadFileSuffix(uploadPath)}`;
 }
 
 /** Resolve a stored media path/URL for use in `<img src>` / `<video src>`. */
