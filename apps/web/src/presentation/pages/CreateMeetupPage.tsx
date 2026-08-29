@@ -15,16 +15,10 @@ export function CreateMeetupPage() {
       </header>
 
       <MeetupComposer
-        onCreated={(meetupId, feedPost) => {
-          if (feedPost) {
-            navigate('/feed', { replace: true, state: { newPost: feedPost } });
-            return;
+        onCreated={(response) => {
+          if (response.feedPost) {
+            navigate('/feed', { replace: true, state: { newPost: response.feedPost } });
           }
-          if (meetupId) {
-            navigate('/meetups', { replace: true, state: { createdMeetupId: meetupId } });
-            return;
-          }
-          navigate('/meetups', { replace: true });
         }}
       />
     </div>

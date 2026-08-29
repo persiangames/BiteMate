@@ -6,10 +6,10 @@ import {
   MEAL_SLOTS,
   MIN_PROFILE_COMPLETION_FOR_ACTIONS,
   PROFILE_INTERESTS,
+  type CreateFoodIntentResponseDto,
   type EducationLevel,
   type Gender,
   type MealSlot,
-  type PostDto,
   type ProfileInterest,
 } from '@bitemate/shared';
 import { createFoodIntent } from '@/data/repositories/intentRepository';
@@ -33,10 +33,18 @@ import {
 } from '@/presentation/utils/meetupEventMeta';
 
 interface MeetupComposerProps {
-  onCreated?: (meetupId: string | null, feedPost?: PostDto | null) => void;
+  onCreated?: (response: CreateFoodIntentResponseDto) => void;
+  submitLabelKey?: string;
+  successMessageKey?: string;
+  embedded?: boolean;
 }
 
-export function MeetupComposer({ onCreated }: MeetupComposerProps) {
+export function MeetupComposer({
+  onCreated,
+  submitLabelKey = 'event.publish',
+  successMessageKey = 'event.createdFeed',
+  embedded = false,
+}: MeetupComposerProps) {
   const { accessToken, user } = useAuth();
   const { t, locale } = useI18n();
   const creatorKind = resolveMeetupCreatorKind(user?.role);
@@ -137,8 +145,8 @@ export function MeetupComposer({ onCreated }: MeetupComposerProps) {
         preferredInterests,
       });
 
-      setMessage(t('event.createdFeed'));
-      onCreated?.(response.intent.meetupId, response.feedPost);
+      setMessage(t(successMessageKey));
+      onCreated?.(response);
     } catch {
       setError(t('error.generic'));
     } finally {
@@ -171,11 +179,13 @@ export function MeetupComposer({ onCreated }: MeetupComposerProps) {
         </section>
       ) : null}
 
-      <section className={`meetup-composer__hero glass-card${profileLocked ? ' is-disabled' : ''}`}>
-        <p className="meetup-composer__eyebrow">{t('event.new')}</p>
-        <h2>{t(creatorKindLabelKey(creatorKind))}</h2>
-        <p className="hint">{t(`event.creatorHint.${creatorKind}`)}</p>
-      </section>
+      {!embedded ? (
+        <section className={`meetup-composer__hero glass-card${profileLocked ? ' is-disabled' : ''}`}>
+          <p className="meetup-composer__eyebrow">{t('event.new')}</p>
+          <h2>{t(creatorKindLabelKey(creatorKind))}</h2>
+          <p className="hint">{t(`event.creatorHint.${creatorKind}`)}</p>
+        </section>
+      ) : null}
 
       <form className={`meetup-composer__form flow${profileLocked ? ' is-disabled' : ''}`} onSubmit={(event) => void handleSubmit(event)}>
         <section className="glass-card flow meetup-composer__section">
@@ -459,7 +469,7 @@ export function MeetupComposer({ onCreated }: MeetupComposerProps) {
         {message ? <p className="save-success">{message}</p> : null}
 
         <button type="submit" className="btn-primary meetup-composer__submit" disabled={loading || latitude === null || longitude === null}>
-          {loading ? t('meetups.creating') : t('event.publish')}
+          {loading ? t('meetups.creating') : t(submitLabelKey)}
         </button>
       </form>
     </div>

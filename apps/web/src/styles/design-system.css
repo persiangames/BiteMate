@@ -1057,6 +1057,10 @@ textarea {
   align-items: center;
 }
 
+.meetups-page__feed-link {
+  text-align: center;
+}
+
 .chat-list-item {
   display: flex;
   align-items: center;

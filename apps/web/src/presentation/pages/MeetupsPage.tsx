@@ -1,16 +1,10 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  EDUCATION_LEVELS,
-  GENDERS,
-  MEAL_SLOTS,
-  MIN_PROFILE_COMPLETION_FOR_ACTIONS,
-  type EducationLevel,
-  type FoodIntentDto,
-  type Gender,
-  type IntentMatchDto,
-  type MealSlot,
-  type MeetupInviteDto,
+import type {
+  CreateFoodIntentResponseDto,
+  FoodIntentDto,
+  IntentMatchDto,
+  MeetupInviteDto,
 } from '@bitemate/shared';
 import {
   connectRealtime,
@@ -19,7 +13,6 @@ import {
 } from '@/data/api/socketClient';
 import {
   cancelFoodIntent,
-  createFoodIntent,
   fetchIntentDailyLimit,
   fetchIntentMatches,
   fetchMyIntents,
@@ -31,46 +24,18 @@ import {
   rejectMeetupInvite,
   sendMeetupInvite,
 } from '@/data/repositories/meetupRepository';
-import {
-  citySelectOptions,
-  countrySelectOptions,
-  dishSelectOptionsForFoodType,
-  foodTypeSelectOptions,
-  localizeFoodType,
-  resolveCanonicalFoodType,
-} from '@/data/localize';
-import { SearchableSelect } from '@/presentation/components/SearchableSelect';
+import { localizeFoodType } from '@/data/localize';
+import { MeetupComposer } from '@/presentation/components/MeetupComposer';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 
 export function MeetupsPage() {
-  const { accessToken, user } = useAuth();
+  const { accessToken } = useAuth();
   const { t, locale } = useI18n();
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const inviteeId = searchParams.get('invitee');
-  const [foodType, setFoodType] = useState('');
-  const [foodName, setFoodName] = useState('');
-  const [mealSlot, setMealSlot] = useState<MealSlot>('LUNCH');
-  const [scheduledAt, setScheduledAt] = useState('');
-  const [radiusKm, setRadiusKm] = useState(5);
-  const [desiredPeople, setDesiredPeople] = useState(4);
-  const [preferredGender, setPreferredGender] = useState<Gender | ''>('');
-  const [ageMin, setAgeMin] = useState(18);
-  const [ageMax, setAgeMax] = useState(65);
-  const [preferredEducation, setPreferredEducation] = useState<EducationLevel | ''>('');
-  const [country, setCountry] = useState(user?.country ?? '');
-  const [city, setCity] = useState(user?.city ?? '');
-  const [latitude, setLatitude] = useState<number | null>(user?.liveLatitude ?? null);
-  const [longitude, setLongitude] = useState<number | null>(user?.liveLongitude ?? null);
-  const countryOptions = useMemo(() => countrySelectOptions(locale), [locale]);
-  const cityOptions = useMemo(() => citySelectOptions(country, locale), [country, locale]);
-  const cuisineOptions = useMemo(() => foodTypeSelectOptions(locale), [locale]);
-  const dishOptions = useMemo(
-    () => dishSelectOptionsForFoodType(foodType, locale),
-    [foodType, locale],
-  );
 
   const [myIntents, setMyIntents] = useState<FoodIntentDto[]>([]);
   const [activeIntent, setActiveIntent] = useState<FoodIntentDto | null>(null);
@@ -94,12 +59,24 @@ export function MeetupsPage() {
       ]);
       setMyIntents(intents.items);
       setInvites(incoming.items);
-      setInviteLimit(`${invitesQuota.usedToday}/${invitesQuota.dailyLimit} invites today`);
-      setIntentLimit(`${intentQuota.activeCount}/${intentQuota.maxActive} active · ${intentQuota.usedToday}/${intentQuota.dailyLimit} created today`);
-    } catch (err) {
-      setError(err instanceof Error ? t('meetups.loadFailed') : t('meetups.loadFailed'));
+      setInviteLimit(
+        t('meetups.inviteLimit', {
+          used: invitesQuota.usedToday,
+          limit: invitesQuota.dailyLimit,
+        }),
+      );
+      setIntentLimit(
+        t('meetups.intentLimit', {
+          active: intentQuota.activeCount,
+          maxActive: intentQuota.maxActive,
+          used: intentQuota.usedToday,
+          daily: intentQuota.dailyLimit,
+        }),
+      );
+    } catch {
+      setError(t('meetups.loadFailed'));
     }
-  }, [accessToken]);
+  }, [accessToken, t]);
 
   useEffect(() => {
     void loadData();
@@ -128,75 +105,14 @@ export function MeetupsPage() {
     connectRealtime(accessToken);
     const unsubscribe = onMeetupInvite((invite) => {
       setInvites((current) => [invite, ...current.filter((item) => item.id !== invite.id)]);
-      setMessage(`New invite: ${invite.meetup.foodType}`);
+      setMessage(t('meetups.inviteReceived', { food: localizeFoodType(invite.meetup.foodType, locale) }));
     });
 
     return () => {
       unsubscribe();
       disconnectRealtime();
     };
-  }, [accessToken]);
-
-  useEffect(() => {
-    if (latitude !== null && longitude !== null) return;
-    if (!navigator.geolocation) return;
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLatitude(position.coords.latitude);
-        setLongitude(position.coords.longitude);
-      },
-      () => undefined,
-      { enableHighAccuracy: true, timeout: 10_000 },
-    );
-  }, [latitude, longitude]);
-
-  async function handleCreate(event: FormEvent) {
-    event.preventDefault();
-    if (!accessToken || latitude === null || longitude === null || profileLocked) return;
-
-    setLoading(true);
-    setError(null);
-    setMessage(null);
-
-    const timeStart = new Date(scheduledAt);
-    const timeEnd = new Date(timeStart.getTime() + 2 * 60 * 60 * 1000);
-
-    try {
-      const response = await createFoodIntent(accessToken, {
-        foodType,
-        foodCategory: mealSlot.toLowerCase(),
-        mealSlot,
-        foodName: foodName || foodType,
-        preferredGender: preferredGender || undefined,
-        ageMin,
-        ageMax,
-        preferredEducation: preferredEducation || undefined,
-        country: country || undefined,
-        city: city || undefined,
-        timeStart: timeStart.toISOString(),
-        timeEnd: timeEnd.toISOString(),
-        radiusKm,
-        desiredPeople,
-        latitude,
-        longitude,
-      });
-      const intent = response.intent;
-      setActiveIntent(intent);
-      setMyIntents((current) => [intent, ...current]);
-      setMessage(t('save.success'));
-      if (inviteeId && intent.meetupId) {
-        await sendMeetupInvite(accessToken, { meetupId: intent.meetupId, inviteeId });
-        setMessage(t('meetups.inviteSent'));
-      }
-      await loadMatches(intent.id);
-      await loadData();
-    } catch (err) {
-      setError(t('error.generic'));
-    } finally {
-      setLoading(false);
-    }
-  }
+  }, [accessToken, locale, t]);
 
   async function loadMatches(intentId: string) {
     if (!accessToken) return;
@@ -207,10 +123,30 @@ export function MeetupsPage() {
     try {
       const response = await fetchIntentMatches(accessToken, intentId);
       setMatches(response.items);
-    } catch (err) {
+    } catch {
       setError(t('error.generic'));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleCreated(response: CreateFoodIntentResponseDto) {
+    if (!accessToken) return;
+
+    const intent = response.intent;
+    setActiveIntent(intent);
+    setMyIntents((current) => [intent, ...current.filter((item) => item.id !== intent.id)]);
+    setMessage(t('save.success'));
+
+    try {
+      if (inviteeId && intent.meetupId) {
+        await sendMeetupInvite(accessToken, { meetupId: intent.meetupId, inviteeId });
+        setMessage(t('meetups.inviteSent'));
+      }
+      await loadMatches(intent.id);
+      await loadData();
+    } catch {
+      setError(t('error.generic'));
     }
   }
 
@@ -226,23 +162,23 @@ export function MeetupsPage() {
       }
       setMessage(t('meetups.cancelled'));
       await loadData();
-    } catch (err) {
+    } catch {
       setError(t('error.generic'));
     }
   }
 
-  async function handleInvite(meetupId: string | null, inviteeId: string) {
+  async function handleInvite(meetupId: string | null, targetInviteeId: string) {
     if (!accessToken || !meetupId) return;
 
     setMessage(null);
     setError(null);
 
     try {
-      await sendMeetupInvite(accessToken, { meetupId, inviteeId });
+      await sendMeetupInvite(accessToken, { meetupId, inviteeId: targetInviteeId });
       setMessage(t('meetups.inviteSent'));
       const limit = await fetchInviteLimit(accessToken);
-      setInviteLimit(`${limit.usedToday}/${limit.dailyLimit} invites today`);
-    } catch (err) {
+      setInviteLimit(t('meetups.inviteLimit', { used: limit.usedToday, limit: limit.dailyLimit }));
+    } catch {
       setError(t('error.generic'));
     }
   }
@@ -257,7 +193,7 @@ export function MeetupsPage() {
       if (invite.meetup.roomId) {
         window.location.href = `/meetups/room/${invite.meetup.roomId}`;
       }
-    } catch (err) {
+    } catch {
       setError(t('error.generic'));
     }
   }
@@ -268,172 +204,26 @@ export function MeetupsPage() {
     try {
       await rejectMeetupInvite(accessToken, { inviteId });
       setInvites((current) => current.filter((item) => item.id !== inviteId));
-    } catch (err) {
+    } catch {
       setError(t('error.generic'));
     }
   }
 
-  const profileLocked =
-    (user?.profileCompletionPercent ?? 0) < MIN_PROFILE_COMPLETION_FOR_ACTIONS;
-
   return (
-    <div className="app-screen">
-      {profileLocked ? (
-        <section className="glass-card profile-gate">
-          <h2>{t('profile.completion.gateTitle')}</h2>
-          <p className="hint">
-            {t('profile.completion.gateHint', {
-              percent: user?.profileCompletionPercent ?? 0,
-              min: MIN_PROFILE_COMPLETION_FOR_ACTIONS,
-            })}
-          </p>
-          <Link to="/profile/edit?highlight=1" className="btn-primary">
-            {t('profile.completion.action')}
-          </Link>
-        </section>
-      ) : null}
-
-      <section className={`glass-card flow${profileLocked ? ' is-disabled' : ''}`}>
-        <p className="hint">
-          Matching engine connects you by food preference, distance, time window, rating, and reliability.
-        </p>
+    <div className="app-screen meetups-page">
+      <section className="glass-card flow">
+        <p className="hint">{t('meetups.matchingHint')}</p>
         <p className="hint">{intentLimit}</p>
         <p className="hint">{inviteLimit}</p>
-
-        <form className="flow" onSubmit={handleCreate}>
-          <h2>{t('meetups.create')}</h2>
-          {inviteeId ? <p className="save-success">{t('meetups.inviteeReady')}</p> : null}
-          <SearchableSelect
-            label={t('dining.foodType')}
-            value={foodType}
-            options={cuisineOptions}
-            placeholder={t('dining.foodTypeHint')}
-            allowCustom
-            onChange={(value) => {
-              setFoodType(resolveCanonicalFoodType(value));
-              setFoodName('');
-            }}
-          />
-          <SearchableSelect
-            key={foodType || 'no-food-type'}
-            label={t('dining.foodName')}
-            value={foodName}
-            options={dishOptions}
-            placeholder={
-              foodType ? t('dining.foodNameHint') : t('dining.selectFoodTypeFirst')
-            }
-            allowCustom
-            disabled={!foodType}
-            onChange={setFoodName}
-          />
-          <label className="field">
-            <span>{t('meetups.category')}</span>
-            <select value={mealSlot} onChange={(event) => setMealSlot(event.target.value as MealSlot)}>
-              {MEAL_SLOTS.map((slot) => (
-                <option key={slot} value={slot}>
-                  {t(`dining.meal.${slot}`)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            <span>{t('meetups.when')}</span>
-            <input
-              type="datetime-local"
-              value={scheduledAt}
-              onChange={(event) => setScheduledAt(event.target.value)}
-              required
-            />
-          </label>
-          <label className="field">
-            <span>{t('meetups.radius')}</span>
-            <input
-              type="number"
-              min={1}
-              max={50}
-              value={radiusKm}
-              onChange={(event) => setRadiusKm(Number(event.target.value))}
-              required
-            />
-          </label>
-          <label className="field">
-            <span>{t('meetups.capacity')}</span>
-            <input
-              type="number"
-              min={2}
-              max={20}
-              value={desiredPeople}
-              onChange={(event) => setDesiredPeople(Number(event.target.value))}
-              required
-            />
-          </label>
-          <label className="field">
-            <span>{t('dining.preferredGender')}</span>
-            <select
-              value={preferredGender}
-              onChange={(event) => setPreferredGender(event.target.value as Gender | '')}
-            >
-              <option value="">{t('dining.any')}</option>
-              {GENDERS.map((item) => (
-                <option key={item} value={item}>
-                  {t(`dining.gender.${item}`)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <div className="filter-grid">
-            <label className="field">
-              <span>{t('dining.ageMin')}</span>
-              <input type="number" min={18} max={99} value={ageMin} onChange={(event) => setAgeMin(Number(event.target.value))} />
-            </label>
-            <label className="field">
-              <span>{t('dining.ageMax')}</span>
-              <input type="number" min={18} max={99} value={ageMax} onChange={(event) => setAgeMax(Number(event.target.value))} />
-            </label>
-          </div>
-          <label className="field">
-            <span>{t('dining.education')}</span>
-            <select
-              value={preferredEducation}
-              onChange={(event) => setPreferredEducation(event.target.value as EducationLevel | '')}
-            >
-              <option value="">{t('dining.any')}</option>
-              {EDUCATION_LEVELS.map((item) => (
-                <option key={item} value={item}>
-                  {t(`dining.education.${item}`)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <SearchableSelect
-            label={t('profile.country')}
-            value={country}
-            options={countryOptions}
-            placeholder={t('auth.searchHint')}
-            onChange={(next) => {
-              setCountry(next);
-              setCity('');
-            }}
-          />
-          <SearchableSelect
-            label={t('profile.city')}
-            value={city}
-            options={cityOptions}
-            placeholder={country ? t('auth.searchHint') : t('auth.selectCountryFirst')}
-            disabled={!country}
-            onChange={setCity}
-          />
-          <p className="hint">
-            Location:{' '}
-            {latitude !== null && longitude !== null
-              ? `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`
-              : 'Detecting… enable location or update live location in profile'}
-          </p>
-          <button type="submit" className="btn-primary" disabled={loading || latitude === null || longitude === null}>
-            {loading ? t('meetups.creating') : t('meetups.find')}
-          </button>
-        </form>
+        {inviteeId ? <p className="save-success">{t('meetups.inviteeReady')}</p> : null}
       </section>
+
+      <MeetupComposer
+        embedded
+        submitLabelKey="meetups.find"
+        successMessageKey="save.success"
+        onCreated={(response) => void handleCreated(response)}
+      />
 
       {myIntents.length > 0 && (
         <div className="flow">
@@ -442,10 +232,10 @@ export function MeetupsPage() {
             <article key={intent.id} className="glass-card meetup-card">
               <h3>{localizeFoodType(intent.foodType, locale)}</h3>
               <p>
-                {new Date(intent.timeStart).toLocaleString()} · {intent.desiredPeople} people ·{' '}
+                {new Date(intent.timeStart).toLocaleString()} · {intent.desiredPeople} ·{' '}
                 {intent.radiusKm} km
               </p>
-              <p className="hint">Status: {intent.status}</p>
+              <p className="hint">{t('meetups.status', { status: intent.status })}</p>
               <div className="meetup-card__row">
                 <button
                   type="button"
@@ -455,11 +245,11 @@ export function MeetupsPage() {
                     void loadMatches(intent.id);
                   }}
                 >
-                  Find matches
+                  {t('meetups.findMatches')}
                 </button>
                 {intent.status === 'ACTIVE' && (
                   <button type="button" className="btn-ghost" onClick={() => void handleCancel(intent.id)}>
-                    Cancel
+                    {t('common.cancel')}
                   </button>
                 )}
               </div>
@@ -473,18 +263,23 @@ export function MeetupsPage() {
           <h2>{t('meetups.matches', { food: localizeFoodType(activeIntent.foodType, locale) })}</h2>
           {matches.map((match) => (
             <article key={`${match.matchType}-${match.user.id}`} className="glass-card meetup-card">
-              <h3>{match.user.fullName ?? match.user.username ?? 'Food mate'}</h3>
+              <h3>{match.user.fullName ?? match.user.username ?? t('post.user')}</h3>
               <p>
-                Score {match.score} · {match.distanceKm} km · rating {match.user.meetupRating.toFixed(1)}
-                {match.user.isPremium && ' · Premium'}
+                {t('meetups.matchScore', {
+                  score: match.score,
+                  distance: match.distanceKm,
+                  rating: match.user.meetupRating.toFixed(1),
+                })}
+                {match.user.isPremium ? ` · ${t('premium.title')}` : ''}
               </p>
               <p className="hint">
-                {match.matchType === 'INTENT' ? 'Same food window nearby' : 'Available nearby'} · reliability {match.user.reliabilityScore}
+                {match.matchType === 'INTENT' ? t('meetups.matchIntent') : t('meetups.matchUser')} ·{' '}
+                {t('meetups.reliability', { score: match.user.reliabilityScore })}
               </p>
               <button
                 type="button"
                 className="btn-primary"
-                onClick={() => handleInvite(activeIntent.meetupId, match.user.id)}
+                onClick={() => void handleInvite(activeIntent.meetupId, match.user.id)}
               >
                 {t('nearby.invite')}
               </button>
@@ -495,13 +290,15 @@ export function MeetupsPage() {
 
       {invites.length > 0 && (
         <div className="flow">
-          <h2>Incoming invites</h2>
+          <h2>{t('meetups.incoming')}</h2>
           {invites.map((invite) => (
             <article key={invite.id} className="glass-card meetup-card">
               <h3>{localizeFoodType(invite.meetup.foodType, locale)}</h3>
               <p>
-                From {invite.inviter.fullName ?? invite.inviter.username} ·{' '}
-                {new Date(invite.meetup.scheduledAt).toLocaleString()}
+                {t('meetups.inviteFrom', {
+                  name: invite.inviter.fullName ?? invite.inviter.username ?? t('post.user'),
+                  when: new Date(invite.meetup.scheduledAt).toLocaleString(),
+                })}
               </p>
               {invite.meetup.isFull ? (
                 <span className="full-badge">{t('meetups.full')}</span>
@@ -513,12 +310,12 @@ export function MeetupsPage() {
                   type="button"
                   className="btn-primary"
                   disabled={invite.meetup.isFull}
-                  onClick={() => handleAccept(invite.id)}
+                  onClick={() => void handleAccept(invite.id)}
                 >
                   {invite.meetup.isFull ? t('meetups.full') : t('meetups.join')}
                 </button>
-                <button type="button" className="btn-secondary" onClick={() => handleReject(invite.id)}>
-                  Reject
+                <button type="button" className="btn-secondary" onClick={() => void handleReject(invite.id)}>
+                  {t('meetups.reject')}
                 </button>
               </div>
             </article>
@@ -526,8 +323,17 @@ export function MeetupsPage() {
         </div>
       )}
 
-      {message && <p className="save-success" role="status">{message}</p>}
-      {error && <p className="error">{error}</p>}
+      {loading ? <p className="hint">{t('common.loading')}</p> : null}
+      {message ? (
+        <p className="save-success" role="status">
+          {message}
+        </p>
+      ) : null}
+      {error ? <p className="error">{error}</p> : null}
+
+      <p className="hint meetups-page__feed-link">
+        <Link to="/feed/create-event">{t('meetups.createFromFeed')}</Link>
+      </p>
     </div>
   );
 }
