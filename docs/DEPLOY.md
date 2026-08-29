@@ -157,6 +157,28 @@ Create `noreply@bitemate.ir` in your mail panel and enable SPF/DKIM for delivera
 
 ---
 
+## 3b. Render Docker deploy — migrations hang / port timeout
+
+If deploy logs stop at `Running database migrations...` and Render reports **Port scan timeout**, Prisma is usually blocked on a **pooled** Postgres URL (Neon `-pooler`).
+
+**Fix on Render (`bitemate-api` → Environment):**
+
+1. Keep `DATABASE_URL` as the **pooled** URL (good for runtime queries).
+2. Add **`DIRECT_DATABASE_URL`** = Neon **direct** connection (host **without** `-pooler`, port `5432`).
+
+Example (Neon dashboard → Connection details → **Direct connection**):
+
+```env
+DATABASE_URL=postgresql://user:pass@ep-xxx-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require
+DIRECT_DATABASE_URL=postgresql://user:pass@ep-xxx.eu-central-1.aws.neon.tech/neondb?sslmode=require
+```
+
+3. Redeploy. Logs should show `Migrations complete.` then `Starting BiteMate API...`.
+
+Pending migrations on production may include `MODERATION_WARNING` and (after push) `preferred_interests` on meetups.
+
+---
+
 ## 4. Production API environment
 
 ```env
