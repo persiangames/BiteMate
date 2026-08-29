@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { playClick } from '@/utils/playClick';
+import { playClick, resumeAudioContext } from '@/utils/playClick';
 import { useSound } from '@/presentation/context/SoundContext';
 
 const SELECTOR = [
@@ -17,6 +17,12 @@ const SELECTOR = [
 
 export function ClickSoundListener() {
   const { soundEnabled } = useSound();
+
+  useEffect(() => {
+    if (soundEnabled) {
+      resumeAudioContext();
+    }
+  }, [soundEnabled]);
 
   useEffect(() => {
     function onClick(event: MouseEvent) {

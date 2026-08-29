@@ -16,12 +16,14 @@ export function AppHeader() {
   return (
     <header className="app-header">
       <div className="app-header__inner">
-        {showBack ? <BackButton /> : <span className="app-header__slot" aria-hidden />}
-        {title ? (
-          <h1 className="app-header__title">{title}</h1>
-        ) : (
-          <BrandMark />
-        )}
+        <div className="app-header__start">
+          {showBack ? <BackButton /> : null}
+          {title ? (
+            <h1 className="app-header__title">{title}</h1>
+          ) : (
+            <BrandMark />
+          )}
+        </div>
         <div className="app-header__actions">
           <LanguageSwitcher placement="header" />
           <NotificationBell />

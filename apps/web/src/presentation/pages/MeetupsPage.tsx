@@ -267,7 +267,7 @@ export function MeetupsPage() {
               min: MIN_PROFILE_COMPLETION_FOR_ACTIONS,
             })}
           </p>
-          <Link to="/profile/edit" className="btn-primary">
+          <Link to="/profile/edit?highlight=1" className="btn-primary">
             {t('profile.completion.action')}
           </Link>
         </section>

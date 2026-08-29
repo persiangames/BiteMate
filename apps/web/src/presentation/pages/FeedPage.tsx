@@ -181,12 +181,6 @@ export function FeedPage() {
 
   return (
     <div className="app-screen feed-page">
-      <header className="screen-header screen-header--actions">
-        <Link to="/feed/create" className="btn-secondary btn-compact">
-          + {t('feed.post')}
-        </Link>
-      </header>
-
       {loading && posts.length === 0 && <p className="hint">{t('feed.loading')}</p>}
       {error ? (
         <div className="feed-page__error">
@@ -227,7 +221,7 @@ export function FeedPage() {
       )}
 
       <Link to="/feed/create" className="fab" aria-label={t('post.new')}>
-        +
+        <span className="fab__plus" aria-hidden>+</span>
       </Link>
     </div>
   );

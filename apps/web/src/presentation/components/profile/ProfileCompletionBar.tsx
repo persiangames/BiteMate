@@ -27,7 +27,7 @@ export function ProfileCompletionBar() {
         <p className="hint">
           {t('profile.completion.hint', { min: MIN_PROFILE_COMPLETION_FOR_ACTIONS })}
           {' '}
-          <Link to="/profile/edit">{t('profile.completion.action')}</Link>
+          <Link to="/profile/edit?highlight=1">{t('profile.completion.action')}</Link>
         </p>
       ) : (
         <p className="hint">{t('profile.completion.done')}</p>

@@ -111,6 +111,16 @@ export function ProfileMediaEditor({
   const [error, setError] = useState<string | null>(null);
   const photoSrc = resolveMediaUrl(profileImage);
   const coverSrc = resolveMediaUrl(coverImage);
+  const [photoBroken, setPhotoBroken] = useState(false);
+  const [coverBroken, setCoverBroken] = useState(false);
+
+  useEffect(() => {
+    setPhotoBroken(false);
+  }, [profileImage]);
+
+  useEffect(() => {
+    setCoverBroken(false);
+  }, [coverImage]);
 
   function pickPhoto() {
     photoInput.current?.click();
@@ -159,7 +169,11 @@ export function ProfileMediaEditor({
     <div className="ig-profile-edit">
       <div className="ig-profile-edit__hero">
         <div className="ig-profile-edit__cover">
-          {coverSrc ? <img src={coverSrc} alt="" /> : <div className="ig-profile-edit__cover-empty" />}
+          {coverSrc && !coverBroken ? (
+            <img src={coverSrc} alt="" onError={() => setCoverBroken(true)} />
+          ) : (
+            <div className="ig-profile-edit__cover-empty" />
+          )}
           <MediaEditMenu
             label={coverSrc ? t('profile.cover.edit') : t('profile.cover.add')}
             hasMedia={Boolean(coverSrc)}
@@ -172,8 +186,8 @@ export function ProfileMediaEditor({
         </div>
         <div className="ig-profile-edit__avatar-wrap">
           <button type="button" className="ig-profile-edit__avatar" disabled={uploading}>
-            {photoSrc ? (
-              <img src={photoSrc} alt={name} />
+            {photoSrc && !photoBroken ? (
+              <img src={photoSrc} alt={name} onError={() => setPhotoBroken(true)} />
             ) : (
               <span>{(name || username || 'BM').slice(0, 2).toUpperCase()}</span>
             )}

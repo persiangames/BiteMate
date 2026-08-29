@@ -1,6 +1,6 @@
 let audioCtx: AudioContext | null = null;
 
-export function playClick() {
+export function resumeAudioContext(): void {
   try {
     const Ctx = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctx) {
@@ -9,6 +9,17 @@ export function playClick() {
     audioCtx = audioCtx ?? new Ctx();
     if (audioCtx.state === 'suspended') {
       void audioCtx.resume();
+    }
+  } catch {
+    // Ignore autoplay restrictions.
+  }
+}
+
+export function playClick() {
+  try {
+    resumeAudioContext();
+    if (!audioCtx) {
+      return;
     }
     const now = audioCtx.currentTime;
     const oscillator = audioCtx.createOscillator();

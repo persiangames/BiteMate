@@ -24,6 +24,9 @@ export interface ProfileCompletionInput {
   liveLocationEnabled?: boolean;
   liveLatitude?: number | null;
   liveLongitude?: number | null;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  otpVerified?: boolean;
   /** Venue: has at least one restaurant listing */
   hasRestaurantListing?: boolean;
   /** Home chef: profile + menu */
@@ -51,6 +54,10 @@ function score(checks: Array<{ weight: number; ok: boolean; key: string }>): Pro
   };
 }
 
+function isIdentityVerified(input: ProfileCompletionInput): boolean {
+  return Boolean(input.otpVerified || input.phoneVerified || input.emailVerified);
+}
+
 export function computeProfileCompletion(input: ProfileCompletionInput): ProfileCompletionResult {
   const role = input.role ?? 'NORMAL_USER';
 
@@ -62,8 +69,8 @@ export function computeProfileCompletion(input: ProfileCompletionInput): Profile
       { weight: 15, ok: Boolean(input.hasHomeChefProfile), key: 'homeChefProfile' },
       { weight: 20, ok: Boolean(input.hasHomeChefMenu), key: 'homeChefMenu' },
       { weight: 10, ok: Boolean(input.country && input.city), key: 'location' },
-      { weight: 10, ok: (input.interests?.length ?? 0) >= 3, key: 'interests' },
-      { weight: 10, ok: Boolean(input.liveLatitude != null && input.liveLongitude != null), key: 'liveLocation' },
+      { weight: 10, ok: (input.interests?.length ?? 0) >= 1, key: 'interests' },
+      { weight: 10, ok: isIdentityVerified(input), key: 'identityVerified' },
     ]);
   }
 
@@ -73,24 +80,25 @@ export function computeProfileCompletion(input: ProfileCompletionInput): Profile
       { weight: 10, ok: Boolean(input.username), key: 'username' },
       { weight: 30, ok: Boolean(input.hasRestaurantListing), key: 'restaurantListing' },
       { weight: 15, ok: Boolean(input.country && input.city), key: 'location' },
-      { weight: 15, ok: Boolean(input.liveLatitude != null && input.liveLongitude != null), key: 'liveLocation' },
+      { weight: 15, ok: isIdentityVerified(input), key: 'identityVerified' },
       { weight: 10, ok: Boolean(input.bio?.trim()), key: 'bio' },
     ]);
   }
 
   return score([
+    { weight: 10, ok: Boolean(input.fullName?.trim()), key: 'fullName' },
+    { weight: 10, ok: Boolean(input.username), key: 'username' },
     { weight: 15, ok: Boolean(input.profileImage), key: 'profileImage' },
-    { weight: 10, ok: Boolean(input.bio?.trim()), key: 'bio' },
-    { weight: 5, ok: Boolean(input.username), key: 'username' },
-    { weight: 10, ok: Boolean(input.gender), key: 'gender' },
-    { weight: 5, ok: Boolean(input.dateOfBirth), key: 'dateOfBirth' },
-    { weight: 5, ok: Boolean(input.education), key: 'education' },
-    { weight: 15, ok: (input.interests?.length ?? 0) >= 3, key: 'interests' },
-    { weight: 10, ok: Boolean(input.relationshipStatus), key: 'relationshipStatus' },
-    { weight: 5, ok: input.hasChildren != null, key: 'hasChildren' },
-    { weight: 5, ok: (input.preferredMeals?.length ?? 0) >= 1, key: 'preferredMeals' },
-    { weight: 5, ok: (input.favoriteCuisines?.length ?? 0) >= 1, key: 'favoriteCuisines' },
-    { weight: 10, ok: Boolean(input.liveLocationEnabled && input.liveLatitude != null && input.liveLongitude != null), key: 'liveLocation' },
-    { weight: 5, ok: Boolean(input.country && input.city), key: 'location' },
+    { weight: 15, ok: isIdentityVerified(input), key: 'identityVerified' },
+    { weight: 10, ok: Boolean(input.dateOfBirth), key: 'dateOfBirth' },
+    { weight: 5, ok: Boolean(input.gender), key: 'gender' },
+    { weight: 10, ok: Boolean(input.education), key: 'education' },
+    { weight: 10, ok: (input.interests?.length ?? 0) >= 1, key: 'interests' },
+    { weight: 15, ok: Boolean(input.country && input.city), key: 'location' },
+    {
+      weight: 10,
+      ok: (input.preferredMeals?.length ?? 0) >= 1 || (input.favoriteCuisines?.length ?? 0) >= 1,
+      key: 'diningPrefs',
+    },
   ]);
 }

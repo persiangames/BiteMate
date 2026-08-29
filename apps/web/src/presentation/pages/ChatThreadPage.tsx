@@ -22,6 +22,9 @@ import {
 import { Avatar } from '@/presentation/components/Avatar';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
+import { localizeError } from '@/presentation/i18n/localizeError';
+import { normalizeMediaUrlForStorage } from '@/utils/mediaUrl';
+import { prepareChatMedia } from '@/utils/prepareChatMedia';
 import {
   dayKey,
   formatDayLabel,
@@ -199,17 +202,20 @@ export function ChatThreadPage() {
     setError(null);
 
     try {
-      const uploaded = await uploadMedia(accessToken, file);
+      const prepared = await prepareChatMedia(file, type);
+      const uploaded = await uploadMedia(accessToken, prepared.file);
       const message = await sendMessage(accessToken, {
         chatId,
         type,
-        mediaUrl: uploaded.mediaUrl,
-        mediaMimeType: file.type,
+        mediaUrl: normalizeMediaUrlForStorage(uploaded.mediaUrl),
+        mediaMimeType: prepared.file.type || file.type,
+        durationSeconds: prepared.durationSeconds,
         content: type === 'FILE' ? file.name : undefined,
       });
       setMessages((current) => [...current, message]);
-    } catch {
-      setError(t('chat.failed'));
+    } catch (err) {
+      setError(localizeError(t, err, 'chat.failed'));
+      throw err;
     } finally {
       setUploading(false);
     }

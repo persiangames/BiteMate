@@ -17,7 +17,7 @@ export function SettingsPage() {
         <h1>{t('settings.title')}</h1>
 
         <div className="settings-card flow">
-          <label className="settings-row settings-row--toggle">
+          <label className={`settings-row settings-row--toggle settings-row--sound${soundEnabled ? ' is-on' : ' is-off'}`}>
             <span>{t('settings.sound')}</span>
             <input
               type="checkbox"

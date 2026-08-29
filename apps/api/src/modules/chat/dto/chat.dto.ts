@@ -3,7 +3,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
-  IsUrl,
+  Matches,
   Max,
   MaxLength,
   Min,
@@ -24,7 +24,7 @@ export class CreateMessageDto {
   content?: string;
 
   @IsOptional()
-  @IsUrl()
+  @Matches(/^(\/uploads\/[^\s]+|https?:\/\/[^\s]+)$/)
   mediaUrl?: string;
 
   @IsOptional()

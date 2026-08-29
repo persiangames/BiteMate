@@ -1,14 +1,15 @@
-import { FormEvent, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import type { ChatMessageType } from '@bitemate/shared';
 import { StickerPicker } from '@/presentation/components/StickerPicker';
 import { useI18n } from '@/presentation/context/I18nContext';
+import { MAX_CHAT_VOICE_SECONDS } from '@/utils/prepareChatMedia';
 import { useVoiceRecorder } from '@/presentation/hooks/useVoiceRecorder';
 
 interface ChatInputBarProps {
   value: string;
   onChange: (value: string) => void;
   onSend: () => void;
-  onUpload: (file: File, type: ChatMessageType) => void;
+  onUpload: (file: File, type: ChatMessageType) => void | Promise<void>;
   disabled?: boolean;
   uploading?: boolean;
 }
@@ -22,9 +23,11 @@ export function ChatInputBar({
   uploading,
 }: ChatInputBarProps) {
   const { t, locale } = useI18n();
-  const voice = useVoiceRecorder();
+  const voice = useVoiceRecorder(MAX_CHAT_VOICE_SECONDS);
   const [attachOpen, setAttachOpen] = useState(false);
   const [stickersOpen, setStickersOpen] = useState(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const photoInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,6 +36,15 @@ export function ChatInputBar({
 
   const busy = disabled || uploading || voice.recording;
   const canSend = value.trim().length > 0 && !busy;
+
+  useEffect(() => {
+    const node = textareaRef.current;
+    if (!node) {
+      return;
+    }
+    node.style.height = 'auto';
+    node.style.height = `${Math.min(node.scrollHeight, 160)}px`;
+  }, [value]);
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -47,15 +59,35 @@ export function ChatInputBar({
     setAttachOpen(false);
   }
 
+  async function handleFileSelected(file: File, type: ChatMessageType) {
+    setVoiceError(null);
+    try {
+      await onUpload(file, type);
+    } catch (err) {
+      setVoiceError(err instanceof Error ? err.message : t('chat.failed'));
+    }
+  }
+
   async function toggleVoice() {
+    setVoiceError(null);
     if (voice.recording) {
       const file = await voice.finish();
       if (file) {
-        onUpload(file, 'VOICE');
+        await handleFileSelected(file, 'VOICE');
+      } else {
+        setVoiceError(t('chat.voiceTooShort'));
       }
       return;
     }
-    await voice.start();
+    const started = await voice.start();
+    if (!started) {
+      setVoiceError(t('chat.micDenied'));
+    }
+  }
+
+  function showKeyboard() {
+    setStickersOpen(false);
+    textareaRef.current?.focus();
   }
 
   return (
@@ -63,7 +95,9 @@ export function ChatInputBar({
       {voice.recording ? (
         <div className="chat-input-bar__recording">
           <span className="chat-input-bar__recording-dot" aria-hidden />
-          <span>{t('chat.recording', { seconds: voice.seconds })}</span>
+          <span>
+            {t('chat.recording', { seconds: voice.seconds })} / {voice.maxSeconds}s
+          </span>
           <button type="button" className="chat-input-bar__recording-cancel" onClick={() => voice.cancel()}>
             {t('common.cancel')}
           </button>
@@ -73,7 +107,7 @@ export function ChatInputBar({
         </div>
       ) : (
         <>
-          <div className="composer__row">
+          <div className="composer__row composer__row--chat">
             <div className="attach">
               <button
                 type="button"
@@ -104,36 +138,44 @@ export function ChatInputBar({
               ) : null}
             </div>
 
-            <button
-              type="button"
-              className={`composer__sticker-btn${stickersOpen ? ' is-active' : ''}`}
-              disabled={busy}
-              onClick={() => {
-                setStickersOpen((open) => !open);
-                setAttachOpen(false);
-              }}
-              aria-label={t('chat.stickers')}
-            >
-              😋
-            </button>
+            {stickersOpen ? (
+              <button
+                type="button"
+                className="composer__sticker-btn is-active"
+                disabled={busy}
+                onClick={showKeyboard}
+                aria-label={t('chat.keyboard')}
+              >
+                ⌨️
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="composer__sticker-btn"
+                disabled={busy}
+                onClick={() => {
+                  setStickersOpen(true);
+                  setAttachOpen(false);
+                }}
+                aria-label={t('chat.stickers')}
+              >
+                😋
+              </button>
+            )}
 
             <textarea
-              className="composer__input"
+              ref={textareaRef}
+              className="composer__input composer__input--chat"
               value={value}
               onChange={(event) => onChange(event.target.value)}
               placeholder={t('chat.placeholder')}
-              rows={1}
+              rows={3}
               dir="auto"
               lang={locale}
-              enterKeyHint="send"
+              enterKeyHint="enter"
+              inputMode="text"
               maxLength={4000}
               disabled={busy}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.shiftKey && canSend) {
-                  event.preventDefault();
-                  onSend();
-                }
-              }}
             />
 
             {canSend ? (
@@ -174,9 +216,9 @@ export function ChatInputBar({
                 </button>
                 <button
                   type="button"
-                  className={`chat-input-bar__icon-btn chat-input-bar__mic${voice.recording ? ' is-recording' : ''}`}
+                  className="chat-input-bar__icon-btn chat-input-bar__mic"
                   aria-label={t('chat.voice')}
-                  disabled={busy && !voice.recording}
+                  disabled={busy}
                   onClick={() => void toggleVoice()}
                 >
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -187,6 +229,8 @@ export function ChatInputBar({
               </div>
             )}
           </div>
+
+          {voiceError ? <p className="error chat-input-bar__error">{voiceError}</p> : null}
 
           {stickersOpen ? (
             <StickerPicker onPick={(sticker) => onChange(`${value}${sticker}`)} />
@@ -201,7 +245,7 @@ export function ChatInputBar({
         hidden
         onChange={(event) => {
           const file = event.target.files?.[0];
-          if (file) onUpload(file, 'IMAGE');
+          if (file) void handleFileSelected(file, 'IMAGE');
           event.target.value = '';
         }}
       />
@@ -212,7 +256,7 @@ export function ChatInputBar({
         hidden
         onChange={(event) => {
           const file = event.target.files?.[0];
-          if (file) onUpload(file, 'VIDEO');
+          if (file) void handleFileSelected(file, 'VIDEO');
           event.target.value = '';
         }}
       />
@@ -223,7 +267,7 @@ export function ChatInputBar({
         hidden
         onChange={(event) => {
           const file = event.target.files?.[0];
-          if (file) onUpload(file, 'FILE');
+          if (file) void handleFileSelected(file, 'FILE');
           event.target.value = '';
         }}
       />
@@ -235,7 +279,7 @@ export function ChatInputBar({
         hidden
         onChange={(event) => {
           const file = event.target.files?.[0];
-          if (file) onUpload(file, 'IMAGE');
+          if (file) void handleFileSelected(file, 'IMAGE');
           event.target.value = '';
         }}
       />
@@ -247,7 +291,7 @@ export function ChatInputBar({
         hidden
         onChange={(event) => {
           const file = event.target.files?.[0];
-          if (file) onUpload(file, 'VIDEO');
+          if (file) void handleFileSelected(file, 'VIDEO');
           event.target.value = '';
         }}
       />

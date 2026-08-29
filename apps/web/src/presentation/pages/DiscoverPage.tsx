@@ -24,7 +24,7 @@ import {
 } from '@/data/localize';
 import { fetchMyIntents } from '@/data/repositories/intentRepository';
 import { fetchMyMeetups, sendMeetupInvite } from '@/data/repositories/meetupRepository';
-import { fetchNearbyMeetups, fetchNearbyUsers, updateProfile } from '@/data/repositories/profileRepository';
+import { fetchNearbyMeetups, fetchNearbyUsers, updateLiveLocation, updateProfile } from '@/data/repositories/profileRepository';
 import { NearbyMap } from '@/presentation/components/NearbyMap';
 import { Avatar } from '@/presentation/components/Avatar';
 import { SearchableSelect } from '@/presentation/components/SearchableSelect';
@@ -127,19 +127,32 @@ export function DiscoverPage() {
       lookingToEat: applied.lookingToEat || undefined,
     };
     setError(null);
-    Promise.all([
+    void Promise.allSettled([
       fetchNearbyUsers(accessToken, query),
       fetchNearbyMeetups(accessToken, query),
-    ])
-      .then(([people, tables]) => {
-        setNearbyUsers(people.users);
-        setEvents(tables.items);
+    ]).then(([peopleResult, tablesResult]) => {
+      if (peopleResult.status === 'fulfilled') {
+        setNearbyUsers(peopleResult.value.users);
         setCardIndex(0);
-      })
-      .catch((err: unknown) => {
-        setError(err instanceof Error ? t('error.loadFailed') : t('error.loadFailed'));
-      });
+      }
+      if (tablesResult.status === 'fulfilled') {
+        setEvents(tablesResult.value.items);
+      }
+      if (peopleResult.status === 'rejected') {
+        setError(localizeError(t, peopleResult.reason, 'error.loadFailed'));
+      }
+    });
   }, [accessToken, center, applied, t]);
+
+  useEffect(() => {
+    if (!accessToken || !gps.fix || !user?.liveLocationEnabled) {
+      return;
+    }
+    void updateLiveLocation(accessToken, {
+      latitude: gps.fix.latitude,
+      longitude: gps.fix.longitude,
+    }).catch(() => undefined);
+  }, [accessToken, gps.fix, user?.liveLocationEnabled]);
 
   const current = nearbyUsers[cardIndex] ?? null;
   const remaining = Math.max(0, nearbyUsers.length - cardIndex);
@@ -209,7 +222,7 @@ export function DiscoverPage() {
         >
           {user?.lookingToEat ? t('dining.readyOn') : t('dining.readyOff')}
         </button>
-        <button type="button" className="filter-chip" onClick={() => setShowMap((value) => !value)}>
+        <button type="button" className="filter-chip filter-chip--map" onClick={() => setShowMap((value) => !value)}>
           {showMap ? t('nearby.hideMap') : t('nearby.showMap')}
         </button>
       </div>

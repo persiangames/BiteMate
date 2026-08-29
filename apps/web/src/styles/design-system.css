@@ -153,6 +153,24 @@ html[data-theme='dark'] .save-success {
   accent-color: var(--color-primary);
 }
 
+.settings-row--sound.is-on {
+  border-color: rgba(22, 163, 74, 0.45);
+  background: rgba(22, 163, 74, 0.08);
+}
+
+.settings-row--sound.is-on input {
+  accent-color: #16a34a;
+}
+
+.settings-row--sound.is-off {
+  border-color: rgba(220, 38, 38, 0.45);
+  background: rgba(220, 38, 38, 0.08);
+}
+
+.settings-row--sound.is-off input {
+  accent-color: #dc2626;
+}
+
 .settings-card {
   padding: 1rem;
   border: 1px solid var(--color-border);
@@ -251,26 +269,33 @@ button {
   width: min(100%, 920px);
   height: 100%;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 0.75rem;
   padding: 0 0.75rem;
 }
 
-.app-header__slot {
-  width: 2rem;
+.app-header__start {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+  flex: 1;
 }
 
 .app-header__title {
   margin: 0;
-  font-size: 1.05rem;
+  font-family: var(--font-body);
+  font-size: var(--text-page-title, 0.95rem);
   font-weight: 800;
-  text-align: center;
+  text-align: start;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--color-dark);
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 0.12rem;
 }
 
 .back-btn {
@@ -866,6 +891,12 @@ textarea {
   color: var(--color-primary);
 }
 
+.filter-chip--map {
+  background: rgba(96, 165, 250, 0.16);
+  border-color: rgba(96, 165, 250, 0.55);
+  color: #2563eb;
+}
+
 .map-container,
 .map-placeholder {
   width: 100%;
@@ -1069,11 +1100,20 @@ textarea {
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: var(--gradient-brand);
+  background: #87a96b;
   color: #fff;
-  font-size: 1.6rem;
+  font-size: 0;
   box-shadow: var(--shadow-soft);
   z-index: 40;
+  display: grid;
+  place-items: center;
+}
+
+.fab__plus {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
 }
 
 .chat-panel {
@@ -1921,6 +1961,19 @@ select:focus {
   border-radius: 22px;
   border: 1px solid var(--color-border);
   background: var(--surface-2);
+}
+
+.composer--thread .composer__input--chat {
+  min-height: 72px;
+  max-height: 160px;
+  resize: none;
+  line-height: 1.45;
+  font-family: var(--font-body);
+}
+
+.chat-input-bar__error {
+  margin: 0.35rem 0.75rem 0;
+  font-size: 0.82rem;
 }
 
 .composer--thread .composer__input:focus {

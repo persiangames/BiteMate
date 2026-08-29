@@ -1,4 +1,5 @@
-import { resolveMediaUrl } from '@/utils/mediaUrl';
+import { useEffect, useMemo, useState } from 'react';
+import { uploadUrlCandidates } from '@/utils/mediaUrl';
 
 function initials(name?: string | null) {
   if (!name) return '?';
@@ -17,8 +18,15 @@ interface AvatarProps {
 }
 
 export function Avatar({ name, imageUrl, size = 'md' }: AvatarProps) {
-  const src = resolveMediaUrl(imageUrl);
+  const candidates = useMemo(() => uploadUrlCandidates(imageUrl), [imageUrl]);
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    setIndex(0);
+  }, [imageUrl]);
+
   const sizeClass = size === 'md' ? '' : ` avatar--${size}`;
+  const src = candidates[index];
 
   if (src) {
     return (
@@ -26,6 +34,11 @@ export function Avatar({ name, imageUrl, size = 'md' }: AvatarProps) {
         src={src}
         alt={name ?? 'User avatar'}
         className={`avatar${sizeClass}`}
+        loading="lazy"
+        decoding="async"
+        onError={() => {
+          setIndex((current) => (current + 1 < candidates.length ? current + 1 : candidates.length));
+        }}
       />
     );
   }

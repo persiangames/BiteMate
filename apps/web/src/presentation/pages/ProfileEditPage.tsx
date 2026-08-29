@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AVAILABILITY_STATUSES, EDUCATION_LEVELS, GENDERS, MEAL_SLOTS, PROFILE_INTERESTS, RELATIONSHIP_STATUSES } from '@bitemate/shared';
+import { Link, useSearchParams } from 'react-router-dom';
+import { AVAILABILITY_STATUSES, EDUCATION_LEVELS, GENDERS, MEAL_SLOTS, PROFILE_INTERESTS, RELATIONSHIP_STATUSES, computeProfileCompletion } from '@bitemate/shared';
 import type { AvailabilityStatus, EducationLevel, Gender, MealSlot, UserRole, ProfileInterest, RelationshipStatus } from '@bitemate/shared';
 import { geocodeCity } from '@/data/geo/geocode';
 import {
@@ -41,6 +41,8 @@ export function ProfileEditPage() {
   const { user, accessToken, updateUser } = useAuth();
   const { t, locale } = useI18n();
   const gps = useDeviceLocation();
+  const [searchParams] = useSearchParams();
+  const highlightMissing = searchParams.get('highlight') === '1';
   const [form, setForm] = useState({
     fullName: user?.fullName ?? '',
     username: user?.username ?? '',
@@ -83,6 +85,37 @@ export function ProfileEditPage() {
     [form.favoriteCuisines, locale],
   );
   const hasFoodTypeSelection = splitTags(form.favoriteCuisines).length > 0;
+
+  const missingFields = useMemo(() => {
+    if (!user) {
+      return [] as string[];
+    }
+    return computeProfileCompletion({
+      role: user.role,
+      fullName: form.fullName,
+      username: form.username,
+      profileImage: form.profileImage || user.profileImage,
+      country: form.country,
+      city: form.city,
+      dateOfBirth: form.dateOfBirth || null,
+      gender: form.gender || null,
+      education: form.education || null,
+      preferredMeals: form.preferredMeals,
+      favoriteCuisines: splitTags(form.favoriteCuisines),
+      interests: form.interests,
+      emailVerified: user.emailVerified,
+      phoneVerified: user.phoneVerified,
+      otpVerified: user.otpVerified,
+    }).missing;
+  }, [user, form]);
+
+  function incompleteClass(key: string, base = 'field') {
+    return highlightMissing && missingFields.includes(key) ? `${base} field--incomplete` : base;
+  }
+
+  function sectionIncompleteClass(key: string, base: string) {
+    return highlightMissing && missingFields.includes(key) ? `${base} field--incomplete` : base;
+  }
 
   useEffect(() => {
     if (!user) {
@@ -307,6 +340,9 @@ export function ProfileEditPage() {
       <section className="panel flow">
         <h1>{t('profile.edit')}</h1>
         <ProfileCompletionBar />
+        {highlightMissing && missingFields.length ? (
+          <p className="profile-missing-banner">{t('profile.completion.missingHint')}</p>
+        ) : null}
         <p>{t('profile.edit.hint')}</p>
         <div className="save-bar">
           <button
@@ -320,7 +356,8 @@ export function ProfileEditPage() {
           <SaveFeedback saved={saved} error={error} successKey="profile.saved" />
         </div>
 
-        <ProfileMediaEditor
+        <div className={sectionIncompleteClass('profileImage', 'profile-media-wrap')}>
+          <ProfileMediaEditor
           accessToken={accessToken}
           name={form.fullName}
           username={form.username}
@@ -332,9 +369,10 @@ export function ProfileEditPage() {
             void persistProfile(next);
           }}
         />
+        </div>
 
         <form className="flow" onSubmit={handleSubmit}>
-          <label className="field">
+          <label className={incompleteClass('fullName')}>
             <span>{t('profile.name')}</span>
             <input
               value={form.fullName}
@@ -343,7 +381,7 @@ export function ProfileEditPage() {
               required
             />
           </label>
-          <label className="field">
+          <label className={incompleteClass('username')}>
             <span>{t('profile.username')}</span>
             <input
               value={form.username}
@@ -381,7 +419,7 @@ export function ProfileEditPage() {
             />
             <span>{t('dining.lookingToEat')}</span>
           </label>
-          <label className="field">
+          <label className={incompleteClass('dateOfBirth')}>
             <span>{t('auth.dob')}</span>
             <input
               type="date"
@@ -389,7 +427,7 @@ export function ProfileEditPage() {
               onChange={(event) => setForm({ ...form, dateOfBirth: event.target.value })}
             />
           </label>
-          <label className="field">
+          <label className={incompleteClass('gender')}>
             <span>{t('dining.gender')}</span>
             <select
               value={form.gender}
@@ -403,7 +441,7 @@ export function ProfileEditPage() {
               ))}
             </select>
           </label>
-          <label className="field">
+          <label className={incompleteClass('education')}>
             <span>{t('dining.education')}</span>
             <select
               value={form.education}
@@ -417,7 +455,7 @@ export function ProfileEditPage() {
               ))}
             </select>
           </label>
-          <div>
+          <div className={sectionIncompleteClass('interests', 'field-group')}>
             <span className="field-label">{t('profile.interests')}</span>
             <div className="chip-cloud">
               {PROFILE_INTERESTS.map((interest) => {
@@ -475,7 +513,7 @@ export function ProfileEditPage() {
               <option value="no">{t('common.no')}</option>
             </select>
           </label>
-          <div>
+          <div className={sectionIncompleteClass('diningPrefs', 'field-group')}>
             <span className="field-label">{t('dining.meals')}</span>
             <div className="chip-cloud">
               {MEAL_SLOTS.map((meal) => {
@@ -499,7 +537,6 @@ export function ProfileEditPage() {
                 );
               })}
             </div>
-          </div>
           <SearchableSelect
             label={t('dining.foodType')}
             value={form.favoriteCuisines}
@@ -524,7 +561,9 @@ export function ProfileEditPage() {
             formatSelected={(value) => localizeDishes(value, locale)}
             onChange={(favoriteFoods) => setForm({ ...form, favoriteFoods })}
           />
+          </div>
 
+          <div className={sectionIncompleteClass('location', 'field-group')}>
           <SearchableSelect
             label={t('profile.country')}
             value={form.country}
@@ -544,6 +583,7 @@ export function ProfileEditPage() {
               void handleCityChange(city);
             }}
           />
+          </div>
 
           <div className="location-picker-block">
             <div className="location-picker-block__header">
@@ -626,7 +666,7 @@ export function ProfileEditPage() {
           </button>
         </form>
 
-        <section className="flow">
+        <section className={sectionIncompleteClass('identityVerified', 'flow')}>
           <h2>{t('auth.email')} & {t('auth.phone')}</h2>
           <p className="hint">{t('profile.contactHint')}</p>
           <ContactChangePanel

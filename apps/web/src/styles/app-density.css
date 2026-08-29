@@ -63,9 +63,10 @@ h3 {
 
 /* Header & page titles */
 .app-header__title {
-  font-family: var(--font-ui);
+  font-family: var(--font-body);
   font-size: var(--text-page-title);
-  font-weight: 600;
+  font-weight: 800;
+  text-align: start;
 }
 
 .screen-header {

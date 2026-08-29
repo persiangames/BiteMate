@@ -203,6 +203,25 @@
   background: linear-gradient(90deg, #2ecc71, #58d68d);
 }
 
+.field--incomplete,
+.field-group.field--incomplete,
+.profile-media-wrap.field--incomplete {
+  border: 1px solid rgba(245, 158, 11, 0.75);
+  background: rgba(245, 158, 11, 0.08);
+  border-radius: 14px;
+  padding: 0.55rem;
+}
+
+.profile-missing-banner {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--color-dark);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
 .profile-gate {
   margin-bottom: 1rem;
   border: 1px solid rgba(63, 63, 70, 0.25);
