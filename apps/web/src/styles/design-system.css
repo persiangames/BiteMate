@@ -20,8 +20,8 @@
   --shadow-glass: 0 8px 32px rgba(15, 15, 15, 0.06);
   --glass-bg: #ffffff;
   --glass-border: rgba(24, 24, 27, 0.08);
-  --font-display: 'Times New Roman', Times, serif;
-  --font-ui: 'Times New Roman', Times, serif;
+  --font-display: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --nav-height: 72px;
   --header-height: 56px;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -35,28 +35,23 @@
 
 html[lang='fa'],
 html[lang='ar'] {
-  --font-ui: 'B Nazanin', 'BNazanin', Tahoma, 'Segoe UI', sans-serif;
-  --font-display: 'B Nazanin', 'BNazanin', Tahoma, 'Segoe UI', sans-serif;
+  --font-ui: 'Vazir', 'Inter', system-ui, sans-serif;
+  --font-display: 'Vazir', 'Inter', system-ui, sans-serif;
 }
 
 html[lang='zh'] {
-  --font-ui: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-display: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-ui: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 }
 
 html[lang='ja'] {
-  --font-ui: 'Hiragino Sans', 'Yu Gothic', sans-serif;
-  --font-display: 'Hiragino Sans', 'Yu Gothic', sans-serif;
-}
-
-html[lang='ru'] {
-  --font-ui: 'Segoe UI', Tahoma, sans-serif;
-  --font-display: 'Segoe UI', Tahoma, sans-serif;
+  --font-ui: 'Inter', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  --font-display: 'Inter', 'Hiragino Sans', 'Yu Gothic', sans-serif;
 }
 
 html[lang='hi'] {
-  --font-ui: 'Nirmala UI', 'Segoe UI', sans-serif;
-  --font-display: 'Nirmala UI', 'Segoe UI', sans-serif;
+  --font-ui: 'Inter', 'Nirmala UI', 'Segoe UI', sans-serif;
+  --font-display: 'Inter', 'Nirmala UI', 'Segoe UI', sans-serif;
 }
 
 html[data-theme='dark'] {
