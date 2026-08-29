@@ -1,6 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createStreetMap, maplibregl } from '@/data/geo/osm-style';
-import { GPS_OPTIONS, reverseGeocodePlace, type GpsFix } from '@/data/geo/geocode';
+import {
+  GPS_OPTIONS,
+  GPS_OPTIONS_COARSE,
+  gpsErrorKey,
+  reverseGeocodePlace,
+  type GpsFix,
+} from '@/data/geo/geocode';
 import { useI18n } from '@/presentation/context/I18nContext';
 
 type LocationPickerMapProps = {
@@ -56,7 +62,10 @@ export function LocationPickerMap({
   const onChangeRef = useRef(onChange);
   const geocodeTimer = useRef<number | null>(null);
   const ignoreMoveEnd = useRef(false);
-  const lastGpsRef = useRef<{ latitude: number; longitude: number } | null>(null);
+  const gpsRequestRef = useRef(0);
+  const recenterRef = useRef<() => void>(() => undefined);
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState<string | null>(null);
 
   onChangeRef.current = onChange;
 
@@ -128,7 +137,7 @@ export function LocationPickerMap({
     map.easeTo({ center: [longitude, latitude], zoom: Math.max(map.getZoom(), 14), duration: 600 });
   }, [latitude, longitude]);
 
-  function flyTo(lat: number, lng: number, source: 'gps' | 'map') {
+  function flyTo(lat: number, lng: number, accuracy: number, source: 'gps' | 'map') {
     if (!mapRef.current) {
       return;
     }
@@ -139,7 +148,7 @@ export function LocationPickerMap({
         onChangeRef.current({
           latitude: lat,
           longitude: lng,
-          accuracy: 15,
+          accuracy,
           neighborhood: place.neighborhood ?? place.city ?? place.displayName,
           city: place.city,
           country: place.country,
@@ -150,7 +159,7 @@ export function LocationPickerMap({
         onChangeRef.current({
           latitude: lat,
           longitude: lng,
-          accuracy: 15,
+          accuracy,
           neighborhood: null,
           city: null,
           country: null,
@@ -159,23 +168,81 @@ export function LocationPickerMap({
       });
   }
 
-  function recenterOnGps() {
-    if (!navigator.geolocation) {
+  function applyGpsPosition(position: GeolocationPosition, requestId: number) {
+    if (requestId !== gpsRequestRef.current) {
       return;
     }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const next = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        };
-        lastGpsRef.current = next;
-        flyTo(next.latitude, next.longitude, 'gps');
-      },
-      () => undefined,
-      GPS_OPTIONS,
+    setGpsLoading(false);
+    setGpsError(null);
+    flyTo(
+      position.coords.latitude,
+      position.coords.longitude,
+      position.coords.accuracy,
+      'gps',
     );
   }
+
+  function applyGpsError(err: GeolocationPositionError, requestId: number) {
+    if (requestId !== gpsRequestRef.current) {
+      return;
+    }
+    setGpsLoading(false);
+    setGpsError(gpsErrorKey(err.code));
+  }
+
+  function requestDeviceGps(options: PositionOptions) {
+    return new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    });
+  }
+
+  async function recenterOnGps() {
+    if (!navigator.geolocation) {
+      setGpsError('gps.unsupported');
+      return;
+    }
+
+    const requestId = gpsRequestRef.current + 1;
+    gpsRequestRef.current = requestId;
+    setGpsLoading(true);
+    setGpsError(null);
+
+    try {
+      const position = await requestDeviceGps(GPS_OPTIONS);
+      applyGpsPosition(position, requestId);
+    } catch (firstError) {
+      if (requestId !== gpsRequestRef.current) {
+        return;
+      }
+      const code = firstError instanceof GeolocationPositionError ? firstError.code : 3;
+      if (code === 1) {
+        applyGpsError(firstError as GeolocationPositionError, requestId);
+        return;
+      }
+      try {
+        const fallback = await requestDeviceGps(GPS_OPTIONS_COARSE);
+        applyGpsPosition(fallback, requestId);
+      } catch (secondError) {
+        applyGpsError(
+          secondError instanceof GeolocationPositionError
+            ? secondError
+            : ({ code: 3 } as GeolocationPositionError),
+          requestId,
+        );
+      }
+    }
+  }
+
+  recenterRef.current = () => {
+    void recenterOnGps();
+  };
+
+  useEffect(() => {
+    if (latitude != null && longitude != null) {
+      return;
+    }
+    recenterRef.current();
+  }, [latitude, longitude]);
 
   return (
     <div className="map-picker">
@@ -185,16 +252,24 @@ export function LocationPickerMap({
       </div>
       <button
         type="button"
-        className="map-picker__recenter"
+        className={`map-picker__recenter${gpsLoading ? ' is-loading' : ''}`}
         aria-label={t('map.recenter')}
-        onClick={recenterOnGps}
+        disabled={gpsLoading}
+        onClick={() => void recenterOnGps()}
       >
         <RecenterIcon />
       </button>
       <div className="location-picker__actions">
-        <button type="button" className="btn-primary" onClick={recenterOnGps}>
-          {t('gps.useDevice')}
+        <button
+          type="button"
+          className="btn-primary"
+          disabled={gpsLoading}
+          onClick={() => void recenterOnGps()}
+        >
+          {gpsLoading ? t('profile.gpsConnecting') : t('gps.useDevice')}
         </button>
+        {gpsLoading ? <p className="hint">{t('nearby.detecting')}</p> : null}
+        {gpsError ? <p className="error location-picker__gps-error">{t(gpsError)}</p> : null}
         <p className="hint">{t('map.pickHint')}</p>
       </div>
     </div>

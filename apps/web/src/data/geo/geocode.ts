@@ -227,5 +227,22 @@ export async function reverseGeocode(latitude: number, longitude: number): Promi
 export const GPS_OPTIONS: PositionOptions = {
   enableHighAccuracy: true,
   maximumAge: 0,
-  timeout: 20000,
+  timeout: 12000,
 };
+
+/** Faster fallback when high-accuracy fix is slow (Wi‑Fi / coarse cell). */
+export const GPS_OPTIONS_COARSE: PositionOptions = {
+  enableHighAccuracy: false,
+  maximumAge: 5000,
+  timeout: 6000,
+};
+
+export function gpsErrorKey(code: number): string {
+  if (code === 1) {
+    return 'gps.denied';
+  }
+  if (code === 2) {
+    return 'gps.unavailable';
+  }
+  return 'gps.timeout';
+}

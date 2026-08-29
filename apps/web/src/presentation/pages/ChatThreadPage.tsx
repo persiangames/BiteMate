@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import type { ChatMessageDto, ChatSummaryDto, ChatTypingEventDto, ChatMessageType } from '@bitemate/shared';
 import { ChatInputBar } from '@/presentation/components/ChatInputBar';
+import { ChatMessageText } from '@/presentation/components/ChatMessageText';
 import {
   connectRealtime,
   emitTyping,
@@ -288,7 +289,9 @@ export function ChatThreadPage() {
                       {message.sender.fullName ?? message.sender.username}
                     </span>
                   ) : null}
-                  {message.type === 'TEXT' && <p className="bubble__text">{message.content}</p>}
+                  {message.type === 'TEXT' && (
+                    <ChatMessageText text={message.content ?? ''} className="bubble__text" />
+                  )}
                   {message.type === 'IMAGE' && message.mediaUrl ? (
                     <img src={resolveMediaUrl(message.mediaUrl)} alt="" className="bubble__media" />
                   ) : null}

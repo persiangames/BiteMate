@@ -4,10 +4,48 @@ const ISO_FLAG_CODES =
     ' ',
   );
 
-function countryCodeToFlag(countryCode: string): string {
+const REGIONAL_INDICATOR_BASE = 0x1f1e6;
+
+export function countryCodeToFlag(countryCode: string): string {
   return String.fromCodePoint(
-    ...countryCode.split('').map((char) => 0x1f1e6 - 65 + char.charCodeAt(0)),
+    ...countryCode.split('').map((char) => REGIONAL_INDICATOR_BASE - 65 + char.charCodeAt(0)),
   );
+}
+
+export function flagEmojiToIsoCode(flag: string): string | null {
+  const points: number[] = [];
+  for (let index = 0; index < flag.length; ) {
+    const codePoint = flag.codePointAt(index);
+    if (codePoint == null) {
+      return null;
+    }
+    points.push(codePoint);
+    index += codePoint > 0xffff ? 2 : 1;
+  }
+  if (points.length !== 2) {
+    return null;
+  }
+  if (
+    points[0] < REGIONAL_INDICATOR_BASE ||
+    points[0] > REGIONAL_INDICATOR_BASE + 25 ||
+    points[1] < REGIONAL_INDICATOR_BASE ||
+    points[1] > REGIONAL_INDICATOR_BASE + 25
+  ) {
+    return null;
+  }
+  return String.fromCharCode(
+    points[0] - REGIONAL_INDICATOR_BASE + 65,
+    points[1] - REGIONAL_INDICATOR_BASE + 65,
+  );
+}
+
+export function isCountryFlagEmoji(sticker: string): boolean {
+  return flagEmojiToIsoCode(sticker) != null;
+}
+
+/** PNG flag image — Windows and many desktops do not render flag emoji glyphs. */
+export function countryFlagImageUrl(isoCode: string, width = 40): string {
+  return `https://flagcdn.com/w${width}/${isoCode.toLowerCase()}.png`;
 }
 
 const SPECIAL_FLAGS = [
@@ -26,3 +64,31 @@ export const COUNTRY_FLAG_STICKERS: readonly string[] = [
 ];
 
 export const COUNTRY_FLAG_COUNT = COUNTRY_FLAG_STICKERS.length;
+
+/** Split text into segments, separating ISO country flag emoji for image rendering. */
+export function splitTextWithCountryFlags(text: string): Array<{ type: 'text'; value: string } | { type: 'flag'; iso: string; emoji: string }> {
+  const segments: Array<{ type: 'text'; value: string } | { type: 'flag'; iso: string; emoji: string }> = [];
+  const flagPattern = /[\u{1F1E6}-\u{1F1FF}][\u{1F1E6}-\u{1F1FF}]/gu;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = flagPattern.exec(text)) !== null) {
+    const emoji = match[0];
+    const iso = flagEmojiToIsoCode(emoji);
+    if (match.index > lastIndex) {
+      segments.push({ type: 'text', value: text.slice(lastIndex, match.index) });
+    }
+    if (iso) {
+      segments.push({ type: 'flag', iso, emoji });
+    } else {
+      segments.push({ type: 'text', value: emoji });
+    }
+    lastIndex = match.index + emoji.length;
+  }
+
+  if (lastIndex < text.length) {
+    segments.push({ type: 'text', value: text.slice(lastIndex) });
+  }
+
+  return segments.length > 0 ? segments : [{ type: 'text', value: text }];
+}

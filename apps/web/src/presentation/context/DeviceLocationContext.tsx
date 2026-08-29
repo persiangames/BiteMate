@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { GPS_OPTIONS, type GpsFix } from '@/data/geo/geocode';
+import { GPS_OPTIONS, gpsErrorKey, type GpsFix } from '@/data/geo/geocode';
 import { updateLiveLocation } from '@/data/repositories/profileRepository';
 import { useAuth } from '@/presentation/context/AuthContext';
 
@@ -16,13 +16,7 @@ type DeviceLocationValue = {
 const DeviceLocationContext = createContext<DeviceLocationValue | null>(null);
 
 function gpsErrorMessage(code: number): string {
-  if (code === 1) {
-    return 'gps.denied';
-  }
-  if (code === 2) {
-    return 'gps.unavailable';
-  }
-  return 'gps.timeout';
+  return gpsErrorKey(code);
 }
 
 export function DeviceLocationProvider({ children }: { children: ReactNode }) {

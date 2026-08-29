@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useI18n } from '@/presentation/context/I18nContext';
+import { StickerGlyph } from '@/presentation/components/StickerGlyph';
 import {
   type StickerCategoryId,
   STICKER_CATEGORIES,
@@ -7,6 +8,7 @@ import {
   rememberSticker,
   stickersForCategory,
 } from '@/presentation/data/chatStickers';
+import { flagEmojiToIsoCode } from '@/presentation/data/countryFlagStickers';
 
 type StickerPickerProps = {
   onPick: (sticker: string) => void;
@@ -65,10 +67,12 @@ export function StickerPicker({ onPick }: StickerPickerProps) {
               type="button"
               className="sticker-picker__item"
               role="option"
-              aria-label={sticker}
+              aria-label={
+                flagEmojiToIsoCode(sticker) ?? sticker
+              }
               onClick={() => handlePick(sticker)}
             >
-              {sticker}
+              <StickerGlyph sticker={sticker} />
             </button>
           ))
         )}

@@ -559,6 +559,45 @@
   transform: scale(1.08);
 }
 
+.sticker-picker__flag-img {
+  width: 1.65rem;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  display: block;
+  pointer-events: none;
+}
+
+.bubble__flag {
+  display: inline-block;
+  width: 1.15rem;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  vertical-align: -0.15em;
+  margin-inline: 0.05rem;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.map-picker__recenter.is-loading {
+  opacity: 0.55;
+  animation: map-recenter-spin 0.9s linear infinite;
+}
+
+@keyframes map-recenter-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.location-picker__gps-error {
+  margin: 0;
+  line-height: 1.35;
+}
+
 .sticker-picker__tabs {
   display: flex;
   gap: 0.15rem;
