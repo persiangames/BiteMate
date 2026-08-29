@@ -1,18 +1,24 @@
-import type { ProfileInterest, PublicUserRole } from '@bitemate/shared';
+export {
+  buildMeetupNotes,
+  parseMeetupNotes,
+  type MeetupCreatorKind,
+  type MeetupEventMeta,
+} from '@bitemate/shared';
 
-const VENUE_ROLES: PublicUserRole[] = ['RESTAURANT_OWNER', 'CAFE_OWNER', 'FOOD_TRUCK_OWNER'];
-
-export type MeetupCreatorKind = 'VENUE' | 'HOME_CHEF' | 'REVIEWER' | 'COMPANION' | 'DINER';
+import type { ProfileInterest } from '@bitemate/shared';
+import { buildMeetupNotes as buildNotes, type MeetupCreatorKind } from '@bitemate/shared';
 
 export type HomeChefServiceMode = 'DINE_AT_HOME' | 'PICKUP' | 'DELIVERY' | 'PUBLIC_MEETUP';
 export type VenueEventStyle = 'GROUP_DINING' | 'TASTING' | 'SPECIAL_MENU' | 'POPUP';
 export type ReviewerEventStyle = 'REVIEW_NIGHT' | 'TASTING_TOUR' | 'COLLAB_MEAL';
 
+const VENUE_ROLES = ['RESTAURANT_OWNER', 'CAFE_OWNER', 'FOOD_TRUCK_OWNER'] as const;
+
 export function resolveMeetupCreatorKind(role: string | null | undefined): MeetupCreatorKind {
   if (!role) {
     return 'DINER';
   }
-  if (VENUE_ROLES.includes(role as PublicUserRole)) {
+  if (VENUE_ROLES.includes(role as (typeof VENUE_ROLES)[number])) {
     return 'VENUE';
   }
   if (role === 'HOME_CHEF') {
@@ -27,7 +33,7 @@ export function resolveMeetupCreatorKind(role: string | null | undefined): Meetu
   return 'DINER';
 }
 
-export interface MeetupEventMeta {
+export interface MeetupComposerMeta {
   creatorKind: MeetupCreatorKind;
   preferredInterests: ProfileInterest[];
   venueEventStyle?: VenueEventStyle;
@@ -36,21 +42,14 @@ export interface MeetupEventMeta {
   venueSpace?: 'PUBLIC' | 'PRIVATE' | 'HOME';
 }
 
-export function buildMeetupNotes(description: string, meta: MeetupEventMeta): string {
-  const trimmed = description.trim();
-  const payload = {
-    v: 1,
+export function buildMeetupComposerNotes(description: string, meta: MeetupComposerMeta): string {
+  return buildNotes(description, {
     creatorKind: meta.creatorKind,
-    preferredInterests: meta.preferredInterests,
     venueEventStyle: meta.venueEventStyle,
     homeChefServiceMode: meta.homeChefServiceMode,
     reviewerEventStyle: meta.reviewerEventStyle,
     venueSpace: meta.venueSpace,
-  };
-
-  const metaBlock = `\n---bitemate-meta---\n${JSON.stringify(payload)}`;
-  const combined = trimmed ? `${trimmed}${metaBlock}` : metaBlock.trim();
-  return combined.slice(0, 900);
+  });
 }
 
 export function creatorKindLabelKey(kind: MeetupCreatorKind): string {

@@ -10,7 +10,9 @@ import type {
   FoodIntentListResponseDto,
   IntentDailyLimitDto,
   IntentMatchesResponseDto,
+  ProfileInterest,
 } from '@bitemate/shared';
+import { computeProfileCompletion } from '@bitemate/shared';
 import type { FoodIntent, User } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { MeetupCacheService } from '../meetups/meetup-cache.service';
@@ -101,6 +103,7 @@ export class IntentService {
           ageMin: dto.ageMin,
           ageMax: dto.ageMax,
           preferredEducation: dto.preferredEducation,
+          preferredInterests: dto.preferredInterests ?? [],
           country: dto.country?.trim(),
           city: dto.city?.trim(),
           locationLabel: dto.locationLabel?.trim(),
@@ -314,12 +317,76 @@ export class IntentService {
   }
 
   private async assertCanCreateIntent(userId: string): Promise<void> {
+    await this.assertProfileCompleteForMeetups(userId);
+
     const limits = await this.getDailyLimit(userId);
     if (limits.usedToday >= limits.dailyLimit) {
       throw new ForbiddenException('Daily food intent limit reached');
     }
     if (limits.activeCount >= limits.maxActive) {
       throw new ForbiddenException('Too many active food intents');
+    }
+  }
+
+  private async assertProfileCompleteForMeetups(userId: string): Promise<void> {
+    const user = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } });
+
+    let hasRestaurantListing = false;
+    let hasHomeChefProfile = false;
+    let hasHomeChefMenu = false;
+
+    const role = user.role ?? 'NORMAL_USER';
+
+    if (['RESTAURANT_OWNER', 'CAFE_OWNER', 'FOOD_TRUCK_OWNER'].includes(role)) {
+      hasRestaurantListing =
+        (await this.prisma.restaurant.count({ where: { ownerId: userId, isActive: true } })) > 0;
+    }
+
+    if (role === 'HOME_CHEF') {
+      const homeChefProfile = await this.prisma.homeChefProfile.findUnique({
+        where: { userId },
+        select: { id: true },
+      });
+      hasHomeChefProfile = Boolean(homeChefProfile);
+      if (homeChefProfile) {
+        hasHomeChefMenu =
+          (await this.prisma.homeChefMenuItem.count({
+            where: { homeChefProfileId: homeChefProfile.id, isActive: true },
+          })) > 0;
+      }
+    }
+
+    const completion = computeProfileCompletion({
+      role,
+      fullName: user.fullName,
+      username: user.username,
+      bio: user.bio,
+      profileImage: user.profileImage,
+      coverImage: user.coverImage,
+      country: user.country,
+      city: user.city,
+      dateOfBirth: user.dateOfBirth ? user.dateOfBirth.toISOString().slice(0, 10) : null,
+      gender: user.gender,
+      education: user.education,
+      preferredMeals: user.preferredMeals as never[],
+      favoriteCuisines: user.favoriteCuisines ?? [],
+      favoriteFoods: user.favoriteFoods ?? [],
+      interests: (user.interests ?? []) as ProfileInterest[],
+      relationshipStatus: user.relationshipStatus,
+      hasChildren: user.hasChildren,
+      liveLocationEnabled: user.liveLocationEnabled,
+      liveLatitude: user.liveLatitude,
+      liveLongitude: user.liveLongitude,
+      emailVerified: user.emailVerified,
+      phoneVerified: user.phoneVerified,
+      otpVerified: user.otpVerified,
+      hasRestaurantListing,
+      hasHomeChefProfile,
+      hasHomeChefMenu,
+    });
+
+    if (!completion.canUseMeetupFeatures) {
+      throw new ForbiddenException('Complete at least 80% of your profile before creating food events');
     }
   }
 

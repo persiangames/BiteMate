@@ -48,6 +48,7 @@ export interface MeetupDto {
   ageMin: number | null;
   ageMax: number | null;
   preferredEducation: string | null;
+  preferredInterests: string[];
   country: string | null;
   city: string | null;
   status: MeetupStatus;
@@ -77,6 +78,7 @@ export interface CreateMeetupRequestDto {
   ageMin?: number;
   ageMax?: number;
   preferredEducation?: string;
+  preferredInterests?: string[];
   country?: string;
   city?: string;
 }
@@ -104,6 +106,11 @@ export interface NearbyMeetupsQueryDto {
   education?: string;
   ageMin?: number;
   ageMax?: number;
+  interests?: string[];
+}
+
+export interface RequestMeetupJoinRequestDto {
+  meetupId: string;
 }
 
 export interface MeetupMatchDto {

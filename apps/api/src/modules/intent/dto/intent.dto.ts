@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsEnum,
   IsInt,
   IsNumber,
@@ -13,9 +14,11 @@ import {
   EDUCATION_LEVELS,
   GENDERS,
   MEAL_SLOTS,
+  PROFILE_INTERESTS,
   type EducationLevel,
   type Gender,
   type MealSlot,
+  type ProfileInterest,
 } from '@bitemate/shared';
 
 export class CreateIntentDto {
@@ -121,6 +124,11 @@ export class CreateIntentDto {
   @IsString()
   @MaxLength(900)
   notes?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsEnum(PROFILE_INTERESTS, { each: true })
+  preferredInterests?: ProfileInterest[];
 }
 
 export class IntentMatchQueryDto {

@@ -1,5 +1,5 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   EDUCATION_LEVELS,
   GENDERS,
@@ -46,6 +46,8 @@ import { useI18n } from '@/presentation/context/I18nContext';
 export function MeetupsPage() {
   const { accessToken, user } = useAuth();
   const { t, locale } = useI18n();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const inviteeId = searchParams.get('invitee');
   const [foodType, setFoodType] = useState('');
@@ -102,6 +104,23 @@ export function MeetupsPage() {
   useEffect(() => {
     void loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    const createdMeetupId = (location.state as { createdMeetupId?: string } | null)?.createdMeetupId;
+    if (!createdMeetupId || !myIntents.length) {
+      return;
+    }
+
+    const intent = myIntents.find((item) => item.meetupId === createdMeetupId);
+    if (!intent) {
+      return;
+    }
+
+    setActiveIntent(intent);
+    setMessage(t('event.created'));
+    void loadMatches(intent.id);
+    navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
+  }, [location.pathname, location.search, location.state, myIntents, navigate, t]);
 
   useEffect(() => {
     if (!accessToken) return;

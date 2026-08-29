@@ -21,6 +21,7 @@ import type {
   NearbyMeetupsResponseDto,
 } from '@bitemate/shared';
 import { mealFromCategory, meetupCapacity, tagsMatch } from '../../common/dining';
+import { parseMeetupNotes, userMatchesMeetupPreferences } from '@bitemate/shared';
 import type {
   FoodMeetup,
   MeetupInvite,
@@ -274,6 +275,8 @@ export class MeetupsService {
       throw new NotFoundException('Invitee not found');
     }
 
+    this.assertUserEligibleForMeetup(invitee, meetup);
+
     const expiresAt = new Date(
       Math.min(
         meetup.expiresAt.getTime(),
@@ -315,6 +318,87 @@ export class MeetupsService {
     });
 
     return inviteDto;
+  }
+
+  async requestJoin(userId: string, meetupId: string): Promise<MeetupInviteDto> {
+    const meetup = await this.prisma.foodMeetup.findUnique({
+      where: { id: meetupId },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            profileImage: true,
+            meetupRating: true,
+            meetupReviewCount: true,
+            isPremium: true,
+            rankScore: true,
+          },
+        },
+        room: true,
+      },
+    });
+
+    if (!meetup) {
+      throw new NotFoundException('Meetup not found');
+    }
+    if (meetup.creatorId === userId) {
+      throw new BadRequestException('Cannot join your own event');
+    }
+    if (meetup.status === 'FULL' || meetup.status === 'CANCELLED' || meetup.status === 'EXPIRED') {
+      throw new BadRequestException('Event is not open');
+    }
+    if (meetup.status !== 'OPEN' && meetup.status !== 'SCHEDULED') {
+      throw new BadRequestException('Event is not accepting joins');
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { id: userId, isActive: true } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    this.assertUserEligibleForMeetup(user, meetup);
+
+    const acceptedCount = await this.countAccepted(meetupId);
+    if (meetupCapacity(meetup.desiredPeople, acceptedCount).isFull) {
+      throw new BadRequestException('Event is full');
+    }
+
+    const existing = await this.prisma.meetupInvite.findUnique({
+      where: { meetupId_inviteeId: { meetupId, inviteeId: userId } },
+      include: this.inviteInclude(),
+    });
+
+    if (existing?.status === 'ACCEPTED') {
+      return this.toInviteDto(existing);
+    }
+    if (existing?.status === 'PENDING') {
+      return this.acceptInvite(userId, existing.id);
+    }
+
+    const expiresAt = new Date(
+      Math.min(
+        meetup.expiresAt.getTime(),
+        Date.now() +
+          this.configService.get<number>('meetup.inviteExpiryHours', 24)! *
+            60 *
+            60 *
+            1000,
+      ),
+    );
+
+    const invite = await this.prisma.meetupInvite.create({
+      data: {
+        meetupId,
+        inviterId: meetup.creatorId,
+        inviteeId: userId,
+        expiresAt,
+      },
+      include: this.inviteInclude(),
+    });
+
+    return this.acceptInvite(userId, invite.id);
   }
 
   async acceptInvite(userId: string, inviteId: string): Promise<MeetupInviteDto> {
@@ -753,6 +837,16 @@ export class MeetupsService {
     userId: string,
     query: NearbyMeetupsQueryDto,
   ): Promise<NearbyMeetupsResponseDto> {
+    const viewer = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        gender: true,
+        dateOfBirth: true,
+        education: true,
+        interests: true,
+      },
+    });
+
     const latDelta = query.radiusKm / 111;
     const cosLat = Math.cos((query.latitude * Math.PI) / 180);
     const lngDelta = query.radiusKm / (111 * Math.max(0.2, Math.abs(cosLat)));
@@ -818,6 +912,29 @@ export class MeetupsService {
         }
         if (query.ageMin != null && item.ageMax != null && item.ageMax < query.ageMin) return false;
         if (query.ageMax != null && item.ageMin != null && item.ageMin > query.ageMax) return false;
+        if (query.interests?.length) {
+          const overlap = query.interests.some((interest) => item.preferredInterests.includes(interest));
+          if (item.preferredInterests.length > 0 && !overlap) {
+            return false;
+          }
+        }
+        if (viewer) {
+          return userMatchesMeetupPreferences(
+            {
+              gender: viewer.gender,
+              dateOfBirth: viewer.dateOfBirth,
+              education: viewer.education,
+              interests: viewer.interests,
+            },
+            {
+              preferredGender: item.preferredGender,
+              ageMin: item.ageMin,
+              ageMax: item.ageMax,
+              preferredEducation: item.preferredEducation,
+              preferredInterests: item.preferredInterests,
+            },
+          );
+        }
         return true;
       })
       .sort((a, b) => a.distanceKm - b.distanceKm)
@@ -830,12 +947,52 @@ export class MeetupsService {
     };
   }
 
+  private assertUserEligibleForMeetup(
+    user: Pick<User, 'gender' | 'dateOfBirth' | 'education' | 'interests'>,
+    meetup: Pick<
+      FoodMeetup,
+      'preferredGender' | 'ageMin' | 'ageMax' | 'preferredEducation' | 'preferredInterests' | 'notes'
+    >,
+  ): void {
+    const preferredInterests = this.resolvePreferredInterests(meetup);
+    const eligible = userMatchesMeetupPreferences(
+      {
+        gender: user.gender,
+        dateOfBirth: user.dateOfBirth,
+        education: user.education,
+        interests: user.interests,
+      },
+      {
+        preferredGender: meetup.preferredGender,
+        ageMin: meetup.ageMin,
+        ageMax: meetup.ageMax,
+        preferredEducation: meetup.preferredEducation,
+        preferredInterests,
+      },
+    );
+
+    if (!eligible) {
+      throw new ForbiddenException('You do not match this event preferences');
+    }
+  }
+
+  private resolvePreferredInterests(
+    meetup: Pick<FoodMeetup, 'preferredInterests' | 'notes'>,
+  ): string[] {
+    if (meetup.preferredInterests.length > 0) {
+      return meetup.preferredInterests;
+    }
+
+    return parseMeetupNotes(meetup.notes).meta.preferredInterests ?? [];
+  }
+
   private async toMeetupDto(
     meetup: MeetupWithCreator,
     acceptedCount: number,
   ): Promise<MeetupDto> {
     const capacity = meetupCapacity(meetup.desiredPeople, acceptedCount);
     const isFull = meetup.status === 'FULL' || capacity.isFull;
+    const preferredInterests = this.resolvePreferredInterests(meetup);
     return {
       id: meetup.id,
       foodType: meetup.foodType,
@@ -852,6 +1009,7 @@ export class MeetupsService {
       ageMin: meetup.ageMin,
       ageMax: meetup.ageMax,
       preferredEducation: meetup.preferredEducation,
+      preferredInterests,
       country: meetup.country,
       city: meetup.city,
       status: isFull ? 'FULL' : meetup.status,

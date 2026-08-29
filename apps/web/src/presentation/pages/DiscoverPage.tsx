@@ -23,7 +23,7 @@ import {
   resolveCanonicalFoodType,
 } from '@/data/localize';
 import { fetchMyIntents } from '@/data/repositories/intentRepository';
-import { fetchMyMeetups, sendMeetupInvite } from '@/data/repositories/meetupRepository';
+import { fetchMyMeetups, requestMeetupJoin, sendMeetupInvite } from '@/data/repositories/meetupRepository';
 import { fetchNearbyMeetups, fetchNearbyUsers, updateLiveLocation, updateProfile } from '@/data/repositories/profileRepository';
 import { NearbyMap } from '@/presentation/components/NearbyMap';
 import { Avatar } from '@/presentation/components/Avatar';
@@ -86,6 +86,7 @@ export function DiscoverPage() {
   const [error, setError] = useState<string | null>(null);
   const [inviteMessage, setInviteMessage] = useState<string | null>(null);
   const [inviting, setInviting] = useState(false);
+  const [joiningId, setJoiningId] = useState<string | null>(null);
 
   const countryOptions = useMemo(() => countrySelectOptions(locale), [locale]);
   const cityOptions = useMemo(
@@ -202,6 +203,35 @@ export function DiscoverPage() {
       setError(message.toLowerCase().includes('full') ? t('meetups.full') : localizeError(t, err, 'error.generic'));
     } finally {
       setInviting(false);
+    }
+  }
+
+  async function joinTable(event: NearbyMeetupDto) {
+    if (!accessToken || event.isFull) {
+      return;
+    }
+
+    setJoiningId(event.id);
+    setInviteMessage(null);
+    setError(null);
+
+    try {
+      const invite = await requestMeetupJoin(accessToken, { meetupId: event.id });
+      setInviteMessage(t('meetups.accepted'));
+      if (invite.meetup.roomId) {
+        navigate(`/meetups/room/${invite.meetup.roomId}`);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '';
+      setError(
+        message.toLowerCase().includes('full')
+          ? t('meetups.full')
+          : message.toLowerCase().includes('preferences')
+            ? t('event.joinBlocked')
+            : localizeError(t, err, 'error.generic'),
+      );
+    } finally {
+      setJoiningId(null);
     }
   }
 
@@ -466,6 +496,7 @@ export function DiscoverPage() {
 
       <section className="glass-card flow">
         <h2>{t('nearby.openTables')}</h2>
+        {inviteMessage ? <p className="save-success">{inviteMessage}</p> : null}
         {events.length === 0 ? (
           <p className="hint">{t('nearby.noTables')}</p>
         ) : (
@@ -490,12 +521,29 @@ export function DiscoverPage() {
                       : (event.locationLabel ?? '')}
                     {event.foodType ? ` · ${localizeFoodType(event.foodType, locale)}` : ''}
                   </p>
+                  {event.preferredInterests.length > 0 ? (
+                    <p className="hint">
+                      {t('event.interestMatch', { count: event.preferredInterests.length })}
+                    </p>
+                  ) : null}
                 </div>
-                {event.isFull ? (
-                  <span className="full-badge">{t('meetups.full')}</span>
-                ) : (
-                  <span className="seats-badge">{t('meetups.seatsLeft', { count: event.seatsLeft })}</span>
-                )}
+                <div className="table-card__actions">
+                  {event.isFull ? (
+                    <span className="full-badge">{t('meetups.full')}</span>
+                  ) : (
+                    <>
+                      <span className="seats-badge">{t('meetups.seatsLeft', { count: event.seatsLeft })}</span>
+                      <button
+                        type="button"
+                        className="btn-primary btn-compact"
+                        disabled={joiningId === event.id}
+                        onClick={() => void joinTable(event)}
+                      >
+                        {joiningId === event.id ? t('common.loading') : t('meetups.join')}
+                      </button>
+                    </>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

@@ -23,7 +23,7 @@ import { SearchableSelect } from '@/presentation/components/SearchableSelect';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import {
-  buildMeetupNotes,
+  buildMeetupComposerNotes,
   creatorKindLabelKey,
   resolveMeetupCreatorKind,
   type HomeChefServiceMode,
@@ -126,14 +126,14 @@ export function MeetupComposer({ onCreated }: MeetupComposerProps) {
         longitude,
         budgetMin: budgetMin === '' ? undefined : Number(budgetMin),
         budgetMax: budgetMax === '' ? undefined : Number(budgetMax),
-        notes: buildMeetupNotes(description, {
+        notes: buildMeetupComposerNotes(description, {
           creatorKind,
-          preferredInterests,
           venueEventStyle: creatorKind === 'VENUE' ? venueEventStyle : undefined,
           homeChefServiceMode: creatorKind === 'HOME_CHEF' ? homeChefServiceMode : undefined,
           reviewerEventStyle: creatorKind === 'REVIEWER' ? reviewerEventStyle : undefined,
           venueSpace: creatorKind === 'HOME_CHEF' || creatorKind === 'DINER' ? venueSpace : undefined,
         }),
+        preferredInterests,
       });
 
       setMessage(t('event.created'));

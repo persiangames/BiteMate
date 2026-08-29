@@ -2470,6 +2470,12 @@ html[dir='rtl'] .composer__send-fab svg {
   border: 1px solid var(--color-border);
 }
 
+.table-card__actions {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: end;
+}
+
 .field-label {
   display: block;
   margin-bottom: 0.4rem;

@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsEnum,
   IsInt,
   IsNumber,
@@ -13,9 +14,11 @@ import {
   EDUCATION_LEVELS,
   GENDERS,
   MEAL_SLOTS,
+  PROFILE_INTERESTS,
   type EducationLevel,
   type Gender,
   type MealSlot,
+  type ProfileInterest,
 } from '@bitemate/shared';
 
 function emptyToUndefined(value: unknown) {
@@ -187,6 +190,23 @@ export class NearbyMeetupsQueryDto {
   @Min(18)
   @Max(99)
   ageMax?: number;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (typeof value === 'string' && value.trim()) {
+      return value
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+    return undefined;
+  })
+  @IsArray()
+  @IsEnum(PROFILE_INTERESTS, { each: true })
+  interests?: ProfileInterest[];
 }
 export class MeetupMatchQueryDto {
   @IsString()
@@ -204,6 +224,11 @@ export class SendMeetupInviteDto {
 export class RespondMeetupInviteDto {
   @IsString()
   inviteId!: string;
+}
+
+export class RequestMeetupJoinDto {
+  @IsString()
+  meetupId!: string;
 }
 
 export class SendRoomMessageDto {

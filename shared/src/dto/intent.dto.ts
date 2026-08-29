@@ -63,6 +63,7 @@ export interface CreateFoodIntentRequestDto {
   city?: string;
   locationLabel?: string;
   notes?: string;
+  preferredInterests?: string[];
 }
 
 export interface CancelFoodIntentRequestDto {

@@ -9,6 +9,7 @@ import type {
   MeetupRoomMessagesResponseDto,
   CreateMeetupRequestDto,
   RespondMeetupInviteRequestDto,
+  RequestMeetupJoinRequestDto,
   SendMeetupInviteRequestDto,
   SendRoomMessageRequestDto,
 } from '@bitemate/shared';
@@ -62,6 +63,17 @@ export async function sendMeetupInvite(
   payload: SendMeetupInviteRequestDto,
 ): Promise<MeetupInviteDto> {
   return apiFetch<MeetupInviteDto>('/meetups/invite', {
+    method: 'POST',
+    headers: authHeaders(accessToken),
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function requestMeetupJoin(
+  accessToken: string,
+  payload: RequestMeetupJoinRequestDto,
+): Promise<MeetupInviteDto> {
+  return apiFetch<MeetupInviteDto>('/meetups/request-join', {
     method: 'POST',
     headers: authHeaders(accessToken),
     body: JSON.stringify(payload),

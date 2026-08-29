@@ -29,6 +29,7 @@ import {
   MeetupMatchQueryDto,
   NearbyMeetupsQueryDto,
   RespondMeetupInviteDto,
+  RequestMeetupJoinDto,
   SendMeetupInviteDto,
   SendRoomMessageDto,
 } from './dto/meetups.dto';
@@ -95,6 +96,15 @@ export class MeetupsController {
     @Body() dto: SendMeetupInviteDto,
   ): Promise<MeetupInviteDto> {
     return this.meetupsService.sendInvite(user.sub, dto.meetupId, dto.inviteeId);
+  }
+
+  @Post('meetups/request-join')
+  @RequireOtpVerified()
+  requestJoin(
+    @CurrentUser() user: JwtPayload,
+    @Body() dto: RequestMeetupJoinDto,
+  ): Promise<MeetupInviteDto> {
+    return this.meetupsService.requestJoin(user.sub, dto.meetupId);
   }
 
   @Post('meetups/accept')

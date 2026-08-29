@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { IntentMatchDto, IntentUserSummaryDto } from '@bitemate/shared';
+import type { IntentMatchDto, IntentUserSummaryDto, MeetupPreferenceTarget } from '@bitemate/shared';
+import { interestOverlapScore, userMatchesMeetupPreferences } from '@bitemate/shared';
 import type { FoodIntent, User } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { GeoLocationService } from '../location/geo-location.service';
@@ -38,6 +39,10 @@ type UserSummaryFields = Pick<
   | 'successfulMeetups'
   | 'isPremium'
   | 'rankScore'
+  | 'gender'
+  | 'dateOfBirth'
+  | 'education'
+  | 'interests'
 >;
 
 @Injectable()
@@ -51,6 +56,7 @@ export class IntentMatchingService {
 
   async findMatches(sourceIntent: IntentWithUser): Promise<IntentMatchDto[]> {
     const maxResults = this.configService.get<number>('intent.maxMatchResults', 30)!;
+    const meetupPrefs = await this.loadMeetupPreferences(sourceIntent.meetupId);
 
     const nearbyIntents = await this.intentCache.findNearbyIntentIds({
       latitude: sourceIntent.latitude,
@@ -64,12 +70,15 @@ export class IntentMatchingService {
 
     const metaMap = await this.intentCache.getIntentMetaBatch(candidateIds);
     const distanceMap = new Map(nearbyIntents.map((item) => [item.intentId, item.distanceKm]));
+    const candidateProfiles = await this.loadCandidateProfiles(metaMap, candidateIds);
 
     const intentMatches = this.scoreIntentCandidates(
       sourceIntent,
       candidateIds,
       metaMap,
       distanceMap,
+      meetupPrefs,
+      candidateProfiles,
     );
 
     const nearbyUsers = await this.geoLocationService.findNearby({
@@ -99,6 +108,10 @@ export class IntentMatchingService {
             successfulMeetups: true,
             isPremium: true,
             rankScore: true,
+            gender: true,
+            dateOfBirth: true,
+            education: true,
+            interests: true,
           },
         })
       : [];
@@ -109,6 +122,7 @@ export class IntentMatchingService {
       nearbyUsers,
       userMap,
       cancelCounts,
+      meetupPrefs,
     );
 
     const merged = new Map<string, ScoredIntentMatch>();
@@ -178,6 +192,11 @@ export class IntentMatchingService {
     candidateIds: string[],
     metaMap: Map<string, CachedIntentMeta>,
     distanceMap: Map<string, number>,
+    meetupPrefs: MeetupPreferenceTarget | null,
+    candidateProfiles: Map<
+      string,
+      Pick<User, 'gender' | 'dateOfBirth' | 'education' | 'interests'>
+    >,
   ): ScoredIntentMatch[] {
     const matches: ScoredIntentMatch[] = [];
     const sourceStart = sourceIntent.timeStart.getTime();
@@ -187,6 +206,24 @@ export class IntentMatchingService {
       const meta = metaMap.get(candidateId);
       if (!meta || meta.status !== 'ACTIVE' || meta.userId === sourceIntent.userId) {
         continue;
+      }
+
+      if (meetupPrefs) {
+        const profile = candidateProfiles.get(meta.userId);
+        if (
+          profile &&
+          !userMatchesMeetupPreferences(
+            {
+              gender: profile.gender,
+              dateOfBirth: profile.dateOfBirth,
+              education: profile.education,
+              interests: profile.interests,
+            },
+            meetupPrefs,
+          )
+        ) {
+          continue;
+        }
       }
 
       const distanceKm =
@@ -255,6 +292,7 @@ export class IntentMatchingService {
     nearbyUsers: Awaited<ReturnType<GeoLocationService['findNearby']>>,
     userMap: Map<string, UserSummaryFields>,
     cancelCounts: Map<string, number>,
+    meetupPrefs: MeetupPreferenceTarget | null,
   ): ScoredIntentMatch[] {
     const matches: ScoredIntentMatch[] = [];
     const sourceStart = sourceIntent.timeStart.getTime();
@@ -263,6 +301,21 @@ export class IntentMatchingService {
     for (const nearby of nearbyUsers) {
       const user = userMap.get(nearby.id);
       if (!user) {
+        continue;
+      }
+
+      if (
+        meetupPrefs &&
+        !userMatchesMeetupPreferences(
+          {
+            gender: user.gender,
+            dateOfBirth: user.dateOfBirth,
+            education: user.education,
+            interests: user.interests,
+          },
+          meetupPrefs,
+        )
+      ) {
         continue;
       }
 
@@ -294,7 +347,11 @@ export class IntentMatchingService {
         timeOverlapMinutes: Math.round((sourceEnd - sourceStart) / 60_000),
         user: this.toUserSummary(user, cancelCount, breakdown.parts.reliability),
         intent: null,
-        sortKey: breakdown.total,
+        sortKey:
+          breakdown.total +
+          (meetupPrefs?.preferredInterests?.length
+            ? interestOverlapScore(meetupPrefs.preferredInterests, user.interests ?? []) * 5
+            : 0),
       });
     }
 
@@ -368,6 +425,65 @@ export class IntentMatchingService {
     );
 
     return { parts, total };
+  }
+
+  private async loadMeetupPreferences(meetupId: string | null): Promise<MeetupPreferenceTarget | null> {
+    if (!meetupId) {
+      return null;
+    }
+
+    const meetup = await this.prisma.foodMeetup.findUnique({
+      where: { id: meetupId },
+      select: {
+        preferredGender: true,
+        ageMin: true,
+        ageMax: true,
+        preferredEducation: true,
+        preferredInterests: true,
+      },
+    });
+
+    if (!meetup) {
+      return null;
+    }
+
+    return {
+      preferredGender: meetup.preferredGender,
+      ageMin: meetup.ageMin,
+      ageMax: meetup.ageMax,
+      preferredEducation: meetup.preferredEducation,
+      preferredInterests: meetup.preferredInterests,
+    };
+  }
+
+  private async loadCandidateProfiles(
+    metaMap: Map<string, CachedIntentMeta>,
+    candidateIds: string[],
+  ): Promise<Map<string, Pick<User, 'gender' | 'dateOfBirth' | 'education' | 'interests'>>> {
+    const userIds = [
+      ...new Set(
+        candidateIds
+          .map((candidateId) => metaMap.get(candidateId)?.userId)
+          .filter((value): value is string => Boolean(value)),
+      ),
+    ];
+
+    if (!userIds.length) {
+      return new Map();
+    }
+
+    const profiles = await this.prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: {
+        id: true,
+        gender: true,
+        dateOfBirth: true,
+        education: true,
+        interests: true,
+      },
+    });
+
+    return new Map(profiles.map((profile) => [profile.id, profile]));
   }
 
   private async getCancelCounts(userIds: string[]): Promise<Map<string, number>> {
