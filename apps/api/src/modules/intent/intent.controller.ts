@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import type {
+  CreateFoodIntentResponseDto,
   FoodIntentDto,
   FoodIntentListResponseDto,
   IntentDailyLimitDto,
@@ -24,7 +25,7 @@ export class IntentController {
   createIntent(
     @CurrentUser() user: JwtPayload,
     @Body() dto: CreateIntentDto,
-  ): Promise<FoodIntentDto> {
+  ): Promise<CreateFoodIntentResponseDto> {
     return this.intentService.createIntent(user.sub, dto);
   }
 

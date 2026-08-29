@@ -1,6 +1,7 @@
 import type {
   CancelFoodIntentRequestDto,
   CreateFoodIntentRequestDto,
+  CreateFoodIntentResponseDto,
   FoodIntentDto,
   FoodIntentListResponseDto,
   IntentDailyLimitDto,
@@ -11,8 +12,8 @@ import { apiFetch, authHeaders } from '@/data/api/client';
 export async function createFoodIntent(
   accessToken: string,
   payload: CreateFoodIntentRequestDto,
-): Promise<FoodIntentDto> {
-  return apiFetch<FoodIntentDto>('/intent/create', {
+): Promise<CreateFoodIntentResponseDto> {
+  return apiFetch<CreateFoodIntentResponseDto>('/intent/create', {
     method: 'POST',
     headers: authHeaders(accessToken),
     body: JSON.stringify(payload),

@@ -163,7 +163,7 @@ export function MeetupsPage() {
     const timeEnd = new Date(timeStart.getTime() + 2 * 60 * 60 * 1000);
 
     try {
-      const intent = await createFoodIntent(accessToken, {
+      const response = await createFoodIntent(accessToken, {
         foodType,
         foodCategory: mealSlot.toLowerCase(),
         mealSlot,
@@ -181,6 +181,7 @@ export function MeetupsPage() {
         latitude,
         longitude,
       });
+      const intent = response.intent;
       setActiveIntent(intent);
       setMyIntents((current) => [intent, ...current]);
       setMessage(t('save.success'));

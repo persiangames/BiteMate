@@ -37,6 +37,22 @@ export interface PostAuthorDto {
   profileImage: string | null;
 }
 
+export interface PostMeetupSummaryDto {
+  id: string;
+  foodType: string;
+  foodName: string | null;
+  scheduledAt: string;
+  locationLabel: string | null;
+  city: string | null;
+  country: string | null;
+  mealSlot: string | null;
+  desiredPeople: number;
+  seatsLeft: number;
+  isFull: boolean;
+  status: string;
+  preferredInterests: string[];
+}
+
 export interface PostDto {
   id: string;
   caption: string | null;
@@ -55,6 +71,7 @@ export interface PostDto {
   isLiked: boolean;
   isFollowingAuthor: boolean;
   author: PostAuthorDto;
+  meetup?: PostMeetupSummaryDto | null;
   createdAt: string;
 }
 

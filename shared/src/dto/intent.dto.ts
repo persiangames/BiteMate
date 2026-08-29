@@ -1,3 +1,5 @@
+import type { PostDto } from './feed.dto';
+
 export const FOOD_INTENT_STATUSES = [
   'ACTIVE',
   'MATCHED',
@@ -40,6 +42,11 @@ export interface FoodIntentDto {
   expiresAt: string;
   meetupId: string | null;
   createdAt: string;
+}
+
+export interface CreateFoodIntentResponseDto {
+  intent: FoodIntentDto;
+  feedPost: PostDto | null;
 }
 
 export interface CreateFoodIntentRequestDto {

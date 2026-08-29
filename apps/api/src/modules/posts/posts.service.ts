@@ -13,12 +13,12 @@ import type {
   PostDto,
   ShareResponseDto,
 } from '@bitemate/shared';
-import { Prisma } from '@prisma/client';
+import { Prisma, type FoodMeetup } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service';
 import { GamificationService } from '../growth/gamification.service';
 import { GeoLocationService } from '../location/geo-location.service';
 import { NotificationsService } from '../notifications/notifications.service';
-import { mapPostToDto, POST_INCLUDE } from './post.mapper';
+import { mapPostToDto, loadMeetupAcceptedCounts, POST_INCLUDE, buildMeetupFeedCaption } from './post.mapper';
 import { normalizeStoredMediaPath } from '../../common/media-url';
 import {
   computeTrendingScore,
@@ -187,6 +187,10 @@ export class FeedService {
     const likedSet = new Set(likedRows.map((row) => row.postId));
     const followingAuthorSet = new Set(followingAuthorRows.map((row) => row.followingId));
     const postMap = new Map(posts.map((post) => [post.id, post]));
+    const meetupAcceptedCounts = await loadMeetupAcceptedCounts(
+      this.prisma,
+      posts.map((post) => post.meetupId).filter((id): id is string => Boolean(id)),
+    );
 
     const items: PostDto[] = selected
       .map((candidate) => postMap.get(candidate.id))
@@ -196,6 +200,9 @@ export class FeedService {
           feedSource: sourceMap.get(post.id) ?? 'TRENDING',
           isLiked: likedSet.has(post.id),
           isFollowingAuthor: followingAuthorSet.has(post.authorId),
+          meetupAcceptedCount: post.meetupId
+            ? meetupAcceptedCounts.get(post.meetupId) ?? 0
+            : 0,
         }),
       );
 
@@ -322,6 +329,47 @@ export class PostsService {
       feedSource: 'FOLLOWING',
       isLiked: false,
       isFollowingAuthor: false,
+    });
+  }
+
+  async createMeetupFeedPost(userId: string, meetup: FoodMeetup): Promise<PostDto> {
+    const existing = await this.prisma.post.findUnique({
+      where: { meetupId: meetup.id },
+      include: POST_INCLUDE,
+    });
+    if (existing) {
+      const meetupAcceptedCounts = await loadMeetupAcceptedCounts(this.prisma, [meetup.id]);
+      return mapPostToDto(existing, {
+        feedSource: 'FOLLOWING',
+        isLiked: false,
+        isFollowingAuthor: true,
+        meetupAcceptedCount: meetupAcceptedCounts.get(meetup.id) ?? 0,
+      });
+    }
+
+    const post = await this.prisma.post.create({
+      data: {
+        authorId: userId,
+        caption: buildMeetupFeedCaption(meetup),
+        mediaType: 'IMAGE',
+        mediaUrl: '/brand/lockup-512.png',
+        restaurantTag:
+          meetup.locationLabel?.trim() || meetup.foodName?.trim() || meetup.foodType.trim(),
+        locationLabel: meetup.locationLabel,
+        locationLat: meetup.latitude,
+        locationLng: meetup.longitude,
+        meetupId: meetup.id,
+      },
+      include: POST_INCLUDE,
+    });
+
+    void this.gamificationService.recordPostActivity(userId);
+
+    return mapPostToDto(post, {
+      feedSource: 'FOLLOWING',
+      isLiked: false,
+      isFollowingAuthor: true,
+      meetupAcceptedCount: 0,
     });
   }
 
@@ -613,6 +661,10 @@ export class PostsService {
       where: { followerId_followingId: { followerId: viewerId, followingId: userId } },
       select: { id: true },
     });
+    const meetupAcceptedCounts = await loadMeetupAcceptedCounts(
+      this.prisma,
+      posts.map((post) => post.meetupId).filter((id): id is string => Boolean(id)),
+    );
 
     return {
       items: posts.map((post) =>
@@ -620,6 +672,9 @@ export class PostsService {
           feedSource: 'FOLLOWING',
           isLiked: liked.has(post.id),
           isFollowingAuthor: Boolean(following) || viewerId === userId,
+          meetupAcceptedCount: post.meetupId
+            ? meetupAcceptedCounts.get(post.meetupId) ?? 0
+            : 0,
         }),
       ),
       nextCursor: null,

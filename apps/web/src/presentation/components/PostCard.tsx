@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { PostDto } from '@bitemate/shared';
 import {
   addComment,
@@ -10,6 +10,7 @@ import {
   toggleLike,
   updatePost,
 } from '@/data/repositories/feedRepository';
+import { requestMeetupJoin } from '@/data/repositories/meetupRepository';
 import { Avatar } from '@/presentation/components/Avatar';
 import { MessageComposer } from '@/presentation/components/MessageComposer';
 import { SaveFeedback } from '@/presentation/components/SaveFeedback';
@@ -28,6 +29,7 @@ interface PostCardProps {
 export function PostCard({ post, accessToken, onUpdate, onDelete }: PostCardProps) {
   const { user } = useAuth();
   const { t } = useI18n();
+  const navigate = useNavigate();
   const [commentText, setCommentText] = useState('');
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [comments, setComments] = useState<Array<{
@@ -37,6 +39,8 @@ export function PostCard({ post, accessToken, onUpdate, onDelete }: PostCardProp
     username: string | null;
   }>>([]);
   const [loading, setLoading] = useState(false);
+  const [joining, setJoining] = useState(false);
+  const [joinMessage, setJoinMessage] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [captionDraft, setCaptionDraft] = useState(post.caption ?? '');
   const [saved, setSaved] = useState(false);
@@ -143,7 +147,42 @@ export function PostCard({ post, accessToken, onUpdate, onDelete }: PostCardProp
     }
   }
 
+  async function handleJoinEvent() {
+    const meetup = post.meetup;
+    if (!meetup || meetup.isFull || meetup.status === 'CANCELLED' || meetup.status === 'EXPIRED') {
+      return;
+    }
+    if (user?.id === post.author.id) {
+      navigate('/meetups');
+      return;
+    }
+
+    setJoining(true);
+    setJoinMessage(null);
+    try {
+      const invite = await requestMeetupJoin(accessToken, { meetupId: meetup.id });
+      setJoinMessage(t('meetups.accepted'));
+      if (invite.meetup.roomId) {
+        navigate(`/meetups/room/${invite.meetup.roomId}`);
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '';
+      setJoinMessage(
+        message.toLowerCase().includes('full') ? t('meetups.full') : t('error.generic'),
+      );
+    } finally {
+      setJoining(false);
+    }
+  }
+
   const authorName = post.author.fullName ?? post.author.username ?? t('post.user');
+  const meetup = post.meetup;
+  const canJoinEvent =
+    meetup &&
+    !meetup.isFull &&
+    meetup.status !== 'CANCELLED' &&
+    meetup.status !== 'EXPIRED' &&
+    user?.id !== post.author.id;
 
   return (
     <article className="glass-card post-card flow">
@@ -182,6 +221,54 @@ export function PostCard({ post, accessToken, onUpdate, onDelete }: PostCardProp
           </button>
         ) : null}
       </header>
+
+      {meetup ? (
+        <section className="post-event-banner">
+          <div className="post-event-banner__head">
+            <span className="event-badge">{t('feed.eventBadge')}</span>
+            {meetup.mealSlot ? (
+              <span className="hint">{t(`dining.meal.${meetup.mealSlot}`)}</span>
+            ) : null}
+          </div>
+          <strong>{meetup.foodName ?? meetup.foodType}</strong>
+          <p className="hint">
+            {new Date(meetup.scheduledAt).toLocaleString()}
+            {meetup.locationLabel || meetup.city
+              ? ` · ${meetup.locationLabel ?? meetup.city}`
+              : ''}
+          </p>
+          <div className="post-event-banner__meta">
+            {meetup.isFull ? (
+              <span className="full-badge">{t('meetups.full')}</span>
+            ) : (
+              <span className="seats-badge">
+                {t('meetups.seatsLeft', { count: meetup.seatsLeft })}
+              </span>
+            )}
+            {meetup.preferredInterests.slice(0, 3).map((interest) => (
+              <span key={interest} className="filter-chip active">
+                {t(`profile.interest.${interest}`)}
+              </span>
+            ))}
+          </div>
+          {canJoinEvent ? (
+            <button
+              type="button"
+              className="btn-primary btn-compact"
+              disabled={joining}
+              onClick={() => void handleJoinEvent()}
+            >
+              {joining ? t('common.loading') : t('meetups.join')}
+            </button>
+          ) : null}
+          {user?.id === post.author.id ? (
+            <Link to="/meetups" className="btn-secondary btn-compact">
+              {t('feed.manageEvent')}
+            </Link>
+          ) : null}
+          {joinMessage ? <p className="save-success">{joinMessage}</p> : null}
+        </section>
+      ) : null}
 
       <PostMedia
         mediaType={post.mediaType}

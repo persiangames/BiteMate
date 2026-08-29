@@ -9,6 +9,7 @@ import {
   type EducationLevel,
   type Gender,
   type MealSlot,
+  type PostDto,
   type ProfileInterest,
 } from '@bitemate/shared';
 import { createFoodIntent } from '@/data/repositories/intentRepository';
@@ -32,7 +33,7 @@ import {
 } from '@/presentation/utils/meetupEventMeta';
 
 interface MeetupComposerProps {
-  onCreated?: (meetupId: string | null) => void;
+  onCreated?: (meetupId: string | null, feedPost?: PostDto | null) => void;
 }
 
 export function MeetupComposer({ onCreated }: MeetupComposerProps) {
@@ -106,7 +107,7 @@ export function MeetupComposer({ onCreated }: MeetupComposerProps) {
     const timeEnd = new Date(timeStart.getTime() + 2 * 60 * 60 * 1000);
 
     try {
-      const intent = await createFoodIntent(accessToken, {
+      const response = await createFoodIntent(accessToken, {
         foodType,
         foodCategory: mealSlot.toLowerCase(),
         mealSlot,
@@ -136,8 +137,8 @@ export function MeetupComposer({ onCreated }: MeetupComposerProps) {
         preferredInterests,
       });
 
-      setMessage(t('event.created'));
-      onCreated?.(intent.meetupId);
+      setMessage(t('event.createdFeed'));
+      onCreated?.(response.intent.meetupId, response.feedPost);
     } catch {
       setError(t('error.generic'));
     } finally {

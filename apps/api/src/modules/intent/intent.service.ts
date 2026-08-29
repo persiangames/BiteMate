@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type {
+  CreateFoodIntentResponseDto,
   FoodIntentDto,
   FoodIntentListResponseDto,
   IntentDailyLimitDto,
@@ -21,6 +22,7 @@ import { IntentCacheService } from './intent-cache.service';
 import { IntentMatchingService } from './intent-matching.service';
 import { mealFromCategory } from '../../common/dining';
 import type { CreateIntentDto } from './dto/intent.dto';
+import { PostsService } from '../posts/posts.service';
 
 type IntentWithUser = FoodIntent & {
   user: Pick<
@@ -47,9 +49,10 @@ export class IntentService {
     private readonly matchingService: IntentMatchingService,
     private readonly notificationsService: NotificationsService,
     private readonly configService: ConfigService,
+    private readonly postsService: PostsService,
   ) {}
 
-  async createIntent(userId: string, dto: CreateIntentDto): Promise<FoodIntentDto> {
+  async createIntent(userId: string, dto: CreateIntentDto): Promise<CreateFoodIntentResponseDto> {
     await this.assertCanCreateIntent(userId);
 
     const timeStart = new Date(dto.timeStart);
@@ -223,7 +226,12 @@ export class IntentService {
       });
     }
 
-    return this.toIntentDto(result.intent);
+    const feedPost = await this.postsService.createMeetupFeedPost(userId, result.meetup);
+
+    return {
+      intent: this.toIntentDto(result.intent),
+      feedPost,
+    };
   }
 
   async getMatches(userId: string, intentId: string): Promise<IntentMatchesResponseDto> {

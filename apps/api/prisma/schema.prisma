@@ -441,6 +441,8 @@ model Post {
   commentCount  Int       @default(0) @map("comment_count")
   shareCount    Int       @default(0) @map("share_count")
   trendingScore Float     @default(0) @map("trending_score")
+  meetupId      String?   @unique @map("meetup_id")
+  meetup        FoodMeetup? @relation(fields: [meetupId], references: [id], onDelete: SetNull)
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
@@ -449,6 +451,7 @@ model Post {
   shares   PostShare[]
   tags     PostTag[]
 
+  @@index([meetupId])
   @@index([authorId, createdAt(sort: Desc)])
   @@index([trendingScore(sort: Desc), createdAt(sort: Desc)])
   @@index([createdAt(sort: Desc)])
@@ -733,6 +736,7 @@ model FoodMeetup {
   invites MeetupInvite[]
   room    MeetupRoom?
   intent  FoodIntent?
+  feedPost Post?
   participations MeetupParticipation[]
   reviews MeetupReview[]
 
