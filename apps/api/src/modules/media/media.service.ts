@@ -15,6 +15,11 @@ export interface ProcessedMedia {
   contentType?: string;
 }
 
+export interface ProcessUploadOptions {
+  /** Preserve more detail for profile/cover photos (4096px, q95). */
+  highQuality?: boolean;
+}
+
 @Injectable()
 export class MediaService {
   private s3Client: S3Client | null = null;
@@ -23,6 +28,19 @@ export class MediaService {
 
   isS3Enabled(): boolean {
     return this.configService.get<string>('storage.provider') === 's3';
+  }
+
+  /** Convert a flat local filename back to the S3 object key. */
+  s3KeyFromLocalFilename(filename: string): string {
+    if (filename.startsWith('posts_')) {
+      return filename.replace(/^posts_/, 'posts/');
+    }
+    return filename;
+  }
+
+  /** Build a browser-safe relative URL for any stored object key. */
+  toPublicUploadPath(key: string): string {
+    return `/uploads/${key.replace(/\//g, '_')}`;
   }
 
   private getS3Client(): S3Client {
@@ -39,7 +57,10 @@ export class MediaService {
     return this.s3Client;
   }
 
-  async processUpload(file: Express.Multer.File): Promise<ProcessedMedia> {
+  async processUpload(
+    file: Express.Multer.File,
+    options?: ProcessUploadOptions,
+  ): Promise<ProcessedMedia> {
     const isVideo = file.mimetype.startsWith('video/');
     const mediaType: MediaType = isVideo ? 'VIDEO' : 'IMAGE';
 
@@ -61,23 +82,46 @@ export class MediaService {
       };
     }
 
-    const compressed = await sharp(file.buffer)
-      .rotate()
-      .resize({ width: 1920, height: 1920, fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: 82, mozjpeg: true })
-      .toBuffer();
+    const highQuality = options?.highQuality ?? false;
+    const maxWidth = highQuality ? 4096 : 2560;
+    const jpegQuality = highQuality ? 95 : 88;
+
+    const metadata = await sharp(file.buffer).metadata();
+    const withinBounds =
+      (metadata.width ?? 0) <= maxWidth && (metadata.height ?? 0) <= maxWidth;
+
+    let buffer: Buffer;
+    let extension = '.jpg';
+    let contentType = 'image/jpeg';
+
+    if (highQuality && withinBounds && file.mimetype === 'image/png') {
+      buffer = await sharp(file.buffer).rotate().png({ compressionLevel: 6 }).toBuffer();
+      extension = '.png';
+      contentType = 'image/png';
+    } else if (highQuality && withinBounds && file.mimetype === 'image/webp') {
+      buffer = await sharp(file.buffer).rotate().webp({ quality: 95 }).toBuffer();
+      extension = '.webp';
+      contentType = 'image/webp';
+    } else {
+      buffer = await sharp(file.buffer)
+        .rotate()
+        .resize({ width: maxWidth, height: maxWidth, fit: 'inside', withoutEnlargement: true })
+        .jpeg({ quality: jpegQuality, mozjpeg: true })
+        .toBuffer();
+    }
 
     const thumbnail = await sharp(file.buffer)
       .rotate()
-      .resize({ width: 480, height: 480, fit: 'cover' })
-      .jpeg({ quality: 75, mozjpeg: true })
+      .resize({ width: 720, height: 720, fit: 'inside', withoutEnlargement: true })
+      .jpeg({ quality: 82, mozjpeg: true })
       .toBuffer();
 
     return {
-      buffer: compressed,
+      buffer,
       mediaType,
-      extension: '.jpg',
+      extension,
       thumbnailBuffer: thumbnail,
+      contentType,
     };
   }
 
@@ -133,36 +177,25 @@ export class MediaService {
           }),
         );
       }
+    } else {
+      const uploadDir = this.configService.get<string>('storage.localUploadDir', 'uploads');
 
-      const region = this.configService.get<string>('storage.awsRegion');
-      const mediaUrl = `https://${bucket}.s3.${region}.amazonaws.com/${mediaKey}`;
-      const thumbnailUrl = thumbnailKey
-        ? `https://${bucket}.s3.${region}.amazonaws.com/${thumbnailKey}`
-        : null;
+      if (!existsSync(uploadDir)) {
+        mkdirSync(uploadDir, { recursive: true });
+      }
 
-      return { mediaUrl, thumbnailUrl, mediaType: processed.mediaType };
+      const mediaPath = join(uploadDir, mediaKey.replace(/\//g, '_'));
+      writeFileSync(mediaPath, processed.buffer);
+
+      if (processed.thumbnailBuffer && thumbnailKey) {
+        const thumbPath = join(uploadDir, thumbnailKey.replace(/\//g, '_'));
+        writeFileSync(thumbPath, processed.thumbnailBuffer);
+      }
     }
-
-    const uploadDir = this.configService.get<string>('storage.localUploadDir', 'uploads');
-
-    if (!existsSync(uploadDir)) {
-      mkdirSync(uploadDir, { recursive: true });
-    }
-
-    const mediaPath = join(uploadDir, mediaKey.replace(/\//g, '_'));
-    writeFileSync(mediaPath, processed.buffer);
-
-    if (processed.thumbnailBuffer && thumbnailKey) {
-      const thumbPath = join(uploadDir, thumbnailKey.replace(/\//g, '_'));
-      writeFileSync(thumbPath, processed.thumbnailBuffer);
-    }
-
-    const fileName = mediaKey.replace(/\//g, '_');
-    const thumbFileName = thumbnailKey?.replace(/\//g, '_') ?? null;
 
     return {
-      mediaUrl: `/uploads/${fileName}`,
-      thumbnailUrl: thumbFileName ? `/uploads/${thumbFileName}` : null,
+      mediaUrl: this.toPublicUploadPath(mediaKey),
+      thumbnailUrl: thumbnailKey ? this.toPublicUploadPath(thumbnailKey) : null,
       mediaType: processed.mediaType,
     };
   }

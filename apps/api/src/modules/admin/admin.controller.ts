@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -19,6 +20,8 @@ import type {
   AdminRestaurantsResponseDto,
   AdminRestaurantDto,
   AdminTransactionsResponseDto,
+  AdminUserDetailDto,
+  AdminUserPostsResponseDto,
   AdminUserDto,
   AdminUsersResponseDto,
 } from '@bitemate/shared';
@@ -36,6 +39,7 @@ import {
   AdminTransactionsQueryDto,
   AdminUsersQueryDto,
   BanUserDto,
+  AdminDeletePostDto,
   UpdateAbuseReportDto,
   UpdateCommissionStatusDto,
   UpdateRestaurantListingDto,
@@ -92,6 +96,40 @@ export class AdminController {
   ): Promise<AdminUserDto> {
     this.adminService.assertPermission(user.role, 'users');
     return this.adminService.setUserVerified(user.sub, userId, dto.verified);
+  }
+
+  @Get('users/:id')
+  getUser(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') userId: string,
+  ): Promise<AdminUserDetailDto> {
+    this.adminService.assertPermission(user.role, 'users');
+    return this.adminService.getUserDetail(userId);
+  }
+
+  @Get('users/:id/posts')
+  listUserPosts(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') userId: string,
+    @Query() query: AdminListQueryDto,
+  ): Promise<AdminUserPostsResponseDto> {
+    this.adminService.assertPermission(user.role, 'users');
+    return this.adminService.listUserPosts(userId, query);
+  }
+
+  @Delete('posts/:id')
+  deletePost(
+    @CurrentUser() user: JwtPayload,
+    @Param('id') postId: string,
+    @Body() dto: AdminDeletePostDto,
+  ): Promise<{ message: string }> {
+    this.adminService.assertPermission(user.role, 'users');
+    return this.adminService.adminDeletePost(
+      user.sub,
+      postId,
+      dto.reason,
+      dto.warnUser ?? true,
+    );
   }
 
   @Get('restaurants')

@@ -223,12 +223,16 @@ export class UpdateProfileDto {
   role?: UserRole;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? null : value))
+  @ValidateIf((_, value) => value !== null && value !== undefined)
   @IsString()
-  profileImage?: string;
+  profileImage?: string | null;
 
   @IsOptional()
+  @Transform(({ value }) => (value === '' ? null : value))
+  @ValidateIf((_, value) => value !== null && value !== undefined)
   @IsString()
-  coverImage?: string;
+  coverImage?: string | null;
 
   @IsOptional()
   @IsEnum(SUPPORTED_LOCALES)

@@ -23,11 +23,15 @@ import {
   type AdminTransactionDto,
   type AdminTransactionsResponseDto,
   type AdminUserDto,
+  type AdminUserDetailDto,
+  type AdminUserPostsResponseDto,
+  type AdminPostDto,
   type AdminUsersResponseDto,
   type AbuseReportStatus,
   type RestaurantApprovalStatus,
 } from '@bitemate/shared';
 import { PrismaService } from '../database/prisma.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import type {
   AdminFraudQueryDto,
   AdminListQueryDto,
@@ -42,7 +46,10 @@ const HIGH_RISK_THRESHOLD = 60;
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
   async getMe(userId: string): Promise<AdminProfileDto> {
     const user = await this.prisma.user.findUniqueOrThrow({
@@ -92,16 +99,106 @@ export class AdminService {
         orderBy: { createdAt: 'desc' },
         skip,
         take,
+        include: {
+          _count: { select: { posts: true } },
+        },
       }),
       this.prisma.user.count({ where }),
     ]);
 
     return {
-      items: items.map((user) => this.toUserDto(user)),
+      items: items.map((user) => this.toUserDto(user, 0, user._count.posts)),
       total,
       page,
       limit,
     };
+  }
+
+  async getUserDetail(userId: string): Promise<AdminUserDetailDto> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { _count: { select: { posts: true } } },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const rankingPosition =
+      (await this.prisma.user.count({ where: { rankScore: { gt: user.rankScore } } })) + 1;
+
+    return {
+      ...this.toUserDto(user, rankingPosition, user._count.posts),
+      bio: user.bio,
+      profileImage: user.profileImage,
+      coverImage: user.coverImage,
+    };
+  }
+
+  async listUserPosts(
+    userId: string,
+    query: AdminListQueryDto,
+  ): Promise<AdminUserPostsResponseDto> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId }, select: { id: true } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const { skip, take, page, limit } = this.page(query);
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.post.findMany({
+        where: { authorId: userId },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      this.prisma.post.count({ where: { authorId: userId } }),
+    ]);
+
+    return {
+      items: items.map((post) => this.toPostDto(post)),
+      total,
+      page,
+      limit,
+    };
+  }
+
+  async adminDeletePost(
+    adminId: string,
+    postId: string,
+    reason?: string,
+    warnUser = true,
+  ): Promise<{ message: string }> {
+    const post = await this.prisma.post.findUnique({
+      where: { id: postId },
+      select: { id: true, authorId: true, caption: true },
+    });
+    if (!post) {
+      throw new NotFoundException('Post not found');
+    }
+
+    await this.prisma.post.delete({ where: { id: postId } });
+
+    await this.audit(adminId, 'POST_DELETE', 'POST', postId, {
+      authorId: post.authorId,
+      reason,
+      warnUser,
+    });
+
+    if (warnUser) {
+      const warning =
+        reason?.trim() ||
+        'Your post was removed because it violates BiteMate community guidelines.';
+      void this.notificationsService.notify({
+        userId: post.authorId,
+        type: 'MODERATION_WARNING',
+        title: 'Community guidelines',
+        body: warning,
+        entityId: postId,
+        dedupeKey: `moderation:post-delete:${postId}`,
+      });
+    }
+
+    return { message: 'Post deleted' };
   }
 
   async setUserBanned(
@@ -634,26 +731,32 @@ export class AdminService {
     return typeof value === 'number' ? value : Number(value);
   }
 
-  private toUserDto(user: {
-    id: string;
-    email: string | null;
-    phoneNumber: string | null;
-    fullName: string | null;
-    username: string | null;
-    role: AdminUserDto['role'];
-    city: string | null;
-    country: string | null;
-    isActive: boolean;
-    adminVerified: boolean;
-    emailVerified: boolean;
-    phoneVerified: boolean;
-    otpVerified: boolean;
-    isPremium: boolean;
-    level: number;
-    rankScore: number;
-    successfulMeetups: number;
-    createdAt: Date;
-  }): AdminUserDto {
+  private toUserDto(
+    user: {
+      id: string;
+      email: string | null;
+      phoneNumber: string | null;
+      fullName: string | null;
+      username: string | null;
+      role: AdminUserDto['role'];
+      city: string | null;
+      country: string | null;
+      isActive: boolean;
+      adminVerified: boolean;
+      emailVerified: boolean;
+      phoneVerified: boolean;
+      otpVerified: boolean;
+      isPremium: boolean;
+      level: number;
+      rankScore: number;
+      followerCount: number;
+      followingCount: number;
+      successfulMeetups: number;
+      createdAt: Date;
+    },
+    rankingPosition = 0,
+    postCount = 0,
+  ): AdminUserDto {
     return {
       id: user.id,
       email: user.email,
@@ -671,8 +774,36 @@ export class AdminService {
       isPremium: user.isPremium,
       level: user.level,
       rankScore: user.rankScore,
+      rankingPosition,
+      followerCount: user.followerCount,
+      followingCount: user.followingCount,
+      postCount,
       successfulMeetups: user.successfulMeetups,
       createdAt: user.createdAt.toISOString(),
+    };
+  }
+
+  private toPostDto(post: {
+    id: string;
+    authorId: string;
+    caption: string | null;
+    mediaType: AdminPostDto['mediaType'];
+    mediaUrl: string;
+    thumbnailUrl: string | null;
+    likeCount: number;
+    commentCount: number;
+    createdAt: Date;
+  }): AdminPostDto {
+    return {
+      id: post.id,
+      authorId: post.authorId,
+      caption: post.caption,
+      mediaType: post.mediaType,
+      mediaUrl: post.mediaUrl,
+      thumbnailUrl: post.thumbnailUrl,
+      likeCount: post.likeCount,
+      commentCount: post.commentCount,
+      createdAt: post.createdAt.toISOString(),
     };
   }
 

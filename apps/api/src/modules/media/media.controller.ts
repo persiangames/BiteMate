@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -28,7 +29,10 @@ export class MediaController {
       limits: { fileSize: 50 * 1024 * 1024 },
     }),
   )
-  async upload(@UploadedFile() file: Express.Multer.File): Promise<MediaUploadResponseDto> {
+  async upload(
+    @UploadedFile() file: Express.Multer.File,
+    @Query('quality') quality?: string,
+  ): Promise<MediaUploadResponseDto> {
     if (!file) {
       throw new BadRequestException('Media file is required');
     }
@@ -51,7 +55,8 @@ export class MediaController {
       return this.mediaService.uploadProcessedMedia(processed);
     }
 
-    const processed = await this.mediaService.processUpload(file);
+    const highQuality = quality === 'high';
+    const processed = await this.mediaService.processUpload(file, { highQuality });
     return this.mediaService.uploadProcessedMedia(processed);
   }
 }

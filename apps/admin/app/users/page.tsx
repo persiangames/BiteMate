@@ -1,11 +1,24 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { AdminUserDto, AdminUsersResponseDto } from '@bitemate/shared';
 import { USER_ROLE_LABELS } from '@bitemate/shared';
 import { AdminShell } from '@/components/AdminShell';
 import { StatusPill } from '@/components/ui';
 import { useAdminAuth } from '@/lib/auth';
+
+function formatJoinedAt(iso: string): string {
+  return new Date(iso).toLocaleString('fa-IR', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+}
 
 export default function UsersPage() {
   const { request } = useAdminAuth();
@@ -46,7 +59,7 @@ export default function UsersPage() {
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold">Users</h1>
-          <p className="mt-1 text-sm text-slate-500">Ban, unban, and verify accounts.</p>
+          <p className="mt-1 text-sm text-slate-500">Search accounts, review activity, and open user profiles.</p>
         </div>
         <form
           onSubmit={(event) => {
@@ -65,14 +78,18 @@ export default function UsersPage() {
 
       {error ? <p className="mt-4 text-sm text-rose-600">{error}</p> : null}
 
-      <div className="mt-6 overflow-hidden rounded-2xl bg-white shadow-sm">
-        <table className="w-full text-left text-sm">
+      <div className="mt-6 overflow-x-auto rounded-2xl bg-white shadow-sm">
+        <table className="w-full min-w-[960px] text-left text-sm">
           <thead className="bg-slate-50 text-slate-500">
             <tr>
               <th className="px-4 py-3">User</th>
+              <th className="px-4 py-3">Joined</th>
+              <th className="px-4 py-3">Followers</th>
+              <th className="px-4 py-3">Following</th>
+              <th className="px-4 py-3">Posts</th>
+              <th className="px-4 py-3">Rank</th>
               <th className="px-4 py-3">Role</th>
               <th className="px-4 py-3">Status</th>
-              <th className="px-4 py-3">Level</th>
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -80,8 +97,19 @@ export default function UsersPage() {
             {data?.items.map((user) => (
               <tr key={user.id} className="border-t">
                 <td className="px-4 py-3">
-                  <p className="font-medium">{user.fullName ?? user.username ?? 'Unnamed'}</p>
+                  <Link href={`/users/${user.id}`} className="font-medium text-brand hover:underline">
+                    {user.fullName ?? user.username ?? 'Unnamed'}
+                  </Link>
                   <p className="text-xs text-slate-500">{user.email ?? user.phoneNumber}</p>
+                  {user.username ? <p className="text-xs text-slate-400">@{user.username}</p> : null}
+                </td>
+                <td className="px-4 py-3 whitespace-nowrap text-xs">{formatJoinedAt(user.createdAt)}</td>
+                <td className="px-4 py-3">{user.followerCount}</td>
+                <td className="px-4 py-3">{user.followingCount}</td>
+                <td className="px-4 py-3">{user.postCount}</td>
+                <td className="px-4 py-3">
+                  <span className="font-medium">{user.rankScore.toFixed(1)}</span>
+                  <span className="text-xs text-slate-400"> · L{user.level}</span>
                 </td>
                 <td className="px-4 py-3">{user.role ? USER_ROLE_LABELS[user.role] : '—'}</td>
                 <td className="px-4 py-3 space-x-1">
@@ -89,8 +117,10 @@ export default function UsersPage() {
                   {user.adminVerified ? <StatusPill value="Verified" tone="ok" /> : null}
                   {user.isPremium ? <StatusPill value="Premium" tone="warn" /> : null}
                 </td>
-                <td className="px-4 py-3">{user.level}</td>
-                <td className="px-4 py-3 text-right space-x-2">
+                <td className="px-4 py-3 text-right space-x-2 whitespace-nowrap">
+                  <Link href={`/users/${user.id}`} className="text-brand hover:underline">
+                    View
+                  </Link>
                   <button
                     type="button"
                     className="text-brand hover:underline"

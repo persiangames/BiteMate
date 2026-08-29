@@ -17,6 +17,7 @@ export const messagingConfig = registerAs('messaging', () => ({
       username: process.env.MELIPAYAMAK_USERNAME?.trim() ?? '',
       password: process.env.MELIPAYAMAK_PASSWORD?.trim() ?? '',
       from: process.env.MELIPAYAMAK_FROM?.trim() ?? '',
+      otpBodyId: process.env.MELIPAYAMAK_OTP_BODY_ID?.trim() ?? '',
     },
     http: {
       url: process.env.SMS_HTTP_URL ?? '',

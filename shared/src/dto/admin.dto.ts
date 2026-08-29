@@ -47,8 +47,42 @@ export interface AdminUserDto {
   isPremium: boolean;
   level: number;
   rankScore: number;
+  rankingPosition: number;
+  followerCount: number;
+  followingCount: number;
+  postCount: number;
   successfulMeetups: number;
   createdAt: string;
+}
+
+export interface AdminUserDetailDto extends AdminUserDto {
+  bio: string | null;
+  profileImage: string | null;
+  coverImage: string | null;
+}
+
+export interface AdminPostDto {
+  id: string;
+  authorId: string;
+  caption: string | null;
+  mediaType: 'IMAGE' | 'VIDEO';
+  mediaUrl: string;
+  thumbnailUrl: string | null;
+  likeCount: number;
+  commentCount: number;
+  createdAt: string;
+}
+
+export interface AdminUserPostsResponseDto {
+  items: AdminPostDto[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface AdminDeletePostRequestDto {
+  reason?: string;
+  warnUser?: boolean;
 }
 
 export interface AdminUsersResponseDto {

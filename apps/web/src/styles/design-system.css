@@ -1594,6 +1594,88 @@ body:has(.thread-screen) .language-switcher--floating {
   font-weight: 700;
 }
 
+.ig-profile-edit__avatar-wrap {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  margin-top: -3.2rem;
+  margin-inline-start: 1rem;
+}
+
+.media-edit-menu {
+  position: relative;
+  z-index: 2;
+}
+
+.ig-profile-edit__cover .media-edit-menu {
+  position: absolute;
+  right: 0.75rem;
+  bottom: 0.75rem;
+}
+
+.media-edit-menu__trigger {
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.media-edit-menu__trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.media-edit-menu__panel {
+  position: absolute;
+  z-index: 5;
+  min-width: 10.5rem;
+  margin-top: 0.35rem;
+  padding: 0.35rem;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.14);
+  display: grid;
+  gap: 0.15rem;
+}
+
+.ig-profile-edit__cover .media-edit-menu__panel {
+  right: 0;
+  bottom: calc(100% + 0.35rem);
+  margin-top: 0;
+}
+
+.ig-profile-edit__avatar-wrap .media-edit-menu__panel {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.media-edit-menu__panel button {
+  width: 100%;
+  text-align: start;
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  color: var(--color-dark);
+  cursor: pointer;
+}
+
+.media-edit-menu__panel button:hover {
+  background: var(--surface-muted, rgba(15, 23, 42, 0.06));
+}
+
+.media-edit-menu__danger {
+  color: #dc2626 !important;
+}
+
 .ig-profile__identity {
   display: grid;
   justify-items: start;

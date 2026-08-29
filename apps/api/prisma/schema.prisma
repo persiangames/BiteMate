@@ -154,6 +154,7 @@ enum NotificationType {
   POST_COMMENT
   POST_TAG
   NEW_FOLLOWER
+  MODERATION_WARNING
 }
 
 enum PostTagRole {

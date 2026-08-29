@@ -90,6 +90,13 @@ function extractUploadPath(value: string): string | null {
     return `/${value.replace(/^api\//, '')}`;
   }
 
+  if (value.startsWith('http://') || value.startsWith('https://')) {
+    const s3Path = s3UrlToUploadPath(value);
+    if (s3Path) {
+      return s3Path;
+    }
+  }
+
   try {
     const parsed =
       value.startsWith('http://') || value.startsWith('https://')
@@ -101,11 +108,25 @@ function extractUploadPath(value: string): string | null {
     if (parsed.pathname.startsWith('/uploads/')) {
       return `${parsed.pathname}${parsed.search}`;
     }
+    const s3Path = s3UrlToUploadPath(value);
+    if (s3Path) {
+      return s3Path;
+    }
   } catch {
     return null;
   }
 
   return null;
+}
+
+/** Map legacy direct S3 URLs to proxied `/uploads/…` paths. */
+function s3UrlToUploadPath(url: string): string | null {
+  const match = url.match(/amazonaws\.com\/([^?#]+)/i);
+  if (!match) {
+    return null;
+  }
+  const key = decodeURIComponent(match[1]);
+  return `/uploads/${key.replace(/\//g, '_')}`;
 }
 
 function resolveUploadPath(stored: string): string {

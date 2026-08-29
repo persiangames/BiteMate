@@ -40,10 +40,12 @@ function xhrUpload(
   token: string,
   file: File,
   onProgress?: UploadProgressHandler,
+  highQuality = false,
 ): Promise<{ status: number; result?: MediaUploadResult; message?: string }> {
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${API_BASE_URL}/media/upload`);
+    const qualityParam = highQuality ? '?quality=high' : '';
+    xhr.open('POST', `${API_BASE_URL}/media/upload${qualityParam}`);
     xhr.setRequestHeader('Authorization', `Bearer ${token}`);
     xhr.responseType = 'text';
 
@@ -94,15 +96,16 @@ export async function uploadMedia(
   accessToken: string,
   file: File,
   onProgress?: UploadProgressHandler,
+  highQuality = false,
 ): Promise<MediaUploadResult> {
   let token = getAccessToken() ?? accessToken ?? '';
-  let response = await xhrUpload(token, file, onProgress);
+  let response = await xhrUpload(token, file, onProgress, highQuality);
 
   if (response.status === 401) {
     const next = await refreshSessionTokens(API_BASE_URL);
     if (next) {
       token = next;
-      response = await xhrUpload(token, file, onProgress);
+      response = await xhrUpload(token, file, onProgress, highQuality);
     }
   }
 

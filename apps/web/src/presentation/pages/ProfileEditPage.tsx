@@ -211,18 +211,26 @@ export function ProfileEditPage() {
     try {
       if (mediaOnly) {
         const updated = await updateProfile(accessToken, {
-          ...(patch?.profileImage
-            ? { profileImage: normalizeMediaUrlForStorage(patch.profileImage) }
+          ...(patch?.profileImage !== undefined
+            ? {
+                profileImage: patch.profileImage
+                  ? normalizeMediaUrlForStorage(patch.profileImage)
+                  : null,
+              }
             : {}),
-          ...(patch?.coverImage
-            ? { coverImage: normalizeMediaUrlForStorage(patch.coverImage) }
+          ...(patch?.coverImage !== undefined
+            ? {
+                coverImage: patch.coverImage
+                  ? normalizeMediaUrlForStorage(patch.coverImage)
+                  : null,
+              }
             : {}),
         });
         updateUser(updated);
         setForm((current) => ({
           ...current,
-          profileImage: updated.profileImage ?? current.profileImage,
-          coverImage: updated.coverImage ?? current.coverImage,
+          profileImage: updated.profileImage ?? '',
+          coverImage: updated.coverImage ?? '',
         }));
         setSaved(true);
         return;
@@ -249,12 +257,12 @@ export function ProfileEditPage() {
           ? user?.profileImage ?? undefined
           : next.profileImage
             ? normalizeMediaUrlForStorage(next.profileImage)
-            : undefined,
+            : null,
         coverImage: next.coverImage.startsWith('blob:')
           ? user?.coverImage ?? undefined
           : next.coverImage
             ? normalizeMediaUrlForStorage(next.coverImage)
-            : undefined,
+            : null,
         liveLocationEnabled: next.liveLocationEnabled,
         invisibleMode: next.invisibleMode,
         availabilityStatus: next.availabilityStatus,

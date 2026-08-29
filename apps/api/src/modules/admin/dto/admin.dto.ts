@@ -136,3 +136,15 @@ export class UpdateCommissionStatusDto {
   @IsIn(['APPROVED', 'PAID', 'REJECTED'])
   status!: 'APPROVED' | 'PAID' | 'REJECTED';
 }
+
+export class AdminDeletePostDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  reason?: string;
+
+  @IsOptional()
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  warnUser?: boolean;
+}

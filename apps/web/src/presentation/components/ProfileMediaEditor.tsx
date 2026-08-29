@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { uploadMedia } from '@/data/api/uploadClient';
 import { AvatarStudio } from '@/presentation/components/AvatarStudio';
 import { ImageCropModal } from '@/presentation/components/ImageCropModal';
@@ -14,6 +14,84 @@ type ProfileMediaEditorProps = {
   coverImage: string;
   onChange: (next: { profileImage?: string; coverImage?: string }) => void;
 };
+
+type MediaKind = 'avatar' | 'cover';
+
+function MediaEditMenu({
+  label,
+  hasMedia,
+  disabled,
+  onReplace,
+  onDelete,
+  replaceLabel,
+  deleteLabel,
+}: {
+  label: string;
+  hasMedia: boolean;
+  disabled: boolean;
+  onReplace: () => void;
+  onDelete: () => void;
+  replaceLabel: string;
+  deleteLabel: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    function handlePointer(event: MouseEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handlePointer);
+    return () => document.removeEventListener('mousedown', handlePointer);
+  }, [open]);
+
+  return (
+    <div className="media-edit-menu" ref={rootRef}>
+      <button
+        type="button"
+        className="media-edit-menu__trigger"
+        disabled={disabled}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
+      >
+        {label}
+      </button>
+      {open ? (
+        <div className="media-edit-menu__panel" role="menu">
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              onReplace();
+            }}
+          >
+            {replaceLabel}
+          </button>
+          {hasMedia ? (
+            <button
+              type="button"
+              role="menuitem"
+              className="media-edit-menu__danger"
+              onClick={() => {
+                setOpen(false);
+                onDelete();
+              }}
+            >
+              {deleteLabel}
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 export function ProfileMediaEditor({
   accessToken,
@@ -42,7 +120,15 @@ export function ProfileMediaEditor({
     coverInput.current?.click();
   }
 
-  async function uploadCropped(file: File, kind: 'avatar' | 'cover') {
+  function removeMedia(kind: MediaKind) {
+    if (kind === 'cover') {
+      onChange({ coverImage: '' });
+    } else {
+      onChange({ profileImage: '' });
+    }
+  }
+
+  async function uploadCropped(file: File, kind: MediaKind) {
     const preview = URL.createObjectURL(file);
     if (kind === 'cover') {
       onChange({ coverImage: preview });
@@ -55,7 +141,7 @@ export function ProfileMediaEditor({
     setCropFile(null);
     setShowStudio(false);
     try {
-      const uploaded = await uploadMedia(accessToken, file);
+      const uploaded = await uploadMedia(accessToken, file, undefined, true);
       const storedUrl = normalizeMediaUrlForStorage(uploaded.mediaUrl);
       if (kind === 'cover') {
         onChange({ coverImage: storedUrl });
@@ -74,22 +160,36 @@ export function ProfileMediaEditor({
       <div className="ig-profile-edit__hero">
         <div className="ig-profile-edit__cover">
           {coverSrc ? <img src={coverSrc} alt="" /> : <div className="ig-profile-edit__cover-empty" />}
-          <button type="button" className="ig-profile-edit__cover-btn" onClick={pickCover} disabled={uploading}>
-            {coverSrc ? t('profile.cover.edit') : t('profile.cover.add')}
-          </button>
+          <MediaEditMenu
+            label={coverSrc ? t('profile.cover.edit') : t('profile.cover.add')}
+            hasMedia={Boolean(coverSrc)}
+            disabled={uploading}
+            replaceLabel={t('profile.media.replace')}
+            deleteLabel={t('profile.media.delete')}
+            onReplace={pickCover}
+            onDelete={() => removeMedia('cover')}
+          />
         </div>
-        <button type="button" className="ig-profile-edit__avatar" onClick={pickPhoto} disabled={uploading}>
-          {photoSrc ? (
-            <img src={photoSrc} alt={name} />
-          ) : (
-            <span>{(name || username || 'BM').slice(0, 2).toUpperCase()}</span>
-          )}
-        </button>
+        <div className="ig-profile-edit__avatar-wrap">
+          <button type="button" className="ig-profile-edit__avatar" disabled={uploading}>
+            {photoSrc ? (
+              <img src={photoSrc} alt={name} />
+            ) : (
+              <span>{(name || username || 'BM').slice(0, 2).toUpperCase()}</span>
+            )}
+          </button>
+          <MediaEditMenu
+            label={t('profile.photo.edit')}
+            hasMedia={Boolean(photoSrc)}
+            disabled={uploading}
+            replaceLabel={t('profile.media.replace')}
+            deleteLabel={t('profile.media.delete')}
+            onReplace={pickPhoto}
+            onDelete={() => removeMedia('avatar')}
+          />
+        </div>
       </div>
       <div className="ig-profile-edit__photo-actions">
-        <button type="button" className="btn-ghost" onClick={pickPhoto} disabled={uploading}>
-          {t('profile.photo.change')}
-        </button>
         <button type="button" className="btn-ghost" onClick={() => setShowStudio(true)} disabled={uploading}>
           {t('profile.photo.create')}
         </button>

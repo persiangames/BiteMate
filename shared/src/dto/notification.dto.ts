@@ -9,6 +9,7 @@ export const NOTIFICATION_TYPES = [
   'POST_COMMENT',
   'POST_TAG',
   'NEW_FOLLOWER',
+  'MODERATION_WARNING',
 ] as const;
 export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
 

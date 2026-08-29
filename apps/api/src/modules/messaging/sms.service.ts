@@ -26,7 +26,7 @@ export class SmsService {
     }
 
     if (provider === 'melipayamak') {
-      await this.sendMelipayamak(phoneNumber, message);
+      await this.sendMelipayamakOtp(phoneNumber, code, message);
       return;
     }
 
@@ -37,6 +37,44 @@ export class SmsService {
 
     this.logger.warn(`Unknown SMS provider "${provider}" — code logged`);
     this.logger.log(`[SMS:fallback] to=${phoneNumber} code=${code}`);
+  }
+
+  private async sendMelipayamakOtp(
+    phoneNumber: string,
+    code: string,
+    fallbackMessage: string,
+  ): Promise<void> {
+    const otpBodyId = this.configService.get<string>('messaging.sms.melipayamak.otpBodyId');
+
+    if (otpBodyId) {
+      await this.sendMelipayamakPattern(phoneNumber, code, otpBodyId);
+      return;
+    }
+
+    const kavenegarKey = this.configService.get<string>('messaging.sms.kavenegar.apiKey');
+    const kavenegarTemplate = this.configService.get<string>('messaging.sms.kavenegar.template');
+    if (kavenegarKey && kavenegarTemplate) {
+      this.logger.warn(
+        'MELIPAYAMAK_OTP_BODY_ID is not set — using Kavenegar verify template for OTP instead of promotional Melipayamak SMS',
+      );
+      await this.sendKavenegar(phoneNumber, code, fallbackMessage);
+      return;
+    }
+
+    try {
+      await this.sendMelipayamak(phoneNumber, fallbackMessage);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      const isBlacklist = /blacklist|RetStatus.?11|Value.?11|RetStatus.?35|Value.?35/i.test(detail);
+      if (isBlacklist && kavenegarKey) {
+        this.logger.warn(
+          'Melipayamak promotional SMS blocked by telecom blacklist — retrying with Kavenegar',
+        );
+        await this.sendKavenegar(phoneNumber, code, fallbackMessage);
+        return;
+      }
+      throw error;
+    }
   }
 
   private async sendKavenegar(phoneNumber: string, code: string, fallbackMessage: string): Promise<void> {
@@ -157,6 +195,53 @@ export class SmsService {
     } finally {
       clearTimeout(timer);
     }
+  }
+
+  /** Service-line OTP via Melipayamak pattern (SendByBaseNumber) — not subject to promotional blacklist. */
+  private async sendMelipayamakPattern(
+    phoneNumber: string,
+    code: string,
+    bodyId: string,
+  ): Promise<void> {
+    const username = this.configService.get<string>('messaging.sms.melipayamak.username');
+    const password = this.configService.get<string>('messaging.sms.melipayamak.password');
+
+    if (!username || !password) {
+      throw new Error('Melipayamak SMS is not configured');
+    }
+
+    const to = this.formatMelipayamakRecipient(phoneNumber);
+    const body = new URLSearchParams({
+      username,
+      password,
+      to,
+      bodyId,
+      text: code,
+    });
+
+    const response = await this.fetchWithTimeout(
+      'https://rest.payamak-panel.com/api/SendSMS/SendByBaseNumber',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body,
+      },
+    );
+
+    const payload = (await response.json().catch(() => null)) as
+      | { RetStatus?: number; StrRetStatus?: string; Value?: string }
+      | null;
+
+    if (!response.ok) {
+      throw new Error(`Melipayamak pattern SMS failed: HTTP ${response.status}`);
+    }
+
+    if (!this.isMelipayamakSuccess(payload)) {
+      const detail = this.describeMelipayamakFailure(payload);
+      throw new Error(`Melipayamak pattern SMS rejected: ${detail}`);
+    }
+
+    this.logger.log(`Melipayamak OTP pattern queued for ${to} (recId=${payload?.Value ?? 'ok'})`);
   }
 
   private async sendMelipayamak(phoneNumber: string, message: string): Promise<void> {

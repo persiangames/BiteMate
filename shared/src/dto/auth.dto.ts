@@ -114,8 +114,8 @@ export interface UpdateProfileRequestDto {
   city?: string;
   dateOfBirth?: string;
   role?: UserRole;
-  profileImage?: string;
-  coverImage?: string;
+  profileImage?: string | null;
+  coverImage?: string | null;
   locale?: SupportedLocale;
   liveLocationEnabled?: boolean;
   invisibleMode?: boolean;
