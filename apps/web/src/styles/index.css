@@ -4,6 +4,7 @@
 @import './bite-logo-intro.css';
 @import './auth-entry.css';
 @import './features.css';
+@import './notifications.css';
 @import './marketing.css';
 
 .page:not(.app-shell__content) {

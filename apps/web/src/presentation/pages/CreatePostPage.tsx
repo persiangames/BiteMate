@@ -8,9 +8,8 @@ export function CreatePostPage() {
 
   return (
     <div className="app-screen post-create-page">
-      <header className="screen-header">
-        <h1>{t('post.new')}</h1>
-        <Link to="/feed" className="btn-ghost">
+      <header className="screen-header screen-header--actions">
+        <Link to="/feed" className="btn-ghost btn-compact">
           {t('post.back')}
         </Link>
       </header>

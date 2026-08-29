@@ -299,19 +299,26 @@ export function PostComposer({ onPublished }: PostComposerProps) {
       const sessionToken = getAccessToken() ?? accessToken;
       const prepared = await preparePostMedia(file);
       let thumbnailUrl: string | undefined;
+      let uploaded: Awaited<ReturnType<typeof uploadMedia>>;
 
       if (prepared.poster) {
         setUploadLabel(t('post.uploading'));
-        const poster = await uploadMedia(sessionToken, prepared.poster, (percent) => {
-          setUploadProgress(Math.round(percent * 0.25));
+        const [posterUpload, mainUpload] = await Promise.all([
+          uploadMedia(sessionToken, prepared.poster, (percent) => {
+            setUploadProgress(Math.round(percent * 0.2));
+          }),
+          uploadMedia(getAccessToken() ?? sessionToken, prepared.file, (percent) => {
+            setUploadProgress(20 + Math.round(percent * 0.7));
+          }),
+        ]);
+        thumbnailUrl = normalizeMediaUrlForStorage(posterUpload.mediaUrl);
+        uploaded = mainUpload;
+      } else {
+        setUploadLabel(t('post.uploading'));
+        uploaded = await uploadMedia(getAccessToken() ?? sessionToken, prepared.file, (percent) => {
+          setUploadProgress(Math.round(percent * 0.9));
         });
-        thumbnailUrl = normalizeMediaUrlForStorage(poster.mediaUrl);
       }
-
-      setUploadLabel(t('post.uploading'));
-      const uploaded = await uploadMedia(getAccessToken() ?? sessionToken, prepared.file, (percent) => {
-        setUploadProgress(prepared.poster ? 25 + Math.round(percent * 0.65) : Math.round(percent * 0.9));
-      });
 
       setUploadLabel(t('post.publishing'));
       setUploadProgress(92);
@@ -334,7 +341,7 @@ export function PostComposer({ onPublished }: PostComposerProps) {
       setUploadProgress(100);
       setUploadLabel(null);
       setSaved(true);
-      window.setTimeout(() => onPublished?.(created), 900);
+      onPublished?.(created);
     } catch (err) {
       setUploadLabel(null);
       setUploadProgress(0);

@@ -10,12 +10,12 @@ import {
 } from '@/presentation/components/layout/NavIcons';
 
 const TABS = [
-  { to: '/feed', match: ['/feed'], icon: NavFeedIcon },
-  { to: '/discover', match: ['/discover', '/marketplace'], icon: NavNearbyIcon },
-  { to: '/meetups', match: ['/meetups'], icon: NavMeetupsIcon },
-  { to: '/chats', match: ['/chats'], icon: NavChatIcon },
-  { to: '/people', match: ['/people', '/search'], icon: NavPeopleIcon },
-  { to: '/profile', match: ['/profile', '/settings', '/wallet', '/notifications', '/rankings', '/premium', '/bookings', '/u/'], icon: NavProfileIcon },
+  { to: '/feed', match: ['/feed'], icon: NavFeedIcon, labelKey: 'nav.feed' },
+  { to: '/discover', match: ['/discover', '/marketplace'], icon: NavNearbyIcon, labelKey: 'nav.nearby' },
+  { to: '/meetups', match: ['/meetups'], icon: NavMeetupsIcon, labelKey: 'nav.meetups' },
+  { to: '/chats', match: ['/chats'], icon: NavChatIcon, labelKey: 'nav.chat' },
+  { to: '/people', match: ['/people', '/search'], icon: NavPeopleIcon, labelKey: 'nav.people' },
+  { to: '/profile', match: ['/profile', '/settings', '/wallet', '/notifications', '/rankings', '/premium', '/bookings', '/u/'], icon: NavProfileIcon, labelKey: 'nav.profile' },
 ] as const;
 
 function isTabActive(pathname: string, match: readonly string[]) {
@@ -25,29 +25,23 @@ function isTabActive(pathname: string, match: readonly string[]) {
 export function BottomNav() {
   const { t, locale } = useI18n();
   const { pathname } = useLocation();
-  const labels = {
-    '/feed': t('nav.feed'),
-    '/discover': t('nav.nearby'),
-    '/meetups': t('nav.meetups'),
-    '/chats': t('nav.chat'),
-    '/people': t('nav.people'),
-    '/profile': t('nav.profile'),
-  } as const;
 
   return (
     <nav className="bottom-nav" aria-label={t('nav.main')} lang={locale}>
       {TABS.map((tab) => {
         const Icon = tab.icon;
+        const active = isTabActive(pathname, tab.match);
         return (
           <NavLink
             key={tab.to}
             to={tab.to}
-            className={`bottom-nav__item${isTabActive(pathname, tab.match) ? ' active' : ''}`}
+            aria-label={t(tab.labelKey)}
+            aria-current={active ? 'page' : undefined}
+            className={`bottom-nav__item${active ? ' active' : ''}`}
           >
             <span className="bottom-nav__icon" aria-hidden>
               <Icon />
             </span>
-            <span>{labels[tab.to]}</span>
           </NavLink>
         );
       })}

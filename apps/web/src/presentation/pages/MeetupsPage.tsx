@@ -258,10 +258,6 @@ export function MeetupsPage() {
 
   return (
     <div className="app-screen">
-      <header className="screen-header">
-        <h1>{t('meetups.title')}</h1>
-      </header>
-
       {profileLocked ? (
         <section className="glass-card profile-gate">
           <h2>{t('profile.completion.gateTitle')}</h2>

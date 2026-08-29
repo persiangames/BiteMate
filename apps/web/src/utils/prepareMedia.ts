@@ -84,6 +84,6 @@ export async function preparePostMedia(file: File): Promise<{
     throw new Error('Choose a photo or a short video.');
   }
 
-  const compressed = await compressImageFile(file, 1600, 0.84);
+  const compressed = await compressImageFile(file, 1400, 0.78);
   return { file: compressed, mediaType: 'IMAGE' };
 }

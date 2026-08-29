@@ -1,7 +1,7 @@
 const iconProps = {
   viewBox: '0 0 24 24',
-  width: 26,
-  height: 26,
+  width: 24,
+  height: 24,
   fill: 'none',
   'aria-hidden': true,
 } as const;

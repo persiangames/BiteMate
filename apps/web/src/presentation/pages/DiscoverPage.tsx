@@ -194,12 +194,9 @@ export function DiscoverPage() {
 
   return (
     <div className="app-screen discover-screen">
-      <header className="screen-header">
-        <div>
-          <h1>{t('nearby.title')}</h1>
-          <p className="hint">{t('nearby.tagline')}</p>
-        </div>
-        <button type="button" className="btn-secondary" onClick={() => setShowFilters((value) => !value)}>
+      <header className="screen-header screen-header--actions">
+        <p className="hint screen-header__hint">{t('nearby.tagline')}</p>
+        <button type="button" className="btn-secondary btn-compact" onClick={() => setShowFilters((value) => !value)}>
           {t('nearby.filters')}
         </button>
       </header>

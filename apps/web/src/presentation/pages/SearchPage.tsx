@@ -52,7 +52,7 @@ export function SearchPage() {
   return (
     <main className="page search-page">
       <section className="panel flow">
-        <h1>{t('nav.people')}</h1>
+        <h1 className="visually-hidden">{t('nav.people')}</h1>
         <p className="hint">{t('search.hint')}</p>
         <form className="search-page__form" onSubmit={handleSubmit}>
           <label className="search-page__input-wrap">

@@ -76,10 +76,6 @@ export function ChatsPage() {
 
   return (
     <div className="inbox" lang={locale}>
-      <header className="inbox__header">
-        <h1>{t('chat.title')}</h1>
-      </header>
-
       <label className="inbox__search">
         <span className="inbox__search-icon" aria-hidden>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">

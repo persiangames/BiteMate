@@ -181,9 +181,8 @@ export function FeedPage() {
 
   return (
     <div className="app-screen feed-page">
-      <header className="screen-header">
-        <h1>{t('feed.title')}</h1>
-        <Link to="/feed/create" className="btn-secondary">
+      <header className="screen-header screen-header--actions">
+        <Link to="/feed/create" className="btn-secondary btn-compact">
           + {t('feed.post')}
         </Link>
       </header>
