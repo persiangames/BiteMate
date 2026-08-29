@@ -1,14 +1,8 @@
 import { FormEvent, useRef, useState } from 'react';
 import type { ChatMessageType } from '@bitemate/shared';
+import { StickerPicker } from '@/presentation/components/StickerPicker';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { useVoiceRecorder } from '@/presentation/hooks/useVoiceRecorder';
-
-const STICKERS = [
-  '🍕', '🍔', '🍟', '🌮', '🌯', '🥙', '🧆', '🥗', '🍝', '🍜',
-  '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🥐', '🥖',
-  '🧀', '🍳', '🥞', '🧇', '🍗', '🥩', '🍰', '🧁', '🍩', '🍪',
-  '🍫', '🍦', '☕', '🍵', '🧋', '🥤', '🍷', '🥂', '🍺', '🍽️',
-];
 
 interface ChatInputBarProps {
   value: string;
@@ -195,18 +189,7 @@ export function ChatInputBar({
           </div>
 
           {stickersOpen ? (
-            <div className="sticker-tray" role="listbox" aria-label={t('chat.stickers')}>
-              {STICKERS.map((sticker) => (
-                <button
-                  key={sticker}
-                  type="button"
-                  className="sticker-tray__item"
-                  onClick={() => onChange(`${value}${sticker}`)}
-                >
-                  {sticker}
-                </button>
-              ))}
-            </div>
+            <StickerPicker onPick={(sticker) => onChange(`${value}${sticker}`)} />
           ) : null}
         </>
       )}

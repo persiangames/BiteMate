@@ -515,3 +515,82 @@
   font-weight: 600;
   white-space: nowrap;
 }
+
+/* Telegram-style sticker picker */
+.sticker-picker {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  max-height: min(42vh, 320px);
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.sticker-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
+  gap: 0.15rem;
+  padding: 0.55rem;
+  overflow-y: auto;
+  align-content: start;
+}
+
+.sticker-picker__empty {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 1rem 0.5rem;
+  text-align: center;
+}
+
+.sticker-picker__item {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 1.45rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.sticker-picker__item:hover {
+  background: var(--color-primary-soft);
+  transform: scale(1.08);
+}
+
+.sticker-picker__tabs {
+  display: flex;
+  gap: 0.15rem;
+  padding: 0.35rem 0.45rem calc(0.35rem + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--color-border);
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: var(--surface-2);
+}
+
+.sticker-picker__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.sticker-picker__tab {
+  flex: 0 0 auto;
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 1.2rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.sticker-picker__tab.active {
+  background: var(--color-primary-soft);
+  font-weight: 800;
+}
+
+.sticker-picker__tab:hover {
+  transform: scale(1.06);
+  font-weight: 800;
+}

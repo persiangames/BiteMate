@@ -1,13 +1,6 @@
 import { FormEvent, type ReactNode, useState } from 'react';
+import { StickerPicker } from '@/presentation/components/StickerPicker';
 import { useI18n } from '@/presentation/context/I18nContext';
-
-const STICKERS = [
-  '🍕', '🍔', '🍟', '🌮', '🌯', '🥙', '🧆', '🥗', '🍝', '🍜',
-  '🍲', '🍛', '🍣', '🍱', '🥟', '🍤', '🍙', '🍚', '🥐', '🥖',
-  '🧀', '🍳', '🥞', '🧇', '🍗', '🥩', '🍰', '🧁', '🍩', '🍪',
-  '🍫', '🍦', '☕', '🍵', '🧋', '🥤', '🍷', '🥂', '🍺', '🍽️',
-  '🍴', '🥄', '🔥', '❤️', '😍', '😋', '🤩', '👍', '👏', '🎉',
-];
 
 interface MessageComposerProps {
   value: string;
@@ -93,18 +86,7 @@ export function MessageComposer({
         )}
       </div>
       {stickersOpen ? (
-        <div className="sticker-tray" role="listbox" aria-label={t('chat.stickers')}>
-          {STICKERS.map((sticker) => (
-            <button
-              key={sticker}
-              type="button"
-              className="sticker-tray__item"
-              onClick={() => onChange(`${value}${sticker}`)}
-            >
-              {sticker}
-            </button>
-          ))}
-        </div>
+        <StickerPicker onPick={(sticker) => onChange(`${value}${sticker}`)} />
       ) : null}
     </form>
   );
