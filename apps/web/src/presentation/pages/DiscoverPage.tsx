@@ -4,6 +4,7 @@ import {
   EDUCATION_LEVELS,
   GENDERS,
   MEAL_SLOTS,
+  PROFILE_INTERESTS,
 } from '@bitemate/shared';
 import type {
   EducationLevel,
@@ -11,6 +12,7 @@ import type {
   MealSlot,
   NearbyMeetupDto,
   NearbyUserDto,
+  ProfileInterest,
 } from '@bitemate/shared';
 import {
   citySelectOptions,
@@ -47,6 +49,7 @@ type Filters = {
   foodType: string;
   foodName: string;
   lookingToEat: boolean;
+  interests: ProfileInterest[];
 };
 
 const DEFAULT_FILTERS: Filters = {
@@ -61,6 +64,7 @@ const DEFAULT_FILTERS: Filters = {
   foodType: '',
   foodName: '',
   lookingToEat: false,
+  interests: [],
 };
 
 function fallbackCenter(user: { liveLatitude?: number | null; liveLongitude?: number | null } | null) {
@@ -99,6 +103,29 @@ export function DiscoverPage() {
     [filters.foodType, locale],
   );
 
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (applied.radiusKm !== DEFAULT_FILTERS.radiusKm) count += 1;
+    if (applied.ageMin !== DEFAULT_FILTERS.ageMin || applied.ageMax !== DEFAULT_FILTERS.ageMax) count += 1;
+    if (applied.gender) count += 1;
+    if (applied.education) count += 1;
+    if (applied.mealSlot) count += 1;
+    if (applied.country || applied.city) count += 1;
+    if (applied.foodType || applied.foodName) count += 1;
+    if (applied.lookingToEat) count += 1;
+    if (applied.interests.length) count += 1;
+    return count;
+  }, [applied]);
+
+  function toggleInterest(interest: ProfileInterest) {
+    setFilters((current) => ({
+      ...current,
+      interests: current.interests.includes(interest)
+        ? current.interests.filter((item) => item !== interest)
+        : [...current.interests, interest].slice(0, 8),
+    }));
+  }
+
   useEffect(() => {
     const next = gps.fix
       ? { latitude: gps.fix.latitude, longitude: gps.fix.longitude }
@@ -126,6 +153,7 @@ export function DiscoverPage() {
       foodType: applied.foodType || undefined,
       foodName: applied.foodName || undefined,
       lookingToEat: applied.lookingToEat || undefined,
+      interests: applied.interests.length ? applied.interests : undefined,
     };
     setError(null);
     void Promise.allSettled([
@@ -239,8 +267,11 @@ export function DiscoverPage() {
     <div className="app-screen discover-screen">
       <header className="screen-header screen-header--actions">
         <p className="hint screen-header__hint">{t('nearby.tagline')}</p>
-        <button type="button" className="btn-secondary btn-compact" onClick={() => setShowFilters((value) => !value)}>
+        <button type="button" className="btn-secondary btn-compact discover-filters-btn" onClick={() => setShowFilters((value) => !value)}>
           {t('nearby.filters')}
+          {activeFilterCount > 0 ? (
+            <span className="discover-filters-btn__badge">{activeFilterCount}</span>
+          ) : null}
         </button>
       </header>
 
@@ -388,6 +419,26 @@ export function DiscoverPage() {
             />
             <span>{t('nearby.onlyReady')}</span>
           </label>
+          <div className="field-group">
+            <span className="field-label">{t('nearby.interests')}</span>
+            <p className="hint">{t('nearby.interestsHint')}</p>
+            <div className="chip-cloud">
+              {PROFILE_INTERESTS.map((interest) => {
+                const selected = filters.interests.includes(interest);
+                return (
+                  <button
+                    key={interest}
+                    type="button"
+                    className={`filter-chip${selected ? ' active' : ''}`}
+                    aria-pressed={selected}
+                    onClick={() => toggleInterest(interest)}
+                  >
+                    {t(`profile.interest.${interest}`)}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
           <div className="meetup-card__row">
             <button
               type="button"
@@ -456,6 +507,11 @@ export function DiscoverPage() {
                   {localizeDish(item, locale)}
                 </span>
               ))}
+              {current.interests.map((interest) => (
+                <span key={interest} className="filter-chip active">
+                  {t(`profile.interest.${interest}`)}
+                </span>
+              ))}
             </div>
             <p className="hint">
               {t('nearby.rating', {
@@ -522,9 +578,13 @@ export function DiscoverPage() {
                     {event.foodType ? ` · ${localizeFoodType(event.foodType, locale)}` : ''}
                   </p>
                   {event.preferredInterests.length > 0 ? (
-                    <p className="hint">
-                      {t('event.interestMatch', { count: event.preferredInterests.length })}
-                    </p>
+                    <div className="chip-cloud table-card__interests">
+                      {event.preferredInterests.map((interest) => (
+                        <span key={interest} className="filter-chip active">
+                          {t(`profile.interest.${interest}`)}
+                        </span>
+                      ))}
+                    </div>
                   ) : null}
                 </div>
                 <div className="table-card__actions">

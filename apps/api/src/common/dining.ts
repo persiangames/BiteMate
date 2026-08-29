@@ -63,6 +63,7 @@ export function diningCompatibility(
     preferredMeals?: string[] | null;
     favoriteCuisines?: string[] | null;
     favoriteFoods?: string[] | null;
+    interests?: string[] | null;
     city?: string | null;
     country?: string | null;
   } | null,
@@ -70,6 +71,7 @@ export function diningCompatibility(
     preferredMeals?: string[] | null;
     favoriteCuisines?: string[] | null;
     favoriteFoods?: string[] | null;
+    interests?: string[] | null;
     city?: string | null;
     country?: string | null;
     lookingToEat?: boolean;
@@ -94,6 +96,12 @@ export function diningCompatibility(
   ).length;
   if (sharedFoods) {
     score += Math.min(20, sharedFoods * 7);
+  }
+
+  const viewerInterests = new Set(viewer?.interests ?? []);
+  const sharedInterests = (candidate.interests ?? []).filter((item) => viewerInterests.has(item)).length;
+  if (sharedInterests) {
+    score += Math.min(15, sharedInterests * 5);
   }
 
   if (viewer?.city && candidate.city && viewer.city.toLowerCase() === candidate.city.toLowerCase()) {

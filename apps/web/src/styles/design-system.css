@@ -2476,6 +2476,31 @@ html[dir='rtl'] .composer__send-fab svg {
   justify-items: end;
 }
 
+.table-card__interests {
+  margin-top: 0.35rem;
+}
+
+.discover-filters-btn {
+  position: relative;
+}
+
+.discover-filters-btn__badge {
+  position: absolute;
+  top: -6px;
+  inset-inline-end: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
 .field-label {
   display: block;
   margin-bottom: 0.4rem;

@@ -1,5 +1,6 @@
 import { Transform, Type } from 'class-transformer';
 import {
+  IsArray,
   IsBoolean,
   IsEnum,
   IsNumber,
@@ -14,11 +15,13 @@ import {
   EDUCATION_LEVELS,
   GENDERS,
   MEAL_SLOTS,
+  PROFILE_INTERESTS,
   USER_ROLES,
   type AvailabilityStatus,
   type EducationLevel,
   type Gender,
   type MealSlot,
+  type ProfileInterest,
   type UserRole,
 } from '@bitemate/shared';
 
@@ -133,6 +136,23 @@ export class NearbyUsersQueryDto {
   })
   @IsBoolean()
   lookingToEat?: boolean;
+
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) {
+      return value;
+    }
+    if (typeof value === 'string' && value.trim()) {
+      return value
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+    return undefined;
+  })
+  @IsArray()
+  @IsEnum(PROFILE_INTERESTS, { each: true })
+  interests?: ProfileInterest[];
 
   get radiusKm(): number {
     return this.radius;

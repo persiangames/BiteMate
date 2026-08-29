@@ -102,6 +102,7 @@ export async function fetchNearbyUsers(
     ['foodType', params.foodType],
     ['foodName', params.foodName],
     ['lookingToEat', params.lookingToEat === true ? 'true' : undefined],
+    ['interests', params.interests?.length ? params.interests.join(',') : undefined],
   ];
 
   for (const [key, value] of extras) {
@@ -117,20 +118,7 @@ export async function fetchNearbyUsers(
 
 export async function fetchNearbyMeetups(
   accessToken: string,
-  params: {
-    latitude: number;
-    longitude: number;
-    radiusKm: number;
-    mealSlot?: MealSlot;
-    country?: string;
-    city?: string;
-    foodType?: string;
-    foodName?: string;
-    gender?: Gender;
-    education?: EducationLevel;
-    ageMin?: number;
-    ageMax?: number;
-  },
+  params: NearbyQueryDto,
 ): Promise<NearbyMeetupsResponseDto> {
   const search = new URLSearchParams({
     latitude: String(params.latitude),
@@ -147,6 +135,7 @@ export async function fetchNearbyMeetups(
     ['education', params.education],
     ['ageMin', params.ageMin],
     ['ageMax', params.ageMax],
+    ['interests', params.interests?.length ? params.interests.join(',') : undefined],
   ];
   for (const [key, value] of extras) {
     if (value !== undefined && value !== '') {

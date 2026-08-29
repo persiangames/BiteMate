@@ -93,6 +93,7 @@ export class LocationService {
         preferredMeals: true,
         favoriteCuisines: true,
         favoriteFoods: true,
+        interests: true,
         city: true,
         country: true,
       },
@@ -121,6 +122,7 @@ export class LocationService {
         ...(query.city ? { city: { equals: query.city, mode: 'insensitive' } } : {}),
         ...(query.lookingToEat ? { lookingToEat: true } : {}),
         ...(query.mealSlot ? { preferredMeals: { has: query.mealSlot } } : {}),
+        ...(query.interests?.length ? { interests: { hasSome: query.interests } } : {}),
       },
       take: 800,
     });
@@ -154,6 +156,7 @@ export class LocationService {
           favoriteCuisines: user.favoriteCuisines ?? [],
           favoriteFoods: user.favoriteFoods ?? [],
           lookingToEat: user.lookingToEat,
+          interests: (user.interests ?? []) as NearbyUserDto['interests'],
           meetupRating: user.meetupRating,
           meetupReviewCount: user.meetupReviewCount,
           lastLiveLocationAt: user.lastLiveLocationAt

@@ -39,6 +39,7 @@ export interface NearbyUserDto {
   lastLiveLocationAt: string | null;
   isOnline: boolean;
   compatibility: number;
+  interests: ProfileInterest[];
 }
 
 export interface NearbyUsersResponseDto {
