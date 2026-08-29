@@ -13,6 +13,7 @@ import {
 import { checkUsernameAvailablePublic } from '@/data/repositories/authRepository';
 import { isFirebaseConfigured, signInWithGoogle } from '@/data/firebase/firebaseClient';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
+import { GoogleIcon } from '@/presentation/components/auth/GoogleIcon';
 import { PasswordField } from '@/presentation/components/auth/PasswordField';
 import { SearchableSelect } from '@/presentation/components/SearchableSelect';
 import { useAuth } from '@/presentation/context/AuthContext';
@@ -281,6 +282,7 @@ export function RegisterPage() {
                 disabled={loading}
                 onClick={() => void startGoogleRegistration()}
               >
+                <GoogleIcon />
                 {t('auth.google')}
               </button>
             ) : (

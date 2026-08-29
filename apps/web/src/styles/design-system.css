@@ -602,44 +602,17 @@ textarea {
 }
 
 .password-field {
-  display: flex;
-  align-items: stretch;
-  gap: 0.35rem;
+  position: relative;
+  display: block;
+  width: 100%;
 }
 
 .password-field input {
-  flex: 1;
-}
-
-.password-field__toggle {
-  flex-shrink: 0;
-  min-width: 2.75rem;
-  border-radius: var(--radius-sm, 8px);
-  border: 1px solid var(--color-border, rgba(255, 255, 255, 0.12));
-  background: transparent;
-  cursor: pointer;
+  width: 100%;
 }
 
 .password-field__rules {
-  margin-top: -0.25rem;
-}
-
-.password-field--inline input {
-  background: #fafafa;
-  border: 1px solid #dbdbdb;
-  border-radius: 8px;
-  min-height: 48px;
-  padding: 0.85rem 1rem;
-  font-size: 0.72rem;
-  line-height: 1.35;
-}
-
-.ig-auth__form .password-field--inline {
-  width: 100%;
-}
-
-.ig-auth__form .password-field--inline input {
-  width: 100%;
+  margin-top: -0.1rem;
 }
 
 .language-list {
@@ -1208,23 +1181,13 @@ textarea {
 .ig-auth__form {
   width: 100%;
   display: grid;
-  gap: 0.65rem;
-  margin-top: 1.25rem;
+  gap: var(--form-gap, 0.5rem);
+  margin-top: 0.75rem;
 }
 
 .ig-auth__form input {
-  background: #fafafa;
-  border: 1px solid #dbdbdb;
-  border-radius: 8px;
-  min-height: 48px;
-  padding: 0.85rem 1rem;
-  font-size: 0.72rem;
-  line-height: 1.35;
-}
-
-.ig-auth__form input::placeholder {
-  font-size: 0.72rem;
-  color: #8e8e8e;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .ig-auth__divider {

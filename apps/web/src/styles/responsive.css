@@ -111,8 +111,8 @@ img.post-media {
 }
 
 .ig-auth__form input {
-  font-size: clamp(0.875rem, 2.8vw, 1rem);
-  min-height: 48px;
+  font-size: var(--form-field-font, 0.875rem);
+  min-height: var(--form-field-height, 36px);
 }
 
 .ig-auth__form input::placeholder {

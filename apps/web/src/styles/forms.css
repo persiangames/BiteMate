@@ -1,0 +1,315 @@
+/* Compact form controls — Instagram / Meta-style density */
+
+:root {
+  --form-field-height: 36px;
+  --form-field-padding-y: 0.4375rem;
+  --form-field-padding-x: 0.625rem;
+  --form-field-font: 0.875rem;
+  --form-label-font: 0.8125rem;
+  --form-gap: 0.5rem;
+  --form-section-gap: 0.625rem;
+  --form-toggle-inset: 2.125rem;
+}
+
+.field {
+  gap: 0.28rem;
+}
+
+.field span,
+.field-label {
+  font-size: var(--form-label-font);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+input,
+select,
+textarea {
+  min-height: var(--form-field-height);
+  padding: var(--form-field-padding-y) var(--form-field-padding-x);
+  font-size: var(--form-field-font);
+  line-height: 1.35;
+  box-sizing: border-box;
+}
+
+textarea {
+  min-height: 4.5rem;
+  padding: 0.5rem 0.625rem;
+  resize: vertical;
+}
+
+.flow {
+  gap: var(--form-section-gap);
+}
+
+.flow > .hint,
+.flow > .error {
+  margin-top: -0.15rem;
+}
+
+.hint,
+.error {
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+/* Password — eye toggle inside field */
+.password-field {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.password-field input {
+  width: 100%;
+  padding-inline-end: var(--form-toggle-inset);
+}
+
+.password-field__toggle {
+  position: absolute;
+  inset-inline-end: 0.35rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #737373;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.password-field__toggle:hover,
+.password-field__toggle:focus-visible {
+  color: var(--color-dark);
+  background: transparent;
+  transform: translateY(-50%) scale(1.06);
+  font-weight: 400;
+}
+
+.password-field__toggle-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  display: block;
+}
+
+.password-field__rules {
+  margin-top: -0.1rem;
+}
+
+/* Instagram-style login / forgot / reset */
+.ig-auth {
+  gap: 0.5rem;
+  padding: 1.25rem 1rem calc(3.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.ig-auth__card {
+  padding: 1.35rem 1.35rem 1rem;
+}
+
+.ig-auth__card .brand-lockup {
+  width: min(160px, 72%);
+}
+
+.ig-auth__card h1 {
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ig-auth__card .hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+}
+
+.ig-auth__form {
+  gap: var(--form-gap);
+  margin-top: 0.75rem;
+}
+
+.ig-auth__form input,
+.password-field--inline input {
+  min-height: var(--form-field-height);
+  padding: var(--form-field-padding-y) var(--form-field-padding-x);
+  font-size: var(--form-field-font);
+  border-radius: 6px;
+  background: #fafafa;
+  border: 1px solid #dbdbdb;
+}
+
+.ig-auth__form input::placeholder,
+.password-field--inline input::placeholder {
+  font-size: var(--form-field-font);
+  color: #8e8e8e;
+}
+
+.ig-auth__form .btn-primary {
+  margin-top: 0.15rem;
+  min-height: var(--form-field-height);
+  padding: 0.4375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.ig-auth__divider {
+  gap: 0.65rem;
+  margin: 0.1rem 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.ig-auth__forgot {
+  margin-top: 0.15rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.ig-auth__card--compact {
+  padding: 0.85rem 1rem;
+}
+
+.ig-auth__card--compact p {
+  font-size: 0.875rem;
+  line-height: 1.35;
+}
+
+/* Sign-up wizard */
+.auth-screen {
+  padding: 0.85rem;
+  padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 0.75rem);
+}
+
+.auth-screen__panel {
+  width: min(100%, 400px);
+}
+
+.auth-screen__panel.glass-card--lg {
+  padding: 1rem 1rem 0.85rem;
+  border-radius: var(--radius-md);
+}
+
+.auth-screen__panel .auth-brand {
+  margin-bottom: -0.15rem;
+}
+
+.auth-screen__panel .auth-brand .brand-lockup {
+  width: min(150px, 68%);
+  margin-inline: auto;
+}
+
+.auth-screen__panel h1 {
+  margin: 0.2rem 0 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.auth-screen__panel > .hint,
+.auth-screen__panel .flow > .hint:first-child {
+  font-size: 0.8125rem;
+}
+
+.wizard-steps {
+  gap: 0.35rem;
+  margin: -0.1rem 0;
+}
+
+.role-grid {
+  gap: 0.5rem;
+}
+
+.role-card {
+  padding: 0.65rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.role-card strong {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+/* Auth & profile buttons */
+.auth-screen .btn-primary,
+.auth-screen .btn-secondary,
+.auth-screen .btn-ghost,
+.ig-auth .btn-primary,
+.ig-auth .btn-secondary,
+.ig-auth .btn-ghost,
+.panel .btn-primary,
+.panel .btn-secondary,
+.panel .btn-ghost {
+  min-height: var(--form-field-height);
+  padding: 0.4375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.social-auth {
+  gap: var(--form-gap);
+}
+
+.social-auth__btn {
+  min-height: var(--form-field-height);
+  padding: 0.4375rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+/* Profile edit & in-app forms */
+.panel {
+  padding: 0.85rem 0.9rem;
+}
+
+.panel > h1,
+.page > .panel > h1 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 0 0 0.35rem;
+}
+
+.panel h2 {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin: 0.35rem 0 0.15rem;
+}
+
+.save-bar {
+  padding: 0.5rem 0;
+  gap: 0.5rem;
+}
+
+html[data-theme='dark'] .ig-auth__form input,
+html[data-theme='dark'] .password-field--inline input {
+  background: #1c1c1e;
+  border-color: #3a3a3c;
+}
+
+html[data-theme='dark'] .password-field__toggle {
+  color: #a1a1aa;
+}
+
+html[data-theme='dark'] .password-field__toggle:hover,
+html[data-theme='dark'] .password-field__toggle:focus-visible {
+  color: #fafafa;
+}
+
+@media (max-width: 380px) {
+  :root {
+    --form-field-font: 1rem;
+    --form-field-height: 38px;
+  }
+
+  .ig-auth__card {
+    padding-inline: 1rem;
+  }
+}

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { PasswordVisibilityToggle } from '@/presentation/components/auth/PasswordVisibilityToggle';
 
 interface PasswordInputProps {
   value: string;
@@ -32,15 +33,7 @@ export function PasswordInput({
         required={required}
         minLength={minLength}
       />
-      <button
-        type="button"
-        className="password-field__toggle"
-        onClick={() => setVisible((current) => !current)}
-        aria-label={visible ? 'Hide password' : 'Show password'}
-        tabIndex={-1}
-      >
-        {visible ? '🙈' : '👁'}
-      </button>
+      <PasswordVisibilityToggle visible={visible} onToggle={() => setVisible((current) => !current)} />
     </div>
   );
 }

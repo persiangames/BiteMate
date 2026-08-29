@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { forgotPassword, resetPassword } from '@/data/repositories/authRepository';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
+import { PasswordInput } from '@/presentation/components/auth/PasswordInput';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { localizeError } from '@/presentation/i18n/localizeError';
 
@@ -103,23 +104,19 @@ export function ResetPasswordPage() {
             onChange={(event) => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))}
             required
           />
-          <input
-            type="password"
-            autoComplete="new-password"
-            placeholder={t('auth.reset.new')}
+          <PasswordInput
             value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            minLength={8}
-            required
-          />
-          <input
-            type="password"
+            onChange={setPassword}
+            placeholder={t('auth.reset.new')}
             autoComplete="new-password"
-            placeholder={t('auth.reset.confirm')}
-            value={confirm}
-            onChange={(event) => setConfirm(event.target.value)}
             minLength={8}
-            required
+          />
+          <PasswordInput
+            value={confirm}
+            onChange={setConfirm}
+            placeholder={t('auth.reset.confirm')}
+            autoComplete="new-password"
+            minLength={8}
           />
           {error ? <p className="error">{error}</p> : null}
           {done ? <p className="hint">{t('auth.reset.success')}</p> : null}

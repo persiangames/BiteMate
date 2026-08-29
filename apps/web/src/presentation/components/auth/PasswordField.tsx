@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { getPasswordIssues, isValidPassword } from '@bitemate/shared';
+import { PasswordVisibilityToggle } from '@/presentation/components/auth/PasswordVisibilityToggle';
 
 interface PasswordFieldProps {
   label: string;
@@ -45,14 +46,7 @@ export function PasswordField({
             required={required}
             minLength={8}
           />
-          <button
-            type="button"
-            className="password-field__toggle"
-            onClick={() => setVisible((current) => !current)}
-            aria-label={visible ? 'Hide password' : 'Show password'}
-          >
-            {visible ? '🙈' : '👁'}
-          </button>
+          <PasswordVisibilityToggle visible={visible} onToggle={() => setVisible((current) => !current)} />
         </div>
       </label>
       {showRules && value.length > 0 && !valid && (
@@ -61,14 +55,17 @@ export function PasswordField({
       {onConfirmChange != null && confirmLabel ? (
         <label className="field">
           <span>{confirmLabel}</span>
-          <input
-            type={visible ? 'text' : 'password'}
-            value={confirmValue}
-            onChange={(event) => onConfirmChange(event.target.value)}
-            autoComplete="new-password"
-            required={required}
-            minLength={8}
-          />
+          <div className="password-field">
+            <input
+              type={visible ? 'text' : 'password'}
+              value={confirmValue}
+              onChange={(event) => onConfirmChange(event.target.value)}
+              autoComplete="new-password"
+              required={required}
+              minLength={8}
+            />
+            <PasswordVisibilityToggle visible={visible} onToggle={() => setVisible((current) => !current)} />
+          </div>
         </label>
       ) : null}
       {mismatch ? <p className="error">{mismatchLabel}</p> : null}
