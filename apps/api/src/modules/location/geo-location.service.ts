@@ -134,6 +134,7 @@ export class GeoLocationService {
         favoriteFoods: [],
         lookingToEat: false,
         interests: [],
+        relationshipStatus: null,
         meetupRating: 0,
         meetupReviewCount: 0,
         lastLiveLocationAt: null,

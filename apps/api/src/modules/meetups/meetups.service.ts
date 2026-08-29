@@ -54,7 +54,8 @@ type UserSummaryFields = Pick<
   | 'meetupReviewCount'
   | 'isPremium'
   | 'rankScore'
->;
+> &
+  Partial<Pick<User, 'relationshipStatus'>>;
 
 type InviteWithRelations = MeetupInvite & {
   meetup: MeetupWithCreator;
@@ -871,6 +872,9 @@ export class MeetupsService {
         ...(query.city ? { city: { equals: query.city, mode: 'insensitive' } } : {}),
         ...(query.gender ? { preferredGender: query.gender } : {}),
         ...(query.education ? { preferredEducation: query.education } : {}),
+        ...(query.relationshipStatus
+          ? { creator: { relationshipStatus: query.relationshipStatus } }
+          : {}),
       },
       include: {
         creator: {
@@ -883,6 +887,7 @@ export class MeetupsService {
             meetupReviewCount: true,
             isPremium: true,
             rankScore: true,
+            relationshipStatus: true,
           },
         },
         room: true,
@@ -1048,6 +1053,7 @@ export class MeetupsService {
       meetupRating: user.meetupRating,
       meetupReviewCount: user.meetupReviewCount,
       isPremium: user.isPremium,
+      relationshipStatus: user.relationshipStatus ?? null,
     };
   }
 }

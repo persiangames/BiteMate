@@ -103,6 +103,7 @@ export async function fetchNearbyUsers(
     ['foodName', params.foodName],
     ['lookingToEat', params.lookingToEat === true ? 'true' : undefined],
     ['interests', params.interests?.length ? params.interests.join(',') : undefined],
+    ['relationshipStatus', params.relationshipStatus],
   ];
 
   for (const [key, value] of extras) {
@@ -136,6 +137,7 @@ export async function fetchNearbyMeetups(
     ['ageMin', params.ageMin],
     ['ageMax', params.ageMax],
     ['interests', params.interests?.length ? params.interests.join(',') : undefined],
+    ['relationshipStatus', params.relationshipStatus],
   ];
   for (const [key, value] of extras) {
     if (value !== undefined && value !== '') {

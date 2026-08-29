@@ -16,12 +16,14 @@ import {
   GENDERS,
   MEAL_SLOTS,
   PROFILE_INTERESTS,
+  RELATIONSHIP_STATUSES,
   USER_ROLES,
   type AvailabilityStatus,
   type EducationLevel,
   type Gender,
   type MealSlot,
   type ProfileInterest,
+  type RelationshipStatus,
   type UserRole,
 } from '@bitemate/shared';
 
@@ -153,6 +155,11 @@ export class NearbyUsersQueryDto {
   @IsArray()
   @IsEnum(PROFILE_INTERESTS, { each: true })
   interests?: ProfileInterest[];
+
+  @IsOptional()
+  @Transform(({ value }) => emptyToUndefined(value))
+  @IsEnum(RELATIONSHIP_STATUSES)
+  relationshipStatus?: RelationshipStatus;
 
   get radiusKm(): number {
     return this.radius;

@@ -40,6 +40,7 @@ export interface NearbyUserDto {
   isOnline: boolean;
   compatibility: number;
   interests: ProfileInterest[];
+  relationshipStatus: RelationshipStatus | null;
 }
 
 export interface NearbyUsersResponseDto {

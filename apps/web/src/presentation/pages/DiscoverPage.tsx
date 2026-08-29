@@ -5,6 +5,7 @@ import {
   GENDERS,
   MEAL_SLOTS,
   PROFILE_INTERESTS,
+  RELATIONSHIP_STATUSES,
 } from '@bitemate/shared';
 import type {
   EducationLevel,
@@ -13,6 +14,7 @@ import type {
   NearbyMeetupDto,
   NearbyUserDto,
   ProfileInterest,
+  RelationshipStatus,
 } from '@bitemate/shared';
 import {
   citySelectOptions,
@@ -50,6 +52,7 @@ type Filters = {
   foodName: string;
   lookingToEat: boolean;
   interests: ProfileInterest[];
+  relationshipStatus: RelationshipStatus | '';
 };
 
 const DEFAULT_FILTERS: Filters = {
@@ -65,6 +68,7 @@ const DEFAULT_FILTERS: Filters = {
   foodName: '',
   lookingToEat: false,
   interests: [],
+  relationshipStatus: '',
 };
 
 function fallbackCenter(user: { liveLatitude?: number | null; liveLongitude?: number | null } | null) {
@@ -114,6 +118,7 @@ export function DiscoverPage() {
     if (applied.foodType || applied.foodName) count += 1;
     if (applied.lookingToEat) count += 1;
     if (applied.interests.length) count += 1;
+    if (applied.relationshipStatus) count += 1;
     return count;
   }, [applied]);
 
@@ -154,6 +159,7 @@ export function DiscoverPage() {
       foodName: applied.foodName || undefined,
       lookingToEat: applied.lookingToEat || undefined,
       interests: applied.interests.length ? applied.interests : undefined,
+      relationshipStatus: applied.relationshipStatus || undefined,
     };
     setError(null);
     void Promise.allSettled([
@@ -419,6 +425,27 @@ export function DiscoverPage() {
             />
             <span>{t('nearby.onlyReady')}</span>
           </label>
+          <label className="field">
+            <span>{t('profile.relationship')}</span>
+            <p className="hint">{t('nearby.relationshipHint')}</p>
+            <select
+              value={filters.relationshipStatus}
+              onChange={(event) =>
+                setFilters({
+                  ...filters,
+                  relationshipStatus: event.target.value as RelationshipStatus | '',
+                })
+              }
+            >
+              <option value="">{t('dining.any')}</option>
+              {RELATIONSHIP_STATUSES.map((item) => (
+                <option key={item} value={item}>
+                  {t(`profile.relationship.${item}`)}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <div className="field-group">
             <span className="field-label">{t('nearby.interests')}</span>
             <p className="hint">{t('nearby.interestsHint')}</p>
@@ -489,6 +516,9 @@ export function DiscoverPage() {
                 ? ` · ${formatPlace(current.city, current.country, locale)}`
                 : ''}
               {current.education ? ` · ${t(`dining.education.${current.education}`)}` : ''}
+              {current.relationshipStatus
+                ? ` · ${t(`profile.relationship.${current.relationshipStatus}`)}`
+                : ''}
             </p>
             {current.bio ? <p>{current.bio}</p> : <p className="hint">{t('nearby.noBio')}</p>}
             <div className="chip-cloud">
@@ -512,6 +542,11 @@ export function DiscoverPage() {
                   {t(`profile.interest.${interest}`)}
                 </span>
               ))}
+              {current.relationshipStatus ? (
+                <span className="filter-chip active">
+                  {t(`profile.relationship.${current.relationshipStatus}`)}
+                </span>
+              ) : null}
             </div>
             <p className="hint">
               {t('nearby.rating', {
@@ -577,8 +612,13 @@ export function DiscoverPage() {
                       : (event.locationLabel ?? '')}
                     {event.foodType ? ` · ${localizeFoodType(event.foodType, locale)}` : ''}
                   </p>
-                  {event.preferredInterests.length > 0 ? (
+                  {event.preferredInterests.length > 0 || event.creator.relationshipStatus ? (
                     <div className="chip-cloud table-card__interests">
+                      {event.creator.relationshipStatus ? (
+                        <span className="filter-chip active">
+                          {t(`profile.relationship.${event.creator.relationshipStatus}`)}
+                        </span>
+                      ) : null}
                       {event.preferredInterests.map((interest) => (
                         <span key={interest} className="filter-chip active">
                           {t(`profile.interest.${interest}`)}

@@ -64,6 +64,7 @@ export function diningCompatibility(
     favoriteCuisines?: string[] | null;
     favoriteFoods?: string[] | null;
     interests?: string[] | null;
+    relationshipStatus?: string | null;
     city?: string | null;
     country?: string | null;
   } | null,
@@ -72,6 +73,7 @@ export function diningCompatibility(
     favoriteCuisines?: string[] | null;
     favoriteFoods?: string[] | null;
     interests?: string[] | null;
+    relationshipStatus?: string | null;
     city?: string | null;
     country?: string | null;
     lookingToEat?: boolean;
@@ -102,6 +104,14 @@ export function diningCompatibility(
   const sharedInterests = (candidate.interests ?? []).filter((item) => viewerInterests.has(item)).length;
   if (sharedInterests) {
     score += Math.min(15, sharedInterests * 5);
+  }
+
+  if (
+    viewer?.relationshipStatus &&
+    candidate.relationshipStatus &&
+    viewer.relationshipStatus === candidate.relationshipStatus
+  ) {
+    score += 6;
   }
 
   if (viewer?.city && candidate.city && viewer.city.toLowerCase() === candidate.city.toLowerCase()) {

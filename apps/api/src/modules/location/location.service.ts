@@ -94,6 +94,7 @@ export class LocationService {
         favoriteCuisines: true,
         favoriteFoods: true,
         interests: true,
+        relationshipStatus: true,
         city: true,
         country: true,
       },
@@ -116,6 +117,7 @@ export class LocationService {
         ...(query.availability ? { availabilityStatus: query.availability } : {}),
         ...(query.gender ? { gender: query.gender } : {}),
         ...(query.education ? { education: query.education } : {}),
+        ...(query.relationshipStatus ? { relationshipStatus: query.relationshipStatus } : {}),
         ...(query.country
           ? { country: { equals: query.country, mode: 'insensitive' } }
           : {}),
@@ -157,6 +159,7 @@ export class LocationService {
           favoriteFoods: user.favoriteFoods ?? [],
           lookingToEat: user.lookingToEat,
           interests: (user.interests ?? []) as NearbyUserDto['interests'],
+          relationshipStatus: user.relationshipStatus,
           meetupRating: user.meetupRating,
           meetupReviewCount: user.meetupReviewCount,
           lastLiveLocationAt: user.lastLiveLocationAt

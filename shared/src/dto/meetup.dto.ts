@@ -1,3 +1,5 @@
+import type { RelationshipStatus } from '../types/profile.types';
+
 export const MEETUP_STATUSES = [
   'OPEN',
   'SCHEDULED',
@@ -30,6 +32,7 @@ export interface MeetupUserSummaryDto {
   meetupRating: number;
   meetupReviewCount: number;
   isPremium: boolean;
+  relationshipStatus?: RelationshipStatus | null;
 }
 
 export interface MeetupDto {

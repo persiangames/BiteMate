@@ -15,10 +15,12 @@ import {
   GENDERS,
   MEAL_SLOTS,
   PROFILE_INTERESTS,
+  RELATIONSHIP_STATUSES,
   type EducationLevel,
   type Gender,
   type MealSlot,
   type ProfileInterest,
+  type RelationshipStatus,
 } from '@bitemate/shared';
 
 function emptyToUndefined(value: unknown) {
@@ -207,6 +209,11 @@ export class NearbyMeetupsQueryDto {
   @IsArray()
   @IsEnum(PROFILE_INTERESTS, { each: true })
   interests?: ProfileInterest[];
+
+  @IsOptional()
+  @Transform(({ value }) => emptyToUndefined(value))
+  @IsEnum(RELATIONSHIP_STATUSES)
+  relationshipStatus?: RelationshipStatus;
 }
 export class MeetupMatchQueryDto {
   @IsString()
