@@ -603,11 +603,13 @@ textarea {
 
 .password-field {
   position: relative;
-  display: block;
+  display: grid;
+  align-items: center;
   width: 100%;
 }
 
 .password-field input {
+  grid-area: 1 / 1;
   width: 100%;
 }
 

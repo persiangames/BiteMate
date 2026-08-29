@@ -53,28 +53,31 @@ textarea {
   line-height: 1.35;
 }
 
-/* Password — eye toggle inside field */
+/* Password — eye toggle inside field (grid overlay for true vertical center) */
 .password-field {
   position: relative;
-  display: block;
+  display: grid;
+  align-items: center;
   width: 100%;
 }
 
 .password-field input {
+  grid-area: 1 / 1;
   width: 100%;
   padding-inline-end: var(--form-toggle-inset);
 }
 
 .password-field__toggle {
-  position: absolute;
-  inset-inline-end: 0.35rem;
-  top: 50%;
-  transform: translateY(-50%);
+  grid-area: 1 / 1;
+  justify-self: end;
+  align-self: center;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 1.75rem;
   height: 1.75rem;
+  margin-inline-end: 0.35rem;
   padding: 0;
   border: none;
   border-radius: 6px;
@@ -88,7 +91,7 @@ textarea {
 .password-field__toggle:focus-visible {
   color: var(--color-dark);
   background: transparent;
-  transform: translateY(-50%) scale(1.06);
+  transform: scale(1.06);
   font-weight: 400;
 }
 
