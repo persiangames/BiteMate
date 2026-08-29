@@ -168,13 +168,13 @@ img.post-media {
   }
 
   .screen-header h1 {
-    font-size: 1.35rem;
+    font-size: var(--text-page-title, 0.8125rem);
   }
 
   .fab {
-    width: 50px;
-    height: 50px;
-    font-size: 1.45rem;
+    width: 44px;
+    height: 44px;
+    font-size: 1.15rem;
   }
 }
 

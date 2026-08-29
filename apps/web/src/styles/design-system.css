@@ -20,7 +20,7 @@
   --shadow-glass: 0 8px 32px rgba(15, 15, 15, 0.06);
   --glass-bg: #ffffff;
   --glass-border: rgba(24, 24, 27, 0.08);
-  --font-display: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font-ui);
   --font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --nav-height: 72px;
   --header-height: 56px;
@@ -36,22 +36,22 @@
 html[lang='fa'],
 html[lang='ar'] {
   --font-ui: 'Vazir', 'Inter', system-ui, sans-serif;
-  --font-display: 'Vazir', 'Inter', system-ui, sans-serif;
+  --font-display: var(--font-ui);
 }
 
 html[lang='zh'] {
   --font-ui: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-display: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-display: var(--font-ui);
 }
 
 html[lang='ja'] {
   --font-ui: 'Inter', 'Hiragino Sans', 'Yu Gothic', sans-serif;
-  --font-display: 'Inter', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  --font-display: var(--font-ui);
 }
 
 html[lang='hi'] {
   --font-ui: 'Inter', 'Nirmala UI', 'Segoe UI', sans-serif;
-  --font-display: 'Inter', 'Nirmala UI', 'Segoe UI', sans-serif;
+  --font-display: var(--font-ui);
 }
 
 html[data-theme='dark'] {
@@ -214,8 +214,8 @@ h1,
 h2,
 h3,
 .display-title {
-  font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  font-family: var(--font-ui);
+  letter-spacing: -0.01em;
 }
 
 a {

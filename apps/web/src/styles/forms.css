@@ -1,14 +1,14 @@
 /* Compact form controls — Instagram / Meta-style density */
 
 :root {
-  --form-field-height: 36px;
-  --form-field-padding-y: 0.4375rem;
-  --form-field-padding-x: 0.625rem;
-  --form-field-font: 0.875rem;
-  --form-label-font: 0.8125rem;
-  --form-gap: 0.5rem;
-  --form-section-gap: 0.625rem;
-  --form-toggle-inset: 2.125rem;
+  --form-field-height: 33px;
+  --form-field-padding-y: 0.375rem;
+  --form-field-padding-x: 0.5625rem;
+  --form-field-font: 0.8125rem;
+  --form-label-font: 0.6875rem;
+  --form-gap: 0.375rem;
+  --form-section-gap: 0.5rem;
+  --form-toggle-inset: 2rem;
 }
 
 .field {
@@ -121,7 +121,7 @@ textarea {
 
 .ig-auth__card h1 {
   margin: 0.35rem 0 0;
-  font-size: 1rem;
+  font-size: var(--text-page-title, 0.8125rem);
   font-weight: 600;
   line-height: 1.3;
 }
@@ -153,10 +153,10 @@ textarea {
 }
 
 .ig-auth__form .btn-primary {
-  margin-top: 0.15rem;
+  margin-top: 0.1rem;
   min-height: var(--form-field-height);
-  padding: 0.4375rem 0.75rem;
-  font-size: 0.875rem;
+  padding: var(--pad-btn-y, 0.4375rem) var(--pad-btn-x, 0.6875rem);
+  font-size: var(--text-btn, 0.6875rem);
   font-weight: 600;
   border-radius: 8px;
 }
@@ -208,8 +208,8 @@ textarea {
 }
 
 .auth-screen__panel h1 {
-  margin: 0.2rem 0 0;
-  font-size: 1.0625rem;
+  margin: 0.15rem 0 0;
+  font-size: var(--text-page-title, 0.8125rem);
   font-weight: 600;
   line-height: 1.3;
 }
@@ -249,8 +249,8 @@ textarea {
 .panel .btn-secondary,
 .panel .btn-ghost {
   min-height: var(--form-field-height);
-  padding: 0.4375rem 0.75rem;
-  font-size: 0.875rem;
+  padding: var(--pad-btn-y, 0.4375rem) var(--pad-btn-x, 0.6875rem);
+  font-size: var(--text-btn, 0.6875rem);
   font-weight: 600;
   border-radius: 8px;
 }
@@ -261,29 +261,29 @@ textarea {
 
 .social-auth__btn {
   min-height: var(--form-field-height);
-  padding: 0.4375rem 0.75rem;
-  font-size: 0.875rem;
+  padding: var(--pad-btn-y, 0.4375rem) var(--pad-btn-x, 0.6875rem);
+  font-size: var(--text-btn, 0.6875rem);
   font-weight: 600;
   border-radius: 8px;
 }
 
 /* Profile edit & in-app forms */
 .panel {
-  padding: 0.85rem 0.9rem;
+  padding: var(--pad-card, 0.65rem);
 }
 
 .panel > h1,
 .page > .panel > h1 {
-  font-size: 1.0625rem;
+  font-size: var(--text-page-title, 0.8125rem);
   font-weight: 600;
   line-height: 1.3;
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.25rem;
 }
 
 .panel h2 {
-  font-size: 0.9375rem;
+  font-size: var(--text-section, 0.8125rem);
   font-weight: 600;
-  margin: 0.35rem 0 0.15rem;
+  margin: 0.2rem 0 0.1rem;
 }
 
 .save-bar {
