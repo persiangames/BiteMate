@@ -6,11 +6,13 @@ export function NotificationBell() {
   const { t } = useI18n();
   const { unreadCount } = useNotifications();
 
+  const hasUnread = unreadCount > 0;
+
   return (
     <Link
       to="/notifications"
-      className="notify-bell"
-      aria-label={t('notifications.title')}
+      className={`notify-bell${hasUnread ? ' notify-bell--unread' : ''}`}
+      aria-label={hasUnread ? t('notifications.unread', { count: unreadCount }) : t('notifications.title')}
     >
       <span className="notify-bell__icon" aria-hidden>
         <svg viewBox="0 0 24 24" width="22" height="22" fill="none">

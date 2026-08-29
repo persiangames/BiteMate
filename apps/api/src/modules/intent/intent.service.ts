@@ -104,6 +104,7 @@ export class IntentService {
           country: dto.country?.trim(),
           city: dto.city?.trim(),
           locationLabel: dto.locationLabel?.trim(),
+          notes: dto.notes?.trim(),
           expiresAt,
         },
       });

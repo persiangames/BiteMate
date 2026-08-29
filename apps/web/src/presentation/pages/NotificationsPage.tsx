@@ -51,6 +51,10 @@ export function NotificationsPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
     if (!accessToken) return;
     fetchNotificationSettings(accessToken)
       .then((settings) => {

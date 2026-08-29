@@ -39,8 +39,15 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     void refresh();
 
     const unsubscribe = onNotification((notification) => {
-      setItems((current) => [notification, ...current.filter((item) => item.id !== notification.id)]);
-      setUnreadCount((count) => count + 1);
+      setItems((current) => {
+        if (current.some((item) => item.id === notification.id)) {
+          return current.map((item) => (item.id === notification.id ? notification : item));
+        }
+        return [notification, ...current];
+      });
+      if (!notification.readAt) {
+        setUnreadCount((count) => count + 1);
+      }
     });
 
     return unsubscribe;
@@ -49,6 +56,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const markRead = useCallback(
     async (notificationId: string) => {
       if (!accessToken) return;
+      let wasUnread = false;
+      setItems((current) => {
+        const target = current.find((item) => item.id === notificationId);
+        wasUnread = Boolean(target && !target.readAt);
+        return current;
+      });
+      if (!wasUnread) return;
+
       const updated = await markNotificationRead(accessToken, notificationId);
       setItems((current) => current.map((item) => (item.id === updated.id ? updated : item)));
       setUnreadCount((count) => Math.max(0, count - 1));

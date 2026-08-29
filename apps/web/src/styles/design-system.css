@@ -1116,6 +1116,111 @@ textarea {
   color: #fff;
 }
 
+.fab--open {
+  background: #6b7280;
+}
+
+.feed-fab {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(var(--nav-height) + var(--safe-bottom) + 1rem);
+  z-index: 40;
+  display: grid;
+  justify-items: end;
+  gap: 0.75rem;
+}
+
+.feed-fab .fab {
+  position: static;
+}
+
+.feed-fab__menu {
+  display: grid;
+  gap: 0.55rem;
+  min-width: min(280px, calc(100vw - 2rem));
+  animation: feedFabIn 0.18s ease-out;
+}
+
+@keyframes feedFabIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feed-fab__option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 16px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.08));
+  box-shadow: var(--shadow-soft);
+  text-align: start;
+}
+
+.feed-fab__option--event {
+  border-color: rgba(135, 169, 107, 0.45);
+  background: linear-gradient(135deg, rgba(135, 169, 107, 0.12), rgba(255, 255, 255, 0.96));
+}
+
+.feed-fab__option-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.feed-fab__option-copy {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.feed-fab__option-copy strong {
+  font-size: 0.95rem;
+}
+
+.feed-fab__option-copy small {
+  color: var(--color-muted, #6b7280);
+  font-size: 0.78rem;
+}
+
+.meetup-composer {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.meetup-composer__hero {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.meetup-composer__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #87a96b;
+}
+
+.meetup-composer__section h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+}
+
+.meetup-composer__submit {
+  width: 100%;
+}
+
+.is-disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
 .chat-panel {
   min-height: calc(100dvh - var(--header-height) - var(--nav-height) - 2rem);
   display: grid;
@@ -1851,6 +1956,13 @@ body:has(.thread-screen) .language-switcher--floating {
   border: 2px solid var(--color-primary);
   background: var(--color-primary-soft);
   color: var(--color-primary);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.notify-bell--unread {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
 }
 
 .notify-bell__badge {
@@ -1867,6 +1979,12 @@ body:has(.thread-screen) .language-switcher--floating {
   font-weight: 800;
   display: grid;
   place-items: center;
+  line-height: 1;
+  box-shadow: 0 0 0 2px var(--color-surface, #fff);
+}
+
+.notify-bell--unread .notify-bell__badge {
+  background: #dc2626;
 }
 
 .quick-link:hover,

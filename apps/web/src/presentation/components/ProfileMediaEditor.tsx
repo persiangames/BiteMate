@@ -4,7 +4,9 @@ import { AvatarStudio } from '@/presentation/components/AvatarStudio';
 import { ImageCropModal } from '@/presentation/components/ImageCropModal';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { localizeError } from '@/presentation/i18n/localizeError';
-import { resolveMediaUrl, normalizeMediaUrlForStorage } from '@/utils/mediaUrl';
+import { Avatar } from '@/presentation/components/Avatar';
+import { CoverImage } from '@/presentation/components/CoverImage';
+import { normalizeMediaUrlForStorage } from '@/utils/mediaUrl';
 
 type ProfileMediaEditorProps = {
   accessToken: string;
@@ -109,18 +111,6 @@ export function ProfileMediaEditor({
   const [showStudio, setShowStudio] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const photoSrc = resolveMediaUrl(profileImage);
-  const coverSrc = resolveMediaUrl(coverImage);
-  const [photoBroken, setPhotoBroken] = useState(false);
-  const [coverBroken, setCoverBroken] = useState(false);
-
-  useEffect(() => {
-    setPhotoBroken(false);
-  }, [profileImage]);
-
-  useEffect(() => {
-    setCoverBroken(false);
-  }, [coverImage]);
 
   function pickPhoto() {
     photoInput.current?.click();
@@ -169,14 +159,10 @@ export function ProfileMediaEditor({
     <div className="ig-profile-edit">
       <div className="ig-profile-edit__hero">
         <div className="ig-profile-edit__cover">
-          {coverSrc && !coverBroken ? (
-            <img src={coverSrc} alt="" onError={() => setCoverBroken(true)} />
-          ) : (
-            <div className="ig-profile-edit__cover-empty" />
-          )}
+          <CoverImage imageUrl={coverImage} emptyClassName="ig-profile-edit__cover-empty" />
           <MediaEditMenu
-            label={coverSrc ? t('profile.cover.edit') : t('profile.cover.add')}
-            hasMedia={Boolean(coverSrc)}
+            label={coverImage ? t('profile.cover.edit') : t('profile.cover.add')}
+            hasMedia={Boolean(coverImage)}
             disabled={uploading}
             replaceLabel={t('profile.media.replace')}
             deleteLabel={t('profile.media.delete')}
@@ -186,15 +172,11 @@ export function ProfileMediaEditor({
         </div>
         <div className="ig-profile-edit__avatar-wrap">
           <button type="button" className="ig-profile-edit__avatar" disabled={uploading}>
-            {photoSrc && !photoBroken ? (
-              <img src={photoSrc} alt={name} onError={() => setPhotoBroken(true)} />
-            ) : (
-              <span>{(name || username || 'BM').slice(0, 2).toUpperCase()}</span>
-            )}
+            <Avatar name={name || username} imageUrl={profileImage} size="lg" />
           </button>
           <MediaEditMenu
             label={t('profile.photo.edit')}
-            hasMedia={Boolean(photoSrc)}
+            hasMedia={Boolean(profileImage)}
             disabled={uploading}
             replaceLabel={t('profile.media.replace')}
             deleteLabel={t('profile.media.delete')}

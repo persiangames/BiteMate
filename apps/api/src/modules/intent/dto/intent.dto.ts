@@ -116,6 +116,11 @@ export class CreateIntentDto {
   @IsString()
   @MaxLength(120)
   locationLabel?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(900)
+  notes?: string;
 }
 
 export class IntentMatchQueryDto {

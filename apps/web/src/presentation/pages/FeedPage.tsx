@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { PostDto } from '@bitemate/shared';
 import { ApiError } from '@/data/api/client';
 import { fetchFeed, fetchUserPosts } from '@/data/repositories/feedRepository';
 import { isDemoAccessToken } from '@/data/demo/demoSession';
 import { PostCard } from '@/presentation/components/PostCard';
+import { FeedFab } from '@/presentation/components/FeedFab';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 
@@ -220,9 +221,7 @@ export function FeedPage() {
         </button>
       )}
 
-      <Link to="/feed/create" className="fab" aria-label={t('post.new')}>
-        <span className="fab__plus" aria-hidden>+</span>
-      </Link>
+      <FeedFab />
     </div>
   );
 }

@@ -5,12 +5,12 @@ import { fetchUserPosts, toggleFollow } from '@/data/repositories/feedRepository
 import { fetchPublicUser } from '@/data/repositories/profileRepository';
 import { formatPlace } from '@/data/localize';
 import { Avatar } from '@/presentation/components/Avatar';
+import { CoverImage } from '@/presentation/components/CoverImage';
 import { DiningPrefsBlock } from '@/presentation/components/DiningPrefsBlock';
 import { ProfileMessageButton } from '@/presentation/components/ProfileMessageButton';
 import { ProfileSocialBar } from '@/presentation/components/ProfileSocialBar';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
-import { resolveMediaUrl } from '@/utils/mediaUrl';
 
 export function PublicProfilePage() {
   const { username } = useParams<{ username: string }>();
@@ -72,11 +72,7 @@ export function PublicProfilePage() {
       <section className="ig-profile">
         <div className="ig-profile__hero">
           <div className="ig-profile__cover">
-            {profile.coverImage ? (
-              <img src={resolveMediaUrl(profile.coverImage)} alt="" />
-            ) : (
-              <div className="ig-profile__cover-empty" />
-            )}
+            <CoverImage imageUrl={profile.coverImage} />
           </div>
           <Avatar name={name} imageUrl={profile.profileImage} size="lg" />
         </div>

@@ -9,7 +9,9 @@ export function resolvePageTitle(
   t: (key: string) => string,
 ): string | null {
   if (pathname === '/feed' || pathname.startsWith('/feed/')) {
-    return pathname === '/feed/create' ? t('post.new') : t('nav.feed');
+    if (pathname === '/feed/create') return t('post.new');
+    if (pathname === '/feed/create-event') return t('event.new');
+    return t('nav.feed');
   }
   if (pathname === '/discover' || pathname.startsWith('/discover')) {
     return t('nav.nearby');

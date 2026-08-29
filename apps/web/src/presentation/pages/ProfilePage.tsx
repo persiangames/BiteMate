@@ -6,13 +6,13 @@ import { fetchWalletBalance } from '@/data/repositories/walletRepository';
 import { fetchUserPosts } from '@/data/repositories/feedRepository';
 import { fetchPublicUserById } from '@/data/repositories/profileRepository';
 import { Avatar } from '@/presentation/components/Avatar';
+import { CoverImage } from '@/presentation/components/CoverImage';
 import { ProfileCompletionBar } from '@/presentation/components/profile/ProfileCompletionBar';
 import { DiningPrefsBlock } from '@/presentation/components/DiningPrefsBlock';
 import { ProfileSocialBar } from '@/presentation/components/ProfileSocialBar';
 import { formatPlace } from '@/data/localize';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
-import { resolveMediaUrl } from '@/utils/mediaUrl';
 import type { PostDto, PublicUserDto } from '@bitemate/shared';
 
 export function ProfilePage() {
@@ -81,11 +81,7 @@ export function ProfilePage() {
       <section className="ig-profile">
         <div className="ig-profile__hero">
           <div className="ig-profile__cover">
-            {user.coverImage ? (
-              <img src={resolveMediaUrl(user.coverImage)} alt="" />
-            ) : (
-              <div className="ig-profile__cover-empty" />
-            )}
+            <CoverImage imageUrl={user.coverImage} />
           </div>
           <Avatar name={user.fullName} imageUrl={user.profileImage} size="lg" />
         </div>

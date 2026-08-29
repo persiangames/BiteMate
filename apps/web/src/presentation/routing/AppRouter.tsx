@@ -28,6 +28,9 @@ const DiscoverPage = lazy(() =>
 const CreatePostPage = lazy(() =>
   import('@/presentation/pages/CreatePostPage').then((m) => ({ default: m.CreatePostPage })),
 );
+const CreateMeetupPage = lazy(() =>
+  import('@/presentation/pages/CreateMeetupPage').then((m) => ({ default: m.CreateMeetupPage })),
+);
 const FeedPage = lazy(() => import('@/presentation/pages/FeedPage').then((m) => ({ default: m.FeedPage })));
 const BookingsPage = lazy(() =>
   import('@/presentation/pages/BookingsPage').then((m) => ({ default: m.BookingsPage })),
@@ -181,6 +184,7 @@ export function AppRouter() {
                           <Route path="/profile/followers" element={<FollowListPage />} />
                           <Route path="/profile/following" element={<FollowListPage />} />
                           <Route path="/feed/create" element={<CreatePostPage />} />
+                          <Route path="/feed/create-event" element={<CreateMeetupPage />} />
                           <Route path="/profile/edit" element={<ProfileEditPage />} />
                           <Route path="/settings" element={<SettingsPage />} />
                           <Route path="/marketplace/restaurants" element={<RestaurantsPage />} />
