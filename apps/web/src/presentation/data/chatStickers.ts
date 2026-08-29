@@ -1,3 +1,5 @@
+import { COUNTRY_FLAG_STICKERS } from '@/presentation/data/countryFlagStickers';
+
 export type StickerCategoryId =
   | 'RECENT'
   | 'SMILEYS'
@@ -181,15 +183,7 @@ export const STICKER_CATEGORIES: readonly StickerCategory[] = [
   {
     id: 'FLAGS',
     icon: '🏳️',
-    stickers: [
-      '🏳️', '🏴', '🏁', '🚩', '🏳️‍🌈', '🏳️‍⚧️', '🇮🇷', '🇺🇸', '🇬🇧', '🇩🇪',
-      '🇫🇷', '🇮🇹', '🇪🇸', '🇹🇷', '🇷🇺', '🇨🇳', '🇯🇵', '🇰🇷', '🇮🇳', '🇵🇰',
-      '🇦🇫', '🇦🇪', '🇸🇦', '🇮🇶', '🇸🇾', '🇱🇧', '🇯🇴', '🇮🇱', '🇪🇬', '🇲🇦',
-      '🇩🇿', '🇹🇳', '🇱🇾', '🇶🇦', '🇰🇼', '🇧🇭', '🇴🇲', '🇾🇪', '🇦🇿', '🇦🇲',
-      '🇬🇪', '🇺🇦', '🇵🇱', '🇳🇱', '🇧🇪', '🇨🇭', '🇦🇹', '🇸🇪', '🇳🇴', '🇩🇰',
-      '🇫🇮', '🇵🇹', '🇬🇷', '🇨🇾', '🇧🇷', '🇦🇷', '🇲🇽', '🇨🇦', '🇦🇺', '🇳🇿',
-      '🇿🇦', '🇳🇬', '🇰🇪', '🇪🇹', '🇲🇾', '🇮🇩', '🇹🇭', '🇻🇳', '🇵🇭', '🇸🇬',
-    ],
+    stickers: COUNTRY_FLAG_STICKERS,
   },
 ] as const;
 
