@@ -25,12 +25,11 @@ export function LandingPage() {
 
   return (
     <main className="landing-page">
-      <section className="landing-hero">
-        <div className="landing-hero__backdrop" aria-hidden>
-          <div className="landing-hero__backdrop-scrim" />
+      <section className="landing-scene landing-scene--dining">
+        <div className="landing-scene__backdrop" aria-hidden>
+          <div className="landing-scene__scrim" />
         </div>
-        <div className="landing-hero__glow" aria-hidden />
-        <div className="landing-hero__inner">
+        <div className="landing-scene__content landing-scene__content--hero">
           <BrandLockup size="xl" />
           <h1>{t('landing.hero.title')}</h1>
           <p className="landing-hero__subtitle">{t('landing.hero.subtitle')}</p>
@@ -53,74 +52,77 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-visual-band landing-visual-band--home-chef" aria-hidden>
-        <div className="landing-visual-band__backdrop">
-          <div className="landing-visual-band__scrim" />
+      <section className="landing-scene landing-scene--home-chef">
+        <div className="landing-scene__backdrop" aria-hidden>
+          <div className="landing-scene__scrim" />
         </div>
-      </section>
-
-      <section className="landing-visual-band landing-visual-band--food-tester" aria-hidden>
-        <div className="landing-visual-band__backdrop">
-          <div className="landing-visual-band__scrim" />
-        </div>
-      </section>
-
-      <section className="landing-stats" aria-label="Stats">
-        <article>
-          <strong>120K+</strong>
-          <span>{t('landing.stats.users')}</span>
-        </article>
-        <article>
-          <strong>80+</strong>
-          <span>{t('landing.stats.cities')}</span>
-        </article>
-        <article>
-          <strong>24/7</strong>
-          <span>{t('landing.stats.meetups')}</span>
-        </article>
-      </section>
-
-      <section className="landing-section">
-        <h2>{t('landing.features.title')}</h2>
-        <div className="landing-grid">
-          {FEATURE_KEYS.map(([titleKey, descKey], index) => (
-            <article key={titleKey} className="landing-card">
-              <span className="landing-card__index">{index + 1}</span>
-              <h3>{t(titleKey)}</h3>
-              <p>{t(descKey)}</p>
+        <div className="landing-scene__content landing-scene__content--stats">
+          <div className="landing-stats-row" aria-label="Stats">
+            <article>
+              <strong>120K+</strong>
+              <span>{t('landing.stats.users')}</span>
             </article>
-          ))}
+            <article>
+              <strong>80+</strong>
+              <span>{t('landing.stats.cities')}</span>
+            </article>
+            <article>
+              <strong>24/7</strong>
+              <span>{t('landing.stats.meetups')}</span>
+            </article>
+          </div>
+          <h2 className="landing-features-headline">{t('landing.features.title')}</h2>
         </div>
       </section>
 
-      <section className="landing-section landing-section--soft">
-        <h2>{t('landing.how.title')}</h2>
-        <ol className="landing-steps">
-          {HOW_KEYS.map(([titleKey, descKey], index) => (
-            <li key={titleKey}>
-              <span className="landing-steps__num">{index + 1}</span>
-              <div>
+      <section className="landing-scene landing-scene--food-tester">
+        <div className="landing-scene__backdrop" aria-hidden>
+          <div className="landing-scene__scrim" />
+        </div>
+        <div className="landing-scene__content">
+          <div className="landing-grid">
+            {FEATURE_KEYS.map(([titleKey, descKey], index) => (
+              <article key={titleKey} className="landing-card landing-card--glass">
+                <span className="landing-card__index">{index + 1}</span>
                 <h3>{t(titleKey)}</h3>
                 <p>{t(descKey)}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
+              </article>
+            ))}
+          </div>
+
+          <ol className="landing-steps">
+            {HOW_KEYS.map(([titleKey, descKey], index) => (
+              <li key={titleKey} className="landing-steps__item landing-card--glass">
+                <span className="landing-steps__num">{index + 1}</span>
+                <div>
+                  <h3>{t(titleKey)}</h3>
+                  <p>{t(descKey)}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
       </section>
 
-      <section className="landing-cta">
-        <h2>{t('landing.cta.title')}</h2>
-        <p>{t('landing.cta.subtitle')}</p>
-        {!inApp ? (
-          <div className="landing-hero__actions">
-            <Link to="/register" state={{ authIntro: true }} className="btn-primary landing-btn">
-              {t('nav.signup')}
-            </Link>
-            <Link to="/login" state={{ authIntro: true }} className="landing-btn landing-btn--ghost">
-              {t('nav.login')}
-            </Link>
-          </div>
-        ) : null}
+      <section className="landing-scene landing-scene--map">
+        <div className="landing-scene__backdrop" aria-hidden>
+          <div className="landing-scene__scrim" />
+        </div>
+        <div className="landing-scene__content landing-scene__content--cta">
+          <h2>{t('landing.how.title')}</h2>
+          <p className="landing-cta__lead">{t('landing.cta.subtitle')}</p>
+          <h3 className="landing-cta__title">{t('landing.cta.title')}</h3>
+          {!inApp ? (
+            <div className="landing-hero__actions">
+              <Link to="/register" state={{ authIntro: true }} className="btn-primary landing-btn">
+                {t('nav.signup')}
+              </Link>
+              <Link to="/login" state={{ authIntro: true }} className="landing-btn landing-btn--ghost">
+                {t('nav.login')}
+              </Link>
+            </div>
+          ) : null}
+        </div>
       </section>
     </main>
   );

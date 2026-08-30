@@ -87,77 +87,127 @@
   flex: 1;
 }
 
-.landing-hero {
+.landing-scene {
   position: relative;
-  padding: 2.5rem 1.25rem 2rem;
-  overflow: hidden;
   isolation: isolate;
-  min-height: clamp(420px, 72vh, 640px);
+  overflow: hidden;
+  padding: clamp(1.75rem, 4vw, 2.75rem) 1.25rem;
 }
 
-.landing-hero__backdrop {
+.landing-scene__backdrop {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  overflow: hidden;
 }
 
-.landing-hero__backdrop::before {
+.landing-scene__backdrop::before {
   content: '';
   position: absolute;
-  inset: -8%;
-  background: url('/brand/landing-hero-dining.jpg') center 42% / cover no-repeat;
-  opacity: 0.56;
-  filter: blur(8px) saturate(1.1) brightness(1.04);
-  transform: scale(1.04);
+  inset: -6%;
+  opacity: 0.74;
+  filter: blur(4px) saturate(1.12) brightness(1.05);
+  transform: scale(1.03);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
-html[data-theme='dark'] .landing-hero__backdrop::before {
-  opacity: 0.48;
-  filter: blur(9px) saturate(1) brightness(0.82);
+html[data-theme='dark'] .landing-scene__backdrop::before {
+  opacity: 0.66;
+  filter: blur(5px) saturate(1.02) brightness(0.86);
 }
 
-.landing-hero__backdrop-scrim {
+.landing-scene--dining .landing-scene__backdrop::before {
+  background-image: url('/brand/landing-hero-dining.jpg');
+  background-position: center 42%;
+}
+
+.landing-scene--home-chef .landing-scene__backdrop::before {
+  background-image: url('/brand/landing-hero-home-chef.jpg');
+  background-position: center 40%;
+}
+
+.landing-scene--food-tester .landing-scene__backdrop::before {
+  background-image: url('/brand/landing-hero-food-tester.jpg');
+  background-position: center 45%;
+}
+
+.landing-scene--map .landing-scene__backdrop::before {
+  background-image: url('/brand/landing-hero-map-discover.jpg');
+  background-position: center 50%;
+}
+
+.landing-scene__scrim {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-bg) 36%, transparent) 0%,
-      color-mix(in srgb, var(--color-bg) 20%, transparent) 46%,
-      color-mix(in srgb, var(--color-bg) 44%, transparent) 100%
-    ),
-    radial-gradient(circle at 50% 22%, rgba(255, 138, 0, 0.08), transparent 62%);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--color-bg) 22%, transparent) 0%,
+    color-mix(in srgb, var(--color-bg) 12%, transparent) 50%,
+    color-mix(in srgb, var(--color-bg) 28%, transparent) 100%
+  );
 }
 
-.landing-hero__glow {
-  position: absolute;
-  inset: -20% -10% auto;
-  z-index: 0;
-  height: 420px;
-  background: radial-gradient(circle at 50% 40%, rgba(255, 138, 0, 0.22), transparent 68%);
-  pointer-events: none;
-}
-
-.landing-hero__inner {
+.landing-scene__content {
   position: relative;
   z-index: 1;
-  max-width: 760px;
+  max-width: 1120px;
   margin: 0 auto;
-  min-height: clamp(340px, 58vh, 520px);
-  align-content: center;
-  text-align: center;
+}
+
+.landing-scene__content--hero {
+  max-width: 760px;
+  min-height: clamp(360px, 62vh, 560px);
   display: grid;
   gap: 0.85rem;
   justify-items: center;
+  align-content: center;
+  text-align: center;
 }
 
-.landing-hero h1 {
+.landing-scene--dining {
+  min-height: clamp(420px, 72vh, 640px);
+  padding-top: 2.5rem;
+}
+
+.landing-scene__content--hero h1 {
   margin: 0;
   font-family: var(--font-display);
   font-size: clamp(1.85rem, 4.5vw, 3rem);
   line-height: 1.15;
+  text-shadow: 0 1px 18px color-mix(in srgb, var(--color-bg) 55%, transparent);
+}
+
+.landing-scene__content--stats {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  text-align: center;
+  min-height: clamp(220px, 34vh, 320px);
+  align-content: center;
+}
+
+.landing-scene--home-chef {
+  min-height: clamp(240px, 36vh, 360px);
+}
+
+.landing-scene--food-tester {
+  min-height: clamp(520px, 70vh, 920px);
+}
+
+.landing-scene--map {
+  min-height: clamp(320px, 48vh, 520px);
+}
+
+.landing-scene__content--cta {
+  max-width: 760px;
+  text-align: center;
+  display: grid;
+  gap: 0.85rem;
+  justify-items: center;
+  align-content: center;
+  min-height: clamp(260px, 40vh, 420px);
 }
 
 .landing-hero__subtitle {
@@ -166,6 +216,7 @@ html[data-theme='dark'] .landing-hero__backdrop::before {
   color: var(--color-muted);
   font-size: 1.05rem;
   line-height: 1.65;
+  text-shadow: 0 1px 14px color-mix(in srgb, var(--color-bg) 50%, transparent);
 }
 
 .landing-hero__actions {
@@ -190,84 +241,160 @@ html[data-theme='dark'] .landing-hero__backdrop::before {
 .landing-btn--ghost {
   border: 1px solid var(--color-border);
   color: var(--color-dark);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
-  backdrop-filter: blur(6px);
+  background: color-mix(in srgb, var(--surface) 84%, transparent);
+  backdrop-filter: blur(8px);
 }
 
-.landing-visual-band {
-  position: relative;
-  min-height: clamp(240px, 34vh, 380px);
-  overflow: hidden;
-  isolation: isolate;
+.landing-stats-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.55rem 1.1rem;
+  width: 100%;
 }
 
-.landing-visual-band__backdrop {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.landing-visual-band__backdrop::before {
-  content: '';
-  position: absolute;
-  inset: -8%;
-  opacity: 0.58;
-  filter: blur(7px) saturate(1.08) brightness(1.03);
-  transform: scale(1.04);
-}
-
-.landing-visual-band--home-chef .landing-visual-band__backdrop::before {
-  background: url('/brand/landing-hero-home-chef.jpg') center 40% / cover no-repeat;
-}
-
-.landing-visual-band--food-tester .landing-visual-band__backdrop::before {
-  background: url('/brand/landing-hero-food-tester.jpg') center 45% / cover no-repeat;
-}
-
-html[data-theme='dark'] .landing-visual-band__backdrop::before {
-  opacity: 0.5;
-  filter: blur(8px) saturate(0.98) brightness(0.8);
-}
-
-.landing-visual-band__scrim {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--color-bg) 30%, transparent) 0%,
-    color-mix(in srgb, var(--color-bg) 18%, transparent) 50%,
-    color-mix(in srgb, var(--color-bg) 36%, transparent) 100%
-  );
-}
-
-.landing-stats {
-  max-width: 920px;
-  margin: 0 auto;
-  padding: 0 1.25rem 2rem;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.85rem;
-}
-
-.landing-stats article {
-  text-align: center;
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  background: var(--surface);
-  border: 1px solid var(--color-border);
+.landing-stats-row article {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  backdrop-filter: blur(8px);
   box-shadow: var(--shadow-soft);
 }
 
-.landing-stats strong {
-  display: block;
+.landing-stats-row strong {
   font-family: var(--font-display);
-  font-size: 1.55rem;
+  font-size: 0.92rem;
   color: var(--color-primary);
+  line-height: 1;
 }
 
-.landing-stats span {
+.landing-stats-row span {
   color: var(--color-muted);
-  font-size: 0.88rem;
+  font-size: 0.72rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.landing-features-headline {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  font-family: var(--font-display);
+  font-size: clamp(0.78rem, 2.1vw, 0.98rem);
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 12px color-mix(in srgb, var(--color-bg) 45%, transparent);
+}
+
+.landing-card--glass,
+.landing-steps__item {
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.landing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.landing-card {
+  padding: 1.15rem;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--color-border) 85%, transparent);
+  box-shadow: var(--shadow-soft);
+}
+
+.landing-card__index {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-bottom: 0.5rem;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ff8a00, #ff4b3e);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.landing-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+}
+
+.landing-card p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.landing-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.landing-steps__item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.85rem;
+  align-items: start;
+  padding: 1rem 1.1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--color-border) 85%, transparent);
+}
+
+.landing-steps__num {
+  width: 2rem;
+  height: 2rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.landing-steps h3 {
+  margin: 0 0 0.25rem;
+}
+
+.landing-steps p {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.55;
+}
+
+.landing-scene__content--cta h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.25rem, 2.8vw, 1.75rem);
+}
+
+.landing-cta__lead {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+  max-width: 52ch;
+}
+
+.landing-cta__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2.5vw, 1.55rem);
 }
 
 .landing-section {
@@ -519,8 +646,17 @@ html[data-theme='dark'] .landing-visual-band__backdrop::before {
 }
 
 @media (max-width: 720px) {
-  .landing-stats {
-    grid-template-columns: 1fr;
+  .landing-features-headline {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 0.82rem;
+  }
+
+  .landing-stats-row {
+    gap: 0.45rem 0.65rem;
   }
 
   .marketing-nav__links a:not(.marketing-nav__cta) {
