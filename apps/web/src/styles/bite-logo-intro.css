@@ -23,9 +23,12 @@ html[data-theme='dark'] .bite-logo-intro {
 }
 
 .bite-logo-intro__video-shell {
+  --intro-frame: min(88vw, 72vh, 420px);
   position: relative;
-  display: inline-block;
-  line-height: 0;
+  width: var(--intro-frame);
+  height: var(--intro-frame);
+  display: grid;
+  place-items: center;
   overflow: hidden;
   border-radius: 0.35rem;
 }
@@ -35,31 +38,33 @@ html[data-theme='dark'] .bite-logo-intro {
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 3.25rem;
-  height: 3.25rem;
+  width: 2.75rem;
+  height: 2.75rem;
   pointer-events: none;
   background: linear-gradient(
     135deg,
-    transparent 18%,
-    color-mix(in srgb, #fafafa 96%, #f4f4f5) 52%
+    transparent 22%,
+    color-mix(in srgb, #fafafa 96%, #f4f4f5) 58%
   );
 }
 
 html[data-theme='dark'] .bite-logo-intro__video-shell::after {
   background: linear-gradient(
     135deg,
-    transparent 18%,
-    color-mix(in srgb, var(--color-bg) 94%, #1a1008) 52%
+    transparent 22%,
+    color-mix(in srgb, var(--color-bg) 94%, #1a1008) 58%
   );
 }
 
 .bite-logo-intro__video {
-  width: min(88vw, 420px);
-  max-height: min(72vh, 420px);
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  object-position: center center;
   border: 0;
   background: transparent;
-  clip-path: inset(0 11% 13% 0);
+  transform: scale(1.1);
+  transform-origin: center center;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -69,7 +74,7 @@ html[data-theme='dark'] .bite-logo-intro__video-shell::after {
 }
 
 @media (max-width: 480px) {
-  .bite-logo-intro__video {
-    width: min(92vw, 360px);
+  .bite-logo-intro__video-shell {
+    --intro-frame: min(92vw, 68vh, 360px);
   }
 }

@@ -92,6 +92,7 @@
   padding: 2.5rem 1.25rem 2rem;
   overflow: hidden;
   isolation: isolate;
+  min-height: clamp(420px, 72vh, 640px);
 }
 
 .landing-hero__backdrop {
@@ -102,19 +103,19 @@
   overflow: hidden;
 }
 
-.landing-hero__backdrop-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center 38%;
-  opacity: 0.16;
-  filter: blur(22px) saturate(1.05) brightness(1.04);
-  transform: scale(1.08);
+.landing-hero__backdrop::before {
+  content: '';
+  position: absolute;
+  inset: -10%;
+  background: url('/brand/landing-hero-dining.jpg') center 42% / cover no-repeat;
+  opacity: 0.34;
+  filter: blur(18px) saturate(1.08) brightness(1.03);
+  transform: scale(1.06);
 }
 
-html[data-theme='dark'] .landing-hero__backdrop-image {
-  opacity: 0.12;
-  filter: blur(24px) saturate(0.95) brightness(0.72);
+html[data-theme='dark'] .landing-hero__backdrop::before {
+  opacity: 0.28;
+  filter: blur(20px) saturate(0.98) brightness(0.78);
 }
 
 .landing-hero__backdrop-scrim {
@@ -123,16 +124,17 @@ html[data-theme='dark'] .landing-hero__backdrop-image {
   background:
     linear-gradient(
       180deg,
-      color-mix(in srgb, var(--color-bg) 78%, transparent) 0%,
-      color-mix(in srgb, var(--color-bg) 55%, transparent) 42%,
-      color-mix(in srgb, var(--color-bg) 88%, transparent) 100%
+      color-mix(in srgb, var(--color-bg) 52%, transparent) 0%,
+      color-mix(in srgb, var(--color-bg) 34%, transparent) 46%,
+      color-mix(in srgb, var(--color-bg) 62%, transparent) 100%
     ),
-    radial-gradient(circle at 50% 18%, rgba(255, 138, 0, 0.08), transparent 58%);
+    radial-gradient(circle at 50% 22%, rgba(255, 138, 0, 0.1), transparent 62%);
 }
 
 .landing-hero__glow {
   position: absolute;
   inset: -20% -10% auto;
+  z-index: 0;
   height: 420px;
   background: radial-gradient(circle at 50% 40%, rgba(255, 138, 0, 0.22), transparent 68%);
   pointer-events: none;
@@ -143,6 +145,8 @@ html[data-theme='dark'] .landing-hero__backdrop-image {
   z-index: 1;
   max-width: 760px;
   margin: 0 auto;
+  min-height: clamp(340px, 58vh, 520px);
+  align-content: center;
   text-align: center;
   display: grid;
   gap: 0.85rem;
