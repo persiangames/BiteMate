@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { DoodleBackground } from '@/presentation/components/decor/DoodleBackground';
 import { LOGO_ANIMATION_VERSION } from '@/presentation/components/brand/logo-animation.version';
 
 const VIDEO_SRC = `/brand/logo-animation.mp4?v=${LOGO_ANIMATION_VERSION}`;
@@ -94,6 +95,7 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
       className={`bite-logo-intro${fadeOut ? ' bite-logo-intro--fade-out' : ''}`}
       aria-hidden
     >
+      <DoodleBackground variant="intro" />
       <div className="bite-logo-intro__video-shell">
         <video
           ref={videoRef}

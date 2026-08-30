@@ -28,6 +28,10 @@ html[data-theme='dark'] .doodle-bg {
   height: 100%;
 }
 
+.doodle-bg--intro {
+  opacity: 0.92;
+}
+
 .ig-auth {
   background: transparent;
 }

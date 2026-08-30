@@ -1,5 +1,13 @@
 /* Logo intro — synced from /brand/logo animation.mp4 before dev/build */
 
+:root {
+  --logo-intro-bg: #fafafa;
+}
+
+html[data-theme='dark'] {
+  --logo-intro-bg: #000000;
+}
+
 .bite-logo-intro {
   position: fixed;
   inset: 0;
@@ -7,15 +15,21 @@
   display: grid;
   place-items: center;
   pointer-events: none;
-  background: #fafafa;
+  background: var(--logo-intro-bg);
   opacity: 1;
   visibility: visible;
   transition: opacity 0.45s ease, visibility 0.45s ease;
   overflow: hidden;
 }
 
-html[data-theme='dark'] .bite-logo-intro {
-  background: #000000;
+.bite-logo-intro .doodle-bg {
+  position: absolute;
+  inset: 0;
+  color: rgba(63, 63, 70, 0.1);
+}
+
+html[data-theme='dark'] .bite-logo-intro .doodle-bg {
+  color: rgba(161, 161, 170, 0.1);
 }
 
 .bite-logo-intro--fade-out {
@@ -33,6 +47,7 @@ html[data-theme='dark'] .bite-logo-intro {
   place-items: center;
   overflow: hidden;
   border-radius: 0.35rem;
+  background: var(--logo-intro-bg);
 }
 
 .bite-logo-intro__video-shell::after {
@@ -43,11 +58,7 @@ html[data-theme='dark'] .bite-logo-intro {
   width: 2rem;
   height: 2rem;
   pointer-events: none;
-  background: linear-gradient(135deg, transparent 24%, #fafafa 62%);
-}
-
-html[data-theme='dark'] .bite-logo-intro__video-shell::after {
-  background: linear-gradient(135deg, transparent 24%, #000000 62%);
+  background: linear-gradient(135deg, transparent 24%, var(--logo-intro-bg) 62%);
 }
 
 .bite-logo-intro__video {
@@ -56,7 +67,7 @@ html[data-theme='dark'] .bite-logo-intro__video-shell::after {
   object-fit: contain;
   object-position: center center;
   border: 0;
-  background: transparent;
+  background: var(--logo-intro-bg);
   transform: scale(1.14);
   transform-origin: center center;
 }

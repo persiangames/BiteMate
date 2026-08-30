@@ -84,16 +84,6 @@ export function LandingPage() {
           <div className="landing-scene__scrim" />
         </div>
         <div className="landing-scene__content">
-          <div className="landing-grid">
-            {FEATURE_KEYS.map(([titleKey, descKey], index) => (
-              <article key={titleKey} className="landing-card landing-card--glass">
-                <span className="landing-card__index">{index + 1}</span>
-                <h3>{t(titleKey)}</h3>
-                <p>{t(descKey)}</p>
-              </article>
-            ))}
-          </div>
-
           <ol className="landing-steps">
             {HOW_KEYS.map(([titleKey, descKey], index) => (
               <li key={titleKey} className="landing-steps__item landing-card--glass">
@@ -105,6 +95,16 @@ export function LandingPage() {
               </li>
             ))}
           </ol>
+
+          <div className="landing-grid">
+            {FEATURE_KEYS.map(([titleKey, descKey], index) => (
+              <article key={titleKey} className="landing-card landing-card--glass">
+                <span className="landing-card__index">{index + 1}</span>
+                <h3>{t(titleKey)}</h3>
+                <p>{t(descKey)}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 

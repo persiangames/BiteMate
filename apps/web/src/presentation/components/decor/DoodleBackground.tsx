@@ -1,7 +1,13 @@
+type DoodleBackgroundProps = {
+  variant?: 'default' | 'intro';
+};
+
 /** Telegram-style doodle wallpaper for auth and app chrome. */
-export function DoodleBackground() {
+export function DoodleBackground({ variant = 'default' }: DoodleBackgroundProps) {
+  const isIntro = variant === 'intro';
+
   return (
-    <div className="doodle-bg" aria-hidden>
+    <div className={`doodle-bg${isIntro ? ' doodle-bg--intro' : ''}`} aria-hidden>
       <svg className="doodle-bg__svg" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="bitemate-doodle" width="280" height="280" patternUnits="userSpaceOnUse">
@@ -49,6 +55,37 @@ export function DoodleBackground() {
                 <rect x="6" y="10" width="24" height="16" rx="2" />
                 <path d="M10 26v6M26 26v6" />
               </g>
+              {isIntro ? (
+                <>
+                  <g transform="translate(118 24)">
+                    <circle cx="14" cy="14" r="10" />
+                    <path d="M6 14h16M14 6v16" />
+                  </g>
+                  <g transform="translate(228 168)">
+                    <path d="M4 20c5-8 11-8 16 0" />
+                    <circle cx="6" cy="10" r="2.5" />
+                    <circle cx="18" cy="10" r="2.5" />
+                    <path d="M2 16h20" />
+                  </g>
+                  <g transform="translate(52 78)">
+                    <path d="M8 24l4-14 4 14z" />
+                    <path d="M6 24h12" />
+                  </g>
+                  <g transform="translate(196 228)">
+                    <path d="M6 22c4-6 10-6 14 0" />
+                    <path d="M8 10l6 4-6 4z" />
+                  </g>
+                  <g transform="translate(248 118)">
+                    <rect x="4" y="8" width="18" height="12" rx="2" />
+                    <path d="M8 20v6M18 20v6" />
+                    <circle cx="13" cy="4" r="2" />
+                  </g>
+                  <g transform="translate(8 118)">
+                    <path d="M6 18c3-4 9-4 12 0" />
+                    <path d="M4 14c2-2 5-2 7 0M17 14c2-2 5-2 7 0" />
+                  </g>
+                </>
+              ) : null}
             </g>
           </pattern>
         </defs>
