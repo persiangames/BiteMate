@@ -204,11 +204,9 @@ html[data-theme='dark'] .landing-scene__backdrop::before {
 .landing-copy-panel {
   width: min(100%, 720px);
   padding: clamp(1rem, 3vw, 1.65rem);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--surface) 58%, transparent);
-  backdrop-filter: blur(10px);
-  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
-  box-shadow: var(--shadow-soft);
+  border-radius: 1.125rem;
+  background: color-mix(in srgb, var(--surface) 5%, transparent);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   color: var(--color-dark);
 }
 
@@ -339,11 +337,9 @@ html[data-theme='dark'] .landing-hero__subtitle {
   justify-content: center;
   gap: 0.2rem;
   padding: 0.55rem 0.35rem;
-  border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
-  background: color-mix(in srgb, var(--surface) 58%, transparent);
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-soft);
+  border-radius: 1.125rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: color-mix(in srgb, var(--surface) 5%, transparent);
   text-align: center;
 }
 
@@ -377,8 +373,7 @@ html[data-theme='dark'] .landing-hero__subtitle {
 
 .landing-card--glass,
 .landing-steps__item {
-  background: color-mix(in srgb, var(--surface) 58%, transparent);
-  backdrop-filter: blur(10px);
+  background: color-mix(in srgb, var(--surface) 5%, transparent);
   color: var(--color-dark);
 }
 
@@ -392,6 +387,13 @@ html[data-theme='dark'] .landing-steps p {
   color: #a1a1aa;
 }
 
+html[data-theme='dark'] .landing-copy-panel,
+html[data-theme='dark'] .landing-stats-row article,
+html[data-theme='dark'] .landing-card,
+html[data-theme='dark'] .landing-steps__item {
+  border-color: rgba(255, 255, 255, 0.07);
+}
+
 .landing-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -401,9 +403,8 @@ html[data-theme='dark'] .landing-steps p {
 
 .landing-card {
   padding: 1.15rem;
-  border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--color-border) 85%, transparent);
-  box-shadow: var(--shadow-soft);
+  border-radius: 1.125rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .landing-card__index {
@@ -452,8 +453,8 @@ html[data-theme='dark'] .landing-steps p {
   gap: 0.85rem;
   align-items: start;
   padding: 1rem 1.1rem;
-  border-radius: var(--radius-md);
-  border: 1px solid color-mix(in srgb, var(--color-border) 85%, transparent);
+  border-radius: 1.125rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .landing-steps__num {
