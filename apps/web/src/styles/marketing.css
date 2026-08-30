@@ -42,11 +42,14 @@
   line-height: 1;
   letter-spacing: 0.02em;
   transform: rotate(-2.5deg);
-  background: linear-gradient(180deg, #ffc107 8%, #ff8a00 42%, #ff4b3e 100%);
+  background: linear-gradient(180deg, #ffd54f 0%, #ff8a00 38%, #ff4b3e 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  filter: drop-shadow(0 1px 0 rgba(60, 36, 21, 0.22));
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.65))
+    drop-shadow(0 2px 2px rgba(255, 170, 60, 0.35))
+    drop-shadow(0 4px 8px rgba(160, 55, 20, 0.28));
   user-select: none;
   white-space: nowrap;
 }
@@ -416,6 +419,13 @@ html[data-theme='dark'] .landing-steps p {
   font-size: 0.85rem;
 }
 
+.landing-card__index--letter {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: lowercase;
+}
+
 .landing-card h3 {
   margin: 0 0 0.35rem;
   font-size: 1.05rem;
@@ -610,9 +620,14 @@ html[data-theme='dark'] .landing-steps p {
   align-items: center;
 }
 
-.static-page__actions a {
+.static-page__actions .marketing-nav__cta--primary {
+  text-decoration: none;
+}
+
+.static-page__actions a:not(.marketing-nav__cta) {
   font-weight: 600;
   color: var(--color-primary);
+  text-decoration: none;
 }
 
 .faq-list {

@@ -38,7 +38,7 @@ export function FaqPage() {
         </div>
 
         <div className="static-page__actions">
-          <Link to="/register" state={{ authIntro: true }} className="btn-primary">
+          <Link to="/register" state={{ authIntro: true }} className="marketing-nav__cta marketing-nav__cta--primary">
             {t('nav.signup')}
           </Link>
           <Link to="/about">{t('nav.about')}</Link>

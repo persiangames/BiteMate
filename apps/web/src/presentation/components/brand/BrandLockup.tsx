@@ -8,7 +8,7 @@ export function BrandLockup({ size = 'lg' }: BrandLockupProps) {
   const width = WIDTH[size];
 
   return (
-    <div className={`brand-lockup brand-lockup--${size}`}>
+    <div className={`brand-lockup brand-lockup--${size} brand-elevated`}>
       <img
         src="/brand/BiteMate-logo.png"
         srcSet="/brand/lockup-320.png 320w, /brand/lockup-512.png 512w, /brand/lockup-768.png 768w, /brand/lockup-1024.png 1024w"

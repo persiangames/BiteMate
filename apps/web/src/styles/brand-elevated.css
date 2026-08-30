@@ -1,0 +1,25 @@
+/* Soft 3D / embossed lift for brand marks and lockups */
+
+.brand-elevated .brand-mark__logo,
+.brand-elevated img {
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.55))
+    drop-shadow(0 3px 3px rgba(255, 160, 60, 0.28))
+    drop-shadow(0 8px 14px rgba(180, 70, 30, 0.22));
+}
+
+.brand-lockup.brand-elevated img {
+  filter:
+    drop-shadow(0 2px 0 rgba(255, 255, 255, 0.45))
+    drop-shadow(0 5px 6px rgba(255, 150, 50, 0.32))
+    drop-shadow(0 12px 22px rgba(160, 60, 25, 0.24));
+}
+
+html[data-theme='dark'] .brand-elevated .brand-mark__logo,
+html[data-theme='dark'] .brand-elevated img,
+html[data-theme='dark'] .brand-lockup.brand-elevated img {
+  filter:
+    drop-shadow(0 1px 0 rgba(255, 255, 255, 0.12))
+    drop-shadow(0 4px 8px rgba(255, 120, 40, 0.18))
+    drop-shadow(0 10px 18px rgba(0, 0, 0, 0.45));
+}

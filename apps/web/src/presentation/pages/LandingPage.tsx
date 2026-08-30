@@ -12,6 +12,8 @@ const FEATURE_KEYS = [
   ['landing.features.wallet.title', 'landing.features.wallet.desc'],
 ] as const;
 
+const FEATURE_LETTERS = ['a', 'b', 'c', 'd', 'e', 'f'] as const;
+
 const HOW_KEYS = [
   ['landing.how.step1.title', 'landing.how.step1.desc'],
   ['landing.how.step2.title', 'landing.how.step2.desc'],
@@ -99,7 +101,7 @@ export function LandingPage() {
           <div className="landing-grid">
             {FEATURE_KEYS.map(([titleKey, descKey], index) => (
               <article key={titleKey} className="landing-card landing-card--glass">
-                <span className="landing-card__index">{index + 1}</span>
+                <span className="landing-card__index landing-card__index--letter">{FEATURE_LETTERS[index]}</span>
                 <h3>{t(titleKey)}</h3>
                 <p>{t(descKey)}</p>
               </article>

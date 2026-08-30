@@ -48,11 +48,11 @@ export function BrandMark({ size = 'md', linked = true, homeTo }: BrandMarkProps
   );
 
   if (!linked) {
-    return <div className={`brand-mark brand-mark--${size}`}>{mark}</div>;
+    return <div className={`brand-mark brand-mark--${size} brand-elevated`}>{mark}</div>;
   }
 
   return (
-    <Link to={home} className={`brand-mark brand-mark--${size}`} aria-label="BiteMate home">
+    <Link to={home} className={`brand-mark brand-mark--${size} brand-elevated`} aria-label="BiteMate home">
       {mark}
     </Link>
   );
