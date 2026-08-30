@@ -6,6 +6,10 @@
   min-height: 100dvh;
 }
 
+.auth-entry-shell--intro {
+  background: var(--logo-intro-bg, #f4ebd7);
+}
+
 .auth-entry-shell::before,
 .auth-entry-shell::after {
   content: '';

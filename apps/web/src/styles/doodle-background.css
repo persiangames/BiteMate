@@ -29,7 +29,11 @@ html[data-theme='dark'] .doodle-bg {
 }
 
 .doodle-bg--intro {
-  opacity: 0.92;
+  opacity: 1;
+}
+
+.doodle-bg--intro .doodle-bg__svg g {
+  opacity: 0.78;
 }
 
 .ig-auth {

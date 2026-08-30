@@ -1,7 +1,8 @@
 /* Logo intro — synced from /brand/logo animation.mp4 before dev/build */
 
 :root {
-  --logo-intro-bg: #fafafa;
+  /* Sampled from logo-animation.mp4 backdrop (warm cream, not #fafafa) */
+  --logo-intro-bg: #f4ebd7;
 }
 
 html[data-theme='dark'] {
@@ -25,11 +26,11 @@ html[data-theme='dark'] {
 .bite-logo-intro .doodle-bg {
   position: absolute;
   inset: 0;
-  color: rgba(63, 63, 70, 0.1);
+  color: rgba(92, 68, 48, 0.28);
 }
 
 html[data-theme='dark'] .bite-logo-intro .doodle-bg {
-  color: rgba(161, 161, 170, 0.1);
+  color: rgba(180, 160, 130, 0.16);
 }
 
 .bite-logo-intro--fade-out {
@@ -46,7 +47,7 @@ html[data-theme='dark'] .bite-logo-intro .doodle-bg {
   display: grid;
   place-items: center;
   overflow: hidden;
-  border-radius: 0.35rem;
+  border-radius: 0;
   background: var(--logo-intro-bg);
 }
 

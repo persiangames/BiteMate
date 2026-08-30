@@ -46,7 +46,9 @@ export function AuthEntryLayout() {
 
   return (
     <>
-      <div className={`auth-entry-shell${formReady ? ' auth-entry-shell--ready' : ''}`}>
+      <div
+        className={`auth-entry-shell${showIntro ? ' auth-entry-shell--intro' : ''}${formReady ? ' auth-entry-shell--ready' : ''}`}
+      >
         <Outlet />
       </div>
       {showIntro && isIntroRoute ? (

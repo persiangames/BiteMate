@@ -11,7 +11,7 @@ export function DoodleBackground({ variant = 'default' }: DoodleBackgroundProps)
       <svg className="doodle-bg__svg" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <pattern id="bitemate-doodle" width="280" height="280" patternUnits="userSpaceOnUse">
-            <g stroke="currentColor" strokeWidth="1.35" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.55">
+            <g stroke="currentColor" strokeWidth="1.35" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity={isIntro ? '0.78' : '0.55'}>
               <g transform="translate(18 22)">
                 <ellipse cx="22" cy="28" rx="18" ry="10" />
                 <circle cx="14" cy="14" r="3" />
