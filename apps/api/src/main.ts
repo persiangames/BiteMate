@@ -29,6 +29,12 @@ function resolveLogLevels(level: string): LogLevel[] {
 }
 
 async function bootstrap(): Promise<void> {
+  const logger = new Logger('Bootstrap');
+  logger.log(
+    `Boot pid=${process.pid} PORT=${process.env.PORT ?? '3000'} NODE_ENV=${process.env.NODE_ENV ?? 'development'}`,
+  );
+  logger.log('Creating Nest application...');
+
   const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
     new ExpressAdapter(),
@@ -104,10 +110,12 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
-  const logger = new Logger('Bootstrap');
   logger.log(`BiteMate API [${nodeEnv}] on http://0.0.0.0:${port}/${apiPrefix}`);
 }
 
-bootstrap();
+bootstrap().catch((error: unknown) => {
+  console.error('Fatal bootstrap error:', error);
+  process.exit(1);
+});

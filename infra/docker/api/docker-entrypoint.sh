@@ -26,4 +26,5 @@ DATABASE_URL="$MIGRATE_URL" node /app/node_modules/prisma/build/index.js migrate
 
 echo "Migrations complete."
 echo "Starting BiteMate API on port ${PORT:-3000}..."
-exec node dist/main.js
+export NODE_ENV="${NODE_ENV:-production}"
+exec node --trace-uncaught dist/main.js

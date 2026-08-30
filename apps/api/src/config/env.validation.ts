@@ -36,7 +36,7 @@ export const envValidationSchema = Joi.object({
   JWT_AUDIENCE: Joi.string().default('bitemate-app'),
   SENTRY_DSN: Joi.when('NODE_ENV', {
     is: production,
-    then: Joi.string().uri().required(),
+    then: Joi.string().uri().allow('').optional(),
     otherwise: Joi.string().uri().allow('').optional(),
   }),
   JWT_SECRET: Joi.when('NODE_ENV', {
@@ -56,16 +56,16 @@ export const envValidationSchema = Joi.object({
   REDIS_GEO_KEY: Joi.string().default('bitemate:geo:live'),
   STORAGE_PROVIDER: Joi.when('NODE_ENV', {
     is: production,
-    then: Joi.string().valid('s3').required(),
+    then: Joi.string().valid('local', 's3').default('local'),
     otherwise: Joi.string().valid('local', 's3').default('local'),
   }),
-  AWS_REGION: Joi.when('NODE_ENV', {
-    is: production,
+  AWS_REGION: Joi.when('STORAGE_PROVIDER', {
+    is: 's3',
     then: Joi.string().required(),
     otherwise: Joi.string().allow('').optional(),
   }),
-  AWS_S3_BUCKET: Joi.when('NODE_ENV', {
-    is: production,
+  AWS_S3_BUCKET: Joi.when('STORAGE_PROVIDER', {
+    is: 's3',
     then: Joi.string().required(),
     otherwise: Joi.string().allow('').optional(),
   }),
@@ -77,7 +77,11 @@ export const envValidationSchema = Joi.object({
     then: Joi.string().uri().required(),
     otherwise: Joi.string().default('http://localhost:3000/uploads'),
   }),
-  MONGODB_URI: Joi.string().uri().required(),
+  MONGODB_URI: Joi.when('SKIP_MONGO', {
+    is: 'true',
+    then: Joi.string().uri().allow('').optional(),
+    otherwise: Joi.string().uri().required(),
+  }),
   WALLET_ENCRYPTION_KEY: Joi.when('NODE_ENV', {
     is: production,
     then: Joi.string().min(32).invalid('dev-only-wallet-encryption-key-32chars!!').required(),
@@ -85,17 +89,17 @@ export const envValidationSchema = Joi.object({
   }),
   STRIPE_SECRET_KEY: Joi.when('NODE_ENV', {
     is: production,
-    then: Joi.string().required(),
+    then: Joi.string().allow('').optional(),
     otherwise: Joi.string().allow('').optional(),
   }),
   STRIPE_WEBHOOK_SECRET: Joi.when('NODE_ENV', {
     is: production,
-    then: Joi.string().required(),
+    then: Joi.string().allow('').optional(),
     otherwise: Joi.string().allow('').optional(),
   }),
   COINBASE_COMMERCE_API_KEY: Joi.when('NODE_ENV', {
     is: production,
-    then: Joi.string().required(),
+    then: Joi.string().allow('').optional(),
     otherwise: Joi.string().allow('').optional(),
   }),
   WALLET_CACHE_TTL_SECONDS: Joi.number().integer().min(10).default(60),
