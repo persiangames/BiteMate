@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import {
   LOCALE_LABELS,
   SUPPORTED_LOCALES,
@@ -11,10 +11,16 @@ import { BASE_I18N_KEYS } from './i18n.seed-data';
 
 @Injectable()
 export class I18nService implements OnModuleInit {
+  private readonly logger = new Logger(I18nService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async onModuleInit(): Promise<void> {
-    await this.seedIfEmpty();
+  onModuleInit(): void {
+    void this.seedIfEmpty().catch((error: unknown) => {
+      this.logger.warn(
+        `Deferred i18n seed failed: ${error instanceof Error ? error.message : error}`,
+      );
+    });
   }
 
   async getSupportedLocales(): Promise<SupportedLocalesResponseDto> {

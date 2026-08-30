@@ -1,3 +1,4 @@
+import './startup-log';
 import 'dotenv/config';
 import './instrument';
 import * as dns from 'node:dns';

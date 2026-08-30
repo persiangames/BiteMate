@@ -8,8 +8,10 @@ import { ConfigService } from '@nestjs/config';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         uri: configService.get<string>('mongo.uri'),
-        serverSelectionTimeoutMS: 5000,
-        connectTimeoutMS: 5000,
+        lazyConnection: true,
+        retryAttempts: 0,
+        serverSelectionTimeoutMS: 3000,
+        connectTimeoutMS: 3000,
         socketTimeoutMS: 10000,
         maxPoolSize: 10,
         family: 4,

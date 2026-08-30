@@ -178,9 +178,13 @@ DIRECT_DATABASE_URL=postgresql://user:pass@ep-xxx.eu-central-1.aws.neon.tech/neo
 If migrations finish but Render still reports **Port scan timeout**:
 
 1. Confirm the API binds to **`0.0.0.0`** and **`PORT`** (Render sets this, e.g. `10000`).
-2. Check logs for `Creating Nest application...` then `BiteMate API [...] on http://0.0.0.0:PORT/api`. If boot stops earlier, read the `Fatal bootstrap error` line.
-3. **MongoDB**: ensure `MONGODB_URI` is reachable from Render (Atlas IP allowlist `0.0.0.0/0` or Render outbound IPs). To boot without chat temporarily, set `SKIP_MONGO=true`.
-4. **Production env**: Docker sets `NODE_ENV=production`. Required: `JWT_SECRET` (32+ chars), `WALLET_ENCRYPTION_KEY` (32+ chars), `MEDIA_PUBLIC_BASE_URL`, `MONGODB_URI` (unless `SKIP_MONGO=true`). `STORAGE_PROVIDER=local` is fine for Docker uploads volume.
+2. Check logs in order:
+   - `[startup] BiteMate API pid=...`
+   - `Boot pid=...` / `Creating Nest application...`
+   - `BiteMate API [production] on http://0.0.0.0:PORT/api`
+   If boot stops earlier, read the `Fatal bootstrap error` line.
+3. **MongoDB** (most common): if Atlas blocks Render IPs, Nest used to hang before opening the port. The API now uses **lazy Mongo connect**, but chat still needs Mongo at runtime. Ensure `MONGODB_URI` is reachable (Atlas allowlist `0.0.0.0/0`). To boot without chat temporarily, set **`SKIP_MONGO=true`** on Render and redeploy.
+4. **Production env**: Docker sets `NODE_ENV=production`. Required: `JWT_SECRET` (32+ chars), `WALLET_ENCRYPTION_KEY` (32+ chars), `MEDIA_PUBLIC_BASE_URL`, `REDIS_PASSWORD` (8+ chars even when Redis is unused), `MONGODB_URI` (unless `SKIP_MONGO=true`). `STORAGE_PROVIDER=local` is fine for Docker uploads volume.
 5. **Redis**: optional — API falls back to in-memory if Redis is unreachable within ~2s.
 
 Pending migrations on production may include `MODERATION_WARNING` and (after push) `preferred_interests` on meetups.
