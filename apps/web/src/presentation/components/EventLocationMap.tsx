@@ -21,25 +21,23 @@ type EventLocationMapProps = {
   onEventLocationChange: (fix: EventLocationFix) => void;
 };
 
-function RedPinElement() {
-  return (
-    <div className="event-map__pin" aria-hidden>
-      <svg viewBox="0 0 48 64" width="36" height="48">
-        <path
-          d="M24 2C14.6 2 7 9.6 7 19c0 13.5 17 43 17 43s17-29.5 17-43C41 9.6 33.4 2 24 2Z"
-          fill="#ef4444"
-          stroke="#fff"
-          strokeWidth="2"
-        />
-        <circle cx="24" cy="19" r="7" fill="#fff" />
-        <circle cx="24" cy="19" r="3" fill="#ef4444" />
-      </svg>
-    </div>
-  );
+function createRedPinElement(): HTMLElement {
+  const el = document.createElement('div');
+  el.className = 'event-map__pin';
+  el.setAttribute('aria-hidden', 'true');
+  el.innerHTML = `<svg viewBox="0 0 48 64" width="36" height="48" aria-hidden="true">
+    <path d="M24 2C14.6 2 7 9.6 7 19c0 13.5 17 43 17 43s17-29.5 17-43C41 9.6 33.4 2 24 2Z" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+    <circle cx="24" cy="19" r="7" fill="#fff"/>
+    <circle cx="24" cy="19" r="3" fill="#ef4444"/>
+  </svg>`;
+  return el;
 }
 
-function UserDotElement() {
-  return <div className="event-map__user-dot" aria-hidden />;
+function createUserDotElement(): HTMLElement {
+  const el = document.createElement('div');
+  el.className = 'event-map__user-dot';
+  el.setAttribute('aria-hidden', 'true');
+  return el;
 }
 
 function RecenterIcon() {
@@ -94,6 +92,8 @@ export function EventLocationMap({
     const startLat = eventLatitude ?? 35.6892;
 
     let map: maplibregl.Map;
+    let disposed = false;
+
     try {
       map = createStreetMap(containerRef.current, {
         center: [startLng, startLat],
@@ -109,35 +109,52 @@ export function EventLocationMap({
       console.error('[EventLocationMap] runtime error', event.error);
     });
 
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    function mountMarkers() {
+      if (disposed || mapRef.current) {
+        return;
+      }
 
-    const eventMarker = new maplibregl.Marker({
-      element: RedPinElement(),
-      draggable: true,
-      anchor: 'bottom',
-    })
-      .setLngLat([startLng, startLat])
-      .addTo(map);
+      try {
+        map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
-    eventMarker.on('dragend', () => {
-      const { lat, lng } = eventMarker.getLngLat();
-      void emitEventLocation(lat, lng);
-    });
+        const eventMarker = new maplibregl.Marker({
+          element: createRedPinElement(),
+          draggable: true,
+          anchor: 'bottom',
+        })
+          .setLngLat([startLng, startLat])
+          .addTo(map);
 
-    const userMarker = new maplibregl.Marker({
-      element: UserDotElement(),
-      anchor: 'center',
-    })
-      .setLngLat([startLng, startLat])
-      .addTo(map);
+        eventMarker.on('dragend', () => {
+          const { lat, lng } = eventMarker.getLngLat();
+          void emitEventLocation(lat, lng);
+        });
 
-    eventMarkerRef.current = eventMarker;
-    userMarkerRef.current = userMarker;
-    mapRef.current = map;
+        const userMarker = new maplibregl.Marker({
+          element: createUserDotElement(),
+          anchor: 'center',
+        })
+          .setLngLat([startLng, startLat])
+          .addTo(map);
 
-    window.setTimeout(() => map.resize(), 200);
+        eventMarkerRef.current = eventMarker;
+        userMarkerRef.current = userMarker;
+        mapRef.current = map;
+        window.setTimeout(() => map.resize(), 200);
+      } catch (error) {
+        console.error('[EventLocationMap] marker mount failed', error);
+        setMapFailed(true);
+      }
+    }
+
+    if (map.loaded()) {
+      mountMarkers();
+    } else {
+      map.once('load', mountMarkers);
+    }
 
     return () => {
+      disposed = true;
       eventMarkerRef.current = null;
       userMarkerRef.current = null;
       map.remove();
