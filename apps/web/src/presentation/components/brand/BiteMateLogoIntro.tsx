@@ -94,16 +94,18 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
       className={`bite-logo-intro${fadeOut ? ' bite-logo-intro--fade-out' : ''}`}
       aria-hidden
     >
-      <video
-        ref={videoRef}
-        className="bite-logo-intro__video"
-        src={VIDEO_SRC}
-        muted
-        playsInline
-        autoPlay
-        preload="auto"
-        disablePictureInPicture
-      />
+      <div className="bite-logo-intro__video-shell">
+        <video
+          ref={videoRef}
+          className="bite-logo-intro__video"
+          src={VIDEO_SRC}
+          muted
+          playsInline
+          autoPlay
+          preload="auto"
+          disablePictureInPicture
+        />
+      </div>
     </div>
   );
 }

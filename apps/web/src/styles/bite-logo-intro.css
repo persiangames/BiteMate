@@ -22,12 +22,44 @@ html[data-theme='dark'] .bite-logo-intro {
   visibility: hidden;
 }
 
+.bite-logo-intro__video-shell {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+  overflow: hidden;
+  border-radius: 0.35rem;
+}
+
+.bite-logo-intro__video-shell::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 3.25rem;
+  height: 3.25rem;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    transparent 18%,
+    color-mix(in srgb, #fafafa 96%, #f4f4f5) 52%
+  );
+}
+
+html[data-theme='dark'] .bite-logo-intro__video-shell::after {
+  background: linear-gradient(
+    135deg,
+    transparent 18%,
+    color-mix(in srgb, var(--color-bg) 94%, #1a1008) 52%
+  );
+}
+
 .bite-logo-intro__video {
   width: min(88vw, 420px);
   max-height: min(72vh, 420px);
   object-fit: contain;
   border: 0;
   background: transparent;
+  clip-path: inset(0 11% 13% 0);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -26,6 +26,16 @@ export function LandingPage() {
   return (
     <main className="landing-page">
       <section className="landing-hero">
+        <div className="landing-hero__backdrop" aria-hidden>
+          <img
+            className="landing-hero__backdrop-image"
+            src="/brand/landing-hero-dining.jpg"
+            alt=""
+            loading="eager"
+            decoding="async"
+          />
+          <div className="landing-hero__backdrop-scrim" />
+        </div>
         <div className="landing-hero__glow" aria-hidden />
         <div className="landing-hero__inner">
           <BrandLockup size="xl" />
