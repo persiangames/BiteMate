@@ -24,7 +24,9 @@ export class StripeService {
       this.logger.warn('Stripe not configured — mock mode enabled for development only');
     }
     if (!this.stripe && this.production) {
-      throw new Error('STRIPE_SECRET_KEY is required in production');
+      this.logger.warn(
+        'Stripe not configured — card deposits disabled until STRIPE_SECRET_KEY is set',
+      );
     }
   }
 

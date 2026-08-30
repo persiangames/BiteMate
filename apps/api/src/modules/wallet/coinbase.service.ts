@@ -25,7 +25,9 @@ export class CoinbaseCommerceService {
       this.logger.warn('Coinbase Commerce not configured — mock mode for development only');
     }
     if (!this.apiKey && this.production) {
-      throw new Error('COINBASE_COMMERCE_API_KEY is required in production');
+      this.logger.warn(
+        'Coinbase Commerce not configured — crypto deposits disabled until COINBASE_COMMERCE_API_KEY is set',
+      );
     }
   }
 
