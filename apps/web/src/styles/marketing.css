@@ -207,19 +207,13 @@ html[data-theme='dark'] .landing-scene__backdrop::before {
   border-radius: 1.125rem;
   background: color-mix(in srgb, var(--surface) 5%, transparent);
   border: 1px solid rgba(0, 0, 0, 0.05);
-  color: var(--color-dark);
+  color: #000;
 }
 
 .landing-copy-panel--hero {
   display: grid;
   gap: 0.85rem;
   justify-items: center;
-}
-
-.landing-copy-panel .landing-hero-title,
-.landing-copy-panel .landing-hero__subtitle,
-.landing-copy-panel .landing-features-headline {
-  text-shadow: 0 1px 10px color-mix(in srgb, var(--color-bg) 55%, transparent);
 }
 
 .landing-copy-panel--compact {
@@ -239,12 +233,12 @@ html[data-theme='dark'] .landing-scene__backdrop::before {
   width: 100%;
   max-width: 100%;
   font-family: var(--font-ui);
-  font-size: clamp(0.98rem, 2.4vw + 0.55rem, 2rem);
+  font-size: clamp(1.05rem, 2.6vw + 0.55rem, 2.1rem);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: var(--leading-tight);
   white-space: nowrap;
-  color: var(--color-dark);
+  color: #000;
 }
 
 .landing-scene__content--hero .brand-lockup--xl img {
@@ -286,13 +280,10 @@ html[data-theme='dark'] .landing-scene__backdrop::before {
 .landing-hero__subtitle {
   margin: 0;
   max-width: 58ch;
-  color: #3f3f46;
+  color: #000;
   font-size: var(--text-base);
+  font-weight: 400;
   line-height: var(--leading-normal);
-}
-
-html[data-theme='dark'] .landing-hero__subtitle {
-  color: #d4d4d8;
 }
 
 .landing-hero__actions {
@@ -345,14 +336,16 @@ html[data-theme='dark'] .landing-hero__subtitle {
 
 .landing-stats-row strong {
   font-family: var(--font-display);
-  font-size: clamp(0.95rem, 2.4vw, 1.15rem);
-  color: var(--color-primary);
+  font-size: clamp(1.05rem, 2.6vw, 1.25rem);
+  font-weight: 700;
+  color: #000;
   line-height: 1.1;
 }
 
 .landing-stats-row span {
-  color: var(--color-muted);
-  font-size: clamp(0.62rem, 1.8vw, 0.72rem);
+  color: #000;
+  font-weight: 400;
+  font-size: clamp(0.68rem, 1.9vw, 0.8rem);
   line-height: 1.2;
   white-space: normal;
 }
@@ -362,29 +355,25 @@ html[data-theme='dark'] .landing-hero__subtitle {
   width: 100%;
   max-width: 100%;
   font-family: var(--font-display);
-  font-size: clamp(0.78rem, 2.1vw, 0.98rem);
+  font-size: clamp(0.92rem, 2.4vw, 1.15rem);
   font-weight: 700;
+  color: #000;
   line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-shadow: 0 1px 12px color-mix(in srgb, var(--color-bg) 45%, transparent);
 }
 
 .landing-card--glass,
 .landing-steps__item {
   background: color-mix(in srgb, var(--surface) 5%, transparent);
-  color: var(--color-dark);
+  color: #000;
 }
 
 .landing-card p,
 .landing-steps p {
-  color: #52525b;
-}
-
-html[data-theme='dark'] .landing-card p,
-html[data-theme='dark'] .landing-steps p {
-  color: #a1a1aa;
+  color: #000;
+  font-weight: 400;
 }
 
 html[data-theme='dark'] .landing-copy-panel,
@@ -429,14 +418,17 @@ html[data-theme='dark'] .landing-steps__item {
 
 .landing-card h3 {
   margin: 0 0 0.35rem;
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #000;
 }
 
 .landing-card p {
   margin: 0;
-  color: var(--color-muted);
+  color: #000;
+  font-weight: 400;
   line-height: 1.55;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
 }
 
 .landing-steps {
@@ -470,23 +462,31 @@ html[data-theme='dark'] .landing-steps__item {
 
 .landing-steps h3 {
   margin: 0 0 0.25rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #000;
 }
 
 .landing-steps p {
   margin: 0;
-  color: var(--color-muted);
+  color: #000;
+  font-weight: 400;
   line-height: 1.55;
+  font-size: 0.95rem;
 }
 
 .landing-scene__content--cta h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.25rem, 2.8vw, 1.75rem);
+  font-size: clamp(1.35rem, 3vw, 1.85rem);
+  font-weight: 700;
+  color: #000;
 }
 
 .landing-cta__lead {
   margin: 0;
-  color: var(--color-muted);
+  color: #000;
+  font-weight: 400;
   line-height: 1.6;
   max-width: 52ch;
 }
@@ -494,7 +494,9 @@ html[data-theme='dark'] .landing-steps__item {
 .landing-cta__title {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.15rem, 2.5vw, 1.55rem);
+  font-size: clamp(1.25rem, 2.7vw, 1.65rem);
+  font-weight: 700;
+  color: #000;
 }
 
 .landing-section {
