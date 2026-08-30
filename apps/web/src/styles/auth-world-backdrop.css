@@ -1,0 +1,72 @@
+.auth-world-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  transition: background 0.55s ease, color 0.55s ease;
+}
+
+.auth-world-backdrop--intro {
+  background: var(--logo-intro-bg, #f4ebd7);
+  color: rgba(88, 66, 44, 0.34);
+}
+
+.auth-world-backdrop--form {
+  background: var(--color-bg);
+  color: rgba(82, 82, 91, 0.16);
+}
+
+html[data-theme='dark'] .auth-world-backdrop--intro {
+  background: var(--logo-intro-bg, #000000);
+  color: rgba(180, 160, 130, 0.14);
+}
+
+html[data-theme='dark'] .auth-world-backdrop--form {
+  background: var(--color-bg);
+  color: rgba(161, 161, 170, 0.12);
+}
+
+.auth-world-backdrop--intro::before,
+.auth-world-backdrop--form::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.auth-world-backdrop--intro::before {
+  background: radial-gradient(ellipse 88% 72% at 50% 44%, #f7f0de 0%, transparent 68%);
+  opacity: 0.72;
+}
+
+.auth-world-backdrop--form::before {
+  background: radial-gradient(ellipse 90% 70% at 50% 42%, #ffffff 0%, transparent 72%);
+  opacity: 0.55;
+}
+
+html[data-theme='dark'] .auth-world-backdrop--intro::before {
+  background: radial-gradient(ellipse 88% 72% at 50% 44%, #141414 0%, transparent 68%);
+  opacity: 0.45;
+}
+
+html[data-theme='dark'] .auth-world-backdrop--form::before {
+  background: radial-gradient(ellipse 90% 70% at 50% 42%, #1c1c1e 0%, transparent 72%);
+  opacity: 0.4;
+}
+
+.auth-world-backdrop__svg {
+  position: absolute;
+  inset: -6%;
+  width: 112%;
+  height: 112%;
+  opacity: 0.82;
+}
+
+.bite-logo-intro .auth-world-backdrop {
+  position: absolute;
+}
+
+.bite-logo-intro .auth-world-backdrop__svg {
+  opacity: 0.88;
+}

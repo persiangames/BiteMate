@@ -4,38 +4,14 @@
   position: relative;
   isolation: isolate;
   min-height: 100dvh;
+  background: var(--color-bg);
 }
 
 .auth-entry-shell--intro {
   background: var(--logo-intro-bg, #f4ebd7);
 }
 
-.auth-entry-shell::before,
-.auth-entry-shell::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.65s ease;
-  z-index: 0;
-}
-
-.auth-entry-shell::before {
-  background: url('/brand/auth-intro-couple.jpg') center 42% / cover no-repeat;
-  filter: blur(3px) saturate(1.06) brightness(1.03);
-}
-
-.auth-entry-shell::after {
-  background: color-mix(in srgb, var(--color-bg) 24%, transparent);
-}
-
-.auth-entry-shell--ready::before,
-.auth-entry-shell--ready::after {
-  opacity: 1;
-}
-
-.auth-entry-shell > * {
+.auth-entry-shell > *:not(.auth-world-backdrop) {
   position: relative;
   z-index: 1;
 }
@@ -54,9 +30,9 @@
   transform: none;
   filter: none;
   pointer-events: auto;
-  background: color-mix(in srgb, var(--surface) 62%, transparent);
-  backdrop-filter: blur(12px);
-  border: 1px solid color-mix(in srgb, var(--color-border) 55%, transparent);
+  background: color-mix(in srgb, var(--surface) 94%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
   box-shadow: var(--shadow-soft);
   transition:
     opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
@@ -119,16 +95,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .auth-entry-shell::before,
-  .auth-entry-shell::after {
-    transition: none;
-  }
-
-  .auth-entry-shell--ready::before,
-  .auth-entry-shell--ready::after {
-    opacity: 1;
-  }
-
   .auth-entry-shell:not(.auth-entry-shell--ready) .ig-auth__card,
   .auth-entry-shell:not(.auth-entry-shell--ready) .auth-screen__panel {
     opacity: 1;

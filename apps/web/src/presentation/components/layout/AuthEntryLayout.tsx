@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { BiteMateLogoIntro } from '@/presentation/components/brand/BiteMateLogoIntro';
+import { AuthWorldBackdrop } from '@/presentation/components/decor/AuthWorldBackdrop';
 
 const INTRO_ROUTES = new Set(['/login', '/register']);
 
@@ -18,6 +19,7 @@ export function AuthEntryLayout() {
   const [showIntro, setShowIntro] = useState(false);
   const [formReady, setFormReady] = useState(skipIntro || !isIntroRoute);
   const lastPlayedPath = useRef<string | null>(null);
+  const backdropTone = showIntro ? 'intro' : 'form';
 
   useEffect(() => {
     if (!isIntroRoute) {
@@ -49,6 +51,7 @@ export function AuthEntryLayout() {
       <div
         className={`auth-entry-shell${showIntro ? ' auth-entry-shell--intro' : ''}${formReady ? ' auth-entry-shell--ready' : ''}`}
       >
+        <AuthWorldBackdrop tone={backdropTone} />
         <Outlet />
       </div>
       {showIntro && isIntroRoute ? (
