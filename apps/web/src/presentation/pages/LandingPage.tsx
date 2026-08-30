@@ -53,6 +53,18 @@ export function LandingPage() {
         </div>
       </section>
 
+      <section className="landing-visual-band landing-visual-band--home-chef" aria-hidden>
+        <div className="landing-visual-band__backdrop">
+          <div className="landing-visual-band__scrim" />
+        </div>
+      </section>
+
+      <section className="landing-visual-band landing-visual-band--food-tester" aria-hidden>
+        <div className="landing-visual-band__backdrop">
+          <div className="landing-visual-band__scrim" />
+        </div>
+      </section>
+
       <section className="landing-stats" aria-label="Stats">
         <article>
           <strong>120K+</strong>
