@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { AuthWorldBackdrop } from '@/presentation/components/decor/AuthWorldBackdrop';
 import { LOGO_ANIMATION_VERSION } from '@/presentation/components/brand/logo-animation.version';
 
-const VIDEO_SRC = `/brand/logo-animation.mp4?v=${LOGO_ANIMATION_VERSION}`;
+const VIDEO_MP4 = `/brand/logo-animation.mp4?v=${LOGO_ANIMATION_VERSION}`;
+const VIDEO_WEBM = `/brand/logo-animation-alpha.webm?v=${LOGO_ANIMATION_VERSION}`;
 const FADE_OUT_MS = 450;
 
 type BiteMateLogoIntroProps = {
@@ -58,6 +59,13 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
       scheduleFallback();
     };
 
+    const onPlaying = () => {
+      const el = videoRef.current;
+      if (el?.currentSrc && !el.currentSrc.includes('.webm')) {
+        el.classList.add('bite-logo-intro__video--blend');
+      }
+    };
+
     const onEnded = () => {
       beginFadeOut();
     };
@@ -65,6 +73,7 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
     video.playbackRate = 1;
     video.addEventListener('loadedmetadata', onLoaded);
     video.addEventListener('ended', onEnded);
+    video.addEventListener('playing', onPlaying);
 
     if (video.readyState >= 1) {
       scheduleFallback();
@@ -79,6 +88,7 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
       window.clearTimeout(fallbackTimer);
       video.removeEventListener('loadedmetadata', onLoaded);
       video.removeEventListener('ended', onEnded);
+      video.removeEventListener('playing', onPlaying);
     };
   }, [onComplete]);
 
@@ -100,13 +110,15 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
         <video
           ref={videoRef}
           className="bite-logo-intro__video"
-          src={VIDEO_SRC}
           muted
           playsInline
           autoPlay
           preload="auto"
           disablePictureInPicture
-        />
+        >
+          <source src={VIDEO_WEBM} type="video/webm" />
+          <source src={VIDEO_MP4} type="video/mp4" />
+        </video>
       </div>
     </div>
   );

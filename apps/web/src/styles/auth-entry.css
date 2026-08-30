@@ -8,7 +8,7 @@
 }
 
 .auth-entry-shell--intro {
-  background: var(--logo-intro-bg, #f4ebd7);
+  background: transparent;
 }
 
 .auth-entry-shell > *:not(.auth-world-backdrop) {
@@ -30,15 +30,22 @@
   transform: none;
   filter: none;
   pointer-events: auto;
-  background: color-mix(in srgb, var(--surface) 94%, transparent);
-  backdrop-filter: blur(10px);
-  border: 1px solid color-mix(in srgb, var(--color-border) 65%, transparent);
-  box-shadow: var(--shadow-soft);
+  background: color-mix(in srgb, var(--surface) 2%, transparent);
+  backdrop-filter: none;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 1.125rem;
+  box-shadow: none;
   transition:
     opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
     filter 0.55s ease;
   transition-delay: 0.12s;
+}
+
+html[data-theme='dark'] .auth-entry-shell--ready .ig-auth__card,
+html[data-theme='dark'] .auth-entry-shell--ready .auth-screen__panel {
+  border-color: rgba(255, 255, 255, 0.07);
+  background: color-mix(in srgb, var(--surface) 2%, transparent);
 }
 
 .auth-entry-shell--ready .ig-auth__card .brand-lockup,

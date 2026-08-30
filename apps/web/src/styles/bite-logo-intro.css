@@ -76,6 +76,13 @@ html[data-theme='dark'] .bite-logo-intro__video-wrap::after {
   box-shadow: none;
   background: transparent;
   display: block;
+  mix-blend-mode: normal;
+}
+
+@supports (mix-blend-mode: darken) {
+  .bite-logo-intro__video.bite-logo-intro__video--blend {
+    mix-blend-mode: darken;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
