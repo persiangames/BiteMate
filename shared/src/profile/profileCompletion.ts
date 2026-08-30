@@ -1,7 +1,7 @@
 import type { UserRole } from '../types/platform.types';
 import type { ProfileInterest, RelationshipStatus } from '../types/profile.types';
 import type { Gender, MealSlot, EducationLevel } from '../types/dining.types';
-import { MIN_PROFILE_COMPLETION_FOR_ACTIONS } from '../types/profile.types';
+import { MIN_PROFILE_COMPLETION_FOR_ACTIONS, MIN_PROFILE_COMPLETION_FOR_EVENTS } from '../types/profile.types';
 
 export interface ProfileCompletionInput {
   role: UserRole | null;
@@ -38,6 +38,7 @@ export interface ProfileCompletionResult {
   percent: number;
   missing: string[];
   canUseMeetupFeatures: boolean;
+  canUseEventFeatures: boolean;
 }
 
 const VENUE_ROLES: UserRole[] = ['RESTAURANT_OWNER', 'CAFE_OWNER', 'FOOD_TRUCK_OWNER'];
@@ -51,6 +52,7 @@ function score(checks: Array<{ weight: number; ok: boolean; key: string }>): Pro
     percent,
     missing,
     canUseMeetupFeatures: percent >= MIN_PROFILE_COMPLETION_FOR_ACTIONS,
+    canUseEventFeatures: percent >= MIN_PROFILE_COMPLETION_FOR_EVENTS,
   };
 }
 

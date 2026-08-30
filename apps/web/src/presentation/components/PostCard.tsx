@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { PostDto } from '@bitemate/shared';
+import { MIN_PROFILE_COMPLETION_FOR_EVENTS } from '@bitemate/shared';
 import {
   addComment,
   deletePost,
@@ -157,6 +158,17 @@ export function PostCard({ post, accessToken, onUpdate, onDelete }: PostCardProp
       return;
     }
 
+    const completion = user?.profileCompletionPercent ?? 0;
+    if (completion < MIN_PROFILE_COMPLETION_FOR_EVENTS) {
+      setJoinMessage(
+        t('profile.completion.eventGateHint', {
+          percent: completion,
+          min: MIN_PROFILE_COMPLETION_FOR_EVENTS,
+        }),
+      );
+      return;
+    }
+
     setJoining(true);
     setJoinMessage(null);
     try {
@@ -266,7 +278,14 @@ export function PostCard({ post, accessToken, onUpdate, onDelete }: PostCardProp
               {t('feed.manageEvent')}
             </Link>
           ) : null}
-          {joinMessage ? <p className="save-success">{joinMessage}</p> : null}
+          {joinMessage ? (
+            <div className="profile-gate profile-gate--inline">
+              <p className="hint">{joinMessage}</p>
+              <Link to="/profile/edit?highlight=1" className="btn-secondary btn-compact">
+                {t('profile.completion.action')}
+              </Link>
+            </div>
+          ) : null}
         </section>
       ) : null}
 

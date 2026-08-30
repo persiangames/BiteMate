@@ -1,10 +1,10 @@
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { FormEvent, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   EDUCATION_LEVELS,
   GENDERS,
   MEAL_SLOTS,
-  MIN_PROFILE_COMPLETION_FOR_ACTIONS,
+  MIN_PROFILE_COMPLETION_FOR_EVENTS,
   PROFILE_INTERESTS,
   type CreateFoodIntentResponseDto,
   type EducationLevel,
@@ -20,6 +20,8 @@ import {
   foodTypeSelectOptions,
   resolveCanonicalFoodType,
 } from '@/data/localize';
+import { EventLocationMap } from '@/presentation/components/EventLocationMap';
+import { RestaurantNamePicker } from '@/presentation/components/RestaurantNamePicker';
 import { SearchableSelect } from '@/presentation/components/SearchableSelect';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
@@ -63,6 +65,7 @@ export function MeetupComposer({
   const [country, setCountry] = useState(user?.country ?? '');
   const [city, setCity] = useState(user?.city ?? '');
   const [locationLabel, setLocationLabel] = useState('');
+  const [restaurantOwnerUsername, setRestaurantOwnerUsername] = useState<string | null>(null);
   const [description, setDescription] = useState('');
   const [budgetMin, setBudgetMin] = useState<number | ''>('');
   const [budgetMax, setBudgetMax] = useState<number | ''>('');
@@ -70,8 +73,8 @@ export function MeetupComposer({
   const [homeChefServiceMode, setHomeChefServiceMode] = useState<HomeChefServiceMode>('DINE_AT_HOME');
   const [reviewerEventStyle, setReviewerEventStyle] = useState<ReviewerEventStyle>('REVIEW_NIGHT');
   const [venueSpace, setVenueSpace] = useState<'PUBLIC' | 'PRIVATE' | 'HOME'>('PUBLIC');
-  const [latitude, setLatitude] = useState<number | null>(user?.liveLatitude ?? null);
-  const [longitude, setLongitude] = useState<number | null>(user?.liveLongitude ?? null);
+  const [eventLatitude, setEventLatitude] = useState<number | null>(user?.liveLatitude ?? null);
+  const [eventLongitude, setEventLongitude] = useState<number | null>(user?.liveLongitude ?? null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -81,29 +84,12 @@ export function MeetupComposer({
   const cuisineOptions = useMemo(() => foodTypeSelectOptions(locale), [locale]);
   const dishOptions = useMemo(() => dishSelectOptionsForFoodType(foodType, locale), [foodType, locale]);
 
-  const profileLocked = (user?.profileCompletionPercent ?? 0) < MIN_PROFILE_COMPLETION_FOR_ACTIONS;
-
-  useEffect(() => {
-    if (latitude !== null && longitude !== null) {
-      return;
-    }
-    if (!navigator.geolocation) {
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLatitude(position.coords.latitude);
-        setLongitude(position.coords.longitude);
-      },
-      () => undefined,
-      { enableHighAccuracy: true, timeout: 10_000 },
-    );
-  }, [latitude, longitude]);
+  const profileLocked =
+    (user?.profileCompletionPercent ?? 0) < MIN_PROFILE_COMPLETION_FOR_EVENTS;
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (!accessToken || latitude === null || longitude === null || profileLocked) {
+    if (!accessToken || eventLatitude === null || eventLongitude === null || profileLocked) {
       return;
     }
 
@@ -131,8 +117,8 @@ export function MeetupComposer({
         timeEnd: timeEnd.toISOString(),
         radiusKm,
         desiredPeople,
-        latitude,
-        longitude,
+        latitude: eventLatitude,
+        longitude: eventLongitude,
         budgetMin: budgetMin === '' ? undefined : Number(budgetMin),
         budgetMax: budgetMax === '' ? undefined : Number(budgetMax),
         notes: buildMeetupComposerNotes(description, {
@@ -168,9 +154,9 @@ export function MeetupComposer({
         <section className="glass-card profile-gate">
           <h2>{t('profile.completion.gateTitle')}</h2>
           <p className="hint">
-            {t('profile.completion.gateHint', {
+            {t('profile.completion.eventGateHint', {
               percent: user?.profileCompletionPercent ?? 0,
-              min: MIN_PROFILE_COMPLETION_FOR_ACTIONS,
+              min: MIN_PROFILE_COMPLETION_FOR_EVENTS,
             })}
           </p>
           <Link to="/profile/edit?highlight=1" className="btn-primary">
@@ -192,26 +178,15 @@ export function MeetupComposer({
           <h3>{t('event.section.what')}</h3>
 
           {creatorKind === 'VENUE' ? (
-            <>
-              <label className="field">
-                <span>{t('event.venueName')}</span>
-                <input
-                  value={locationLabel}
-                  onChange={(event) => setLocationLabel(event.target.value)}
-                  placeholder={t('event.venueNameHint')}
-                  required
-                />
-              </label>
-              <label className="field">
-                <span>{t('event.venueStyle')}</span>
-                <select value={venueEventStyle} onChange={(event) => setVenueEventStyle(event.target.value as VenueEventStyle)}>
-                  <option value="GROUP_DINING">{t('event.venueStyle.GROUP_DINING')}</option>
-                  <option value="TASTING">{t('event.venueStyle.TASTING')}</option>
-                  <option value="SPECIAL_MENU">{t('event.venueStyle.SPECIAL_MENU')}</option>
-                  <option value="POPUP">{t('event.venueStyle.POPUP')}</option>
-                </select>
-              </label>
-            </>
+            <label className="field">
+              <span>{t('event.venueStyle')}</span>
+              <select value={venueEventStyle} onChange={(event) => setVenueEventStyle(event.target.value as VenueEventStyle)}>
+                <option value="GROUP_DINING">{t('event.venueStyle.GROUP_DINING')}</option>
+                <option value="TASTING">{t('event.venueStyle.TASTING')}</option>
+                <option value="SPECIAL_MENU">{t('event.venueStyle.SPECIAL_MENU')}</option>
+                <option value="POPUP">{t('event.venueStyle.POPUP')}</option>
+              </select>
+            </label>
           ) : null}
 
           {creatorKind === 'HOME_CHEF' ? (
@@ -282,17 +257,6 @@ export function MeetupComposer({
             </label>
           ) : null}
 
-          {(creatorKind === 'DINER' || creatorKind === 'COMPANION') && (
-            <label className="field">
-              <span>{t('event.restaurantOrPlace')}</span>
-              <input
-                value={locationLabel}
-                onChange={(event) => setLocationLabel(event.target.value)}
-                placeholder={t('event.restaurantOrPlaceHint')}
-              />
-            </label>
-          )}
-
           <SearchableSelect
             label={t('dining.foodType')}
             value={foodType}
@@ -353,6 +317,44 @@ export function MeetupComposer({
               required
             />
           </label>
+
+          <RestaurantNamePicker
+            accessToken={accessToken}
+            value={locationLabel}
+            ownerUsername={restaurantOwnerUsername}
+            city={city}
+            required={creatorKind === 'VENUE'}
+            onChange={(pick) => {
+              setLocationLabel(pick.name);
+              setRestaurantOwnerUsername(pick.ownerUsername);
+              if (pick.city) {
+                setCity(pick.city);
+              }
+              if (pick.country) {
+                setCountry(pick.country);
+              }
+              if (pick.latitude != null && pick.longitude != null) {
+                setEventLatitude(pick.latitude);
+                setEventLongitude(pick.longitude);
+              }
+            }}
+          />
+
+          <EventLocationMap
+            eventLatitude={eventLatitude}
+            eventLongitude={eventLongitude}
+            onEventLocationChange={(fix) => {
+              setEventLatitude(fix.latitude);
+              setEventLongitude(fix.longitude);
+              if (fix.city) {
+                setCity(fix.city);
+              }
+              if (fix.country) {
+                setCountry(fix.country);
+              }
+            }}
+          />
+
           <div className="filter-grid">
             <label className="field">
               <span>{t('meetups.radius')}</span>
@@ -395,11 +397,16 @@ export function MeetupComposer({
             disabled={!country}
             onChange={setCity}
           />
-          <p className="hint">
-            {latitude !== null && longitude !== null
-              ? t('event.locationReady', { lat: latitude.toFixed(4), lng: longitude.toFixed(4) })
-              : t('event.locationPending')}
-          </p>
+          {eventLatitude !== null && eventLongitude !== null ? (
+            <p className="hint">
+              {t('event.locationReady', {
+                lat: eventLatitude.toFixed(4),
+                lng: eventLongitude.toFixed(4),
+              })}
+            </p>
+          ) : (
+            <p className="hint">{t('event.locationPending')}</p>
+          )}
         </section>
 
         <section className="glass-card flow meetup-composer__section">
@@ -468,7 +475,11 @@ export function MeetupComposer({
         {error ? <p className="error">{error}</p> : null}
         {message ? <p className="save-success">{message}</p> : null}
 
-        <button type="submit" className="btn-primary meetup-composer__submit" disabled={loading || latitude === null || longitude === null}>
+        <button
+          type="submit"
+          className="btn-primary meetup-composer__submit"
+          disabled={loading || eventLatitude === null || eventLongitude === null}
+        >
           {loading ? t('meetups.creating') : t(submitLabelKey)}
         </button>
       </form>

@@ -61,6 +61,9 @@ export interface RestaurantSummaryDto {
   isSponsored?: boolean;
   isActive?: boolean;
   approvalStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
+  ownerUsername?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface RestaurantDto extends RestaurantSummaryDto {

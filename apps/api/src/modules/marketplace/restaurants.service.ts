@@ -33,6 +33,10 @@ type RestaurantWithRelations = Restaurant & {
   menuItems: RestaurantMenuItem[];
 };
 
+type RestaurantWithOwner = Restaurant & {
+  owner?: { username: string | null } | null;
+};
+
 @Injectable()
 export class RestaurantsService {
   constructor(
@@ -108,6 +112,9 @@ export class RestaurantsService {
 
     const restaurants = await this.prisma.restaurant.findMany({
       where,
+      include: {
+        owner: { select: { username: true } },
+      },
       orderBy: [{ rankScore: 'desc' }, { averageRating: 'desc' }, { createdAt: 'desc' }],
       take: query.limit + 1,
       ...(query.cursor
@@ -191,7 +198,7 @@ export class RestaurantsService {
     }
   }
 
-  private toSummaryDto(restaurant: Restaurant): RestaurantSummaryDto {
+  private toSummaryDto(restaurant: RestaurantWithOwner): RestaurantSummaryDto {
     return {
       id: restaurant.id,
       name: restaurant.name,
@@ -209,6 +216,9 @@ export class RestaurantsService {
       isSponsored: restaurant.isSponsored,
       isActive: restaurant.isActive,
       approvalStatus: restaurant.approvalStatus,
+      ownerUsername: restaurant.owner?.username ?? null,
+      latitude: restaurant.latitude,
+      longitude: restaurant.longitude,
     };
   }
 

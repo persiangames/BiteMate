@@ -227,6 +227,15 @@
   border: 1px solid rgba(63, 63, 70, 0.25);
 }
 
+.profile-gate--inline {
+  margin: 0.65rem 0 0;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  display: grid;
+  gap: 0.55rem;
+}
+
 .glass-card.is-disabled {
   opacity: 0.55;
   pointer-events: none;

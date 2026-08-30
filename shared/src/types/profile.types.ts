@@ -39,3 +39,4 @@ export const PROFILE_INTERESTS = [
 export type ProfileInterest = (typeof PROFILE_INTERESTS)[number];
 
 export const MIN_PROFILE_COMPLETION_FOR_ACTIONS = 80;
+export const MIN_PROFILE_COMPLETION_FOR_EVENTS = 70;

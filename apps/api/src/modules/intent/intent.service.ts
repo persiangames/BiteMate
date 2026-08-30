@@ -393,8 +393,8 @@ export class IntentService {
       hasHomeChefMenu,
     });
 
-    if (!completion.canUseMeetupFeatures) {
-      throw new ForbiddenException('Complete at least 80% of your profile before creating food events');
+    if (!completion.canUseEventFeatures) {
+      throw new ForbiddenException('Complete at least 70% of your profile before creating food events');
     }
   }
 
