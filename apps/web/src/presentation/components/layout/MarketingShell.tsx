@@ -49,7 +49,6 @@ export function MarketingShell() {
         <div className="marketing-footer__links">
           <Link to="/about">{t('nav.about')}</Link>
           <Link to="/faq">{t('nav.faq')}</Link>
-          <Link to="/language">{t('language.title')}</Link>
         </div>
       </footer>
     </div>
