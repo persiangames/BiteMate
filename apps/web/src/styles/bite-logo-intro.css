@@ -3,9 +3,8 @@
 :root {
   /* Sampled from logo-animation.mp4 backdrop (warm cream) */
   --logo-intro-bg: #f4ebd7;
-  /* Center 3/5 of source width; minimal bottom crop for tagline */
-  --intro-video-crop-x: 20%;
-  --intro-video-crop-bottom: 0%;
+  /* 10% trim each side (was 20%; restored half per side) → center 4/5 width */
+  --intro-video-crop-x: 10%;
   --intro-video-focus-y: 44%;
   --intro-frame-size: min(78vw, 400px);
 }
@@ -38,14 +37,14 @@ html[data-theme='dark'] {
   z-index: 1;
   width: var(--intro-frame-size);
   height: var(--intro-frame-size);
+  aspect-ratio: 1;
   overflow: hidden;
   line-height: 0;
   background: transparent;
   border: 0;
   box-shadow: none;
   border-radius: 50%;
-  -webkit-mask-image: radial-gradient(circle at 50% 48%, #000 70%, rgba(0, 0, 0, 0.75) 84%, transparent 100%);
-  mask-image: radial-gradient(circle at 50% 48%, #000 70%, rgba(0, 0, 0, 0.75) 84%, transparent 100%);
+  clip-path: circle(50% at 50% 50%);
 }
 
 .bite-logo-intro__video-wrap::after {
@@ -64,8 +63,10 @@ html[data-theme='dark'] .bite-logo-intro__video-wrap::after {
 }
 
 .bite-logo-intro__video {
-  width: 100%;
+  /* 10% trimmed each side → show center 80%, scale to fill circle */
+  width: 125%;
   height: 100%;
+  margin-left: -12.5%;
   max-width: none;
   max-height: none;
   object-fit: cover;
@@ -75,10 +76,6 @@ html[data-theme='dark'] .bite-logo-intro__video-wrap::after {
   box-shadow: none;
   background: transparent;
   display: block;
-  /* Drop outer 1/5 left + 1/5 right; keep bottom open for tagline */
-  clip-path: inset(0 var(--intro-video-crop-x) var(--intro-video-crop-bottom) var(--intro-video-crop-x));
-  transform: scale(1.08);
-  transform-origin: center var(--intro-video-focus-y);
 }
 
 @media (prefers-reduced-motion: reduce) {
