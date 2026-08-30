@@ -86,6 +86,9 @@ function extractUploadPath(value: string): string | null {
   if (value.startsWith('uploads/')) {
     return `/${value}`;
   }
+  if (value.startsWith('chat/voice/')) {
+    return `/uploads/${value.replace(/\//g, '_')}`;
+  }
   if (value.startsWith('api/uploads/')) {
     return `/${value.replace(/^api\//, '')}`;
   }

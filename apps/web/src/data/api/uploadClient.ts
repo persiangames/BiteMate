@@ -87,7 +87,7 @@ function xhrUpload(
     xhr.onabort = () => reject(new Error('Upload cancelled.'));
 
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', file, file.name || `upload-${Date.now()}`);
     xhr.send(formData);
   });
 }

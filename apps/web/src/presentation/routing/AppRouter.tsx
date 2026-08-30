@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, type ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
 import { AuthProvider } from '@/presentation/context/AuthContext';
@@ -7,6 +7,7 @@ import { SoundProvider } from '@/presentation/context/SoundContext';
 import { ThemeProvider } from '@/presentation/context/ThemeContext';
 import { ClickSoundListener } from '@/presentation/components/ClickSoundListener';
 import { LanguageSwitcher } from '@/presentation/components/LanguageSwitcher';
+import { RouteErrorBoundary } from '@/presentation/components/RouteErrorBoundary';
 
 import { AppShell } from '@/presentation/components/layout/AppShell';
 import { AuthenticatedLayout } from '@/presentation/components/layout/AuthenticatedLayout';
@@ -123,6 +124,10 @@ function RouteFallback() {
   );
 }
 
+function SafeScreen({ children }: { children: ReactNode }) {
+  return <RouteErrorBoundary>{children}</RouteErrorBoundary>;
+}
+
 export function AppRouter() {
   return (
     <AuthProvider>
@@ -173,7 +178,7 @@ export function AppRouter() {
                           <Route path="/people" element={<SearchPage />} />
                           <Route path="/search" element={<Navigate to="/people" replace />} />
                           <Route path="/discover" element={<DiscoverPage />} />
-                          <Route path="/meetups" element={<MeetupsPage />} />
+                          <Route path="/meetups" element={<SafeScreen><MeetupsPage /></SafeScreen>} />
                           <Route path="/chats" element={<ChatsPage />} />
                           <Route path="/profile" element={<ProfilePage />} />
                           <Route path="/u/:username" element={<PublicProfilePage />} />
@@ -184,7 +189,8 @@ export function AppRouter() {
                           <Route path="/profile/followers" element={<FollowListPage />} />
                           <Route path="/profile/following" element={<FollowListPage />} />
                           <Route path="/feed/create" element={<CreatePostPage />} />
-                          <Route path="/feed/create-event" element={<CreateMeetupPage />} />
+                          <Route path="/feed/create-event" element={<SafeScreen><CreateMeetupPage /></SafeScreen>} />
+                          <Route path="/chats/:chatId" element={<SafeScreen><ChatThreadPage /></SafeScreen>} />
                           <Route path="/profile/edit" element={<ProfileEditPage />} />
                           <Route path="/settings" element={<SettingsPage />} />
                           <Route path="/marketplace/restaurants" element={<RestaurantsPage />} />
@@ -195,7 +201,6 @@ export function AppRouter() {
                           <Route path="/marketplace/home-chef/dashboard" element={<HomeChefPage />} />
                           <Route path="/bookings" element={<BookingsPage />} />
                           <Route path="/meetups/room/:roomId" element={<MeetupRoomPage />} />
-                          <Route path="/chats/:chatId" element={<ChatThreadPage />} />
                           <Route path="/wallet" element={<WalletPage />} />
                           <Route path="/notifications" element={<NotificationsPage />} />
                           <Route path="/rankings" element={<RankingsPage />} />

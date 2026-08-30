@@ -20,7 +20,7 @@ import {
   foodTypeSelectOptions,
   resolveCanonicalFoodType,
 } from '@/data/localize';
-import { EventLocationMap } from '@/presentation/components/EventLocationMap';
+import { EventLocationMapLazy } from '@/presentation/components/EventLocationMapLazy';
 import { RestaurantNamePicker } from '@/presentation/components/RestaurantNamePicker';
 import { SearchableSelect } from '@/presentation/components/SearchableSelect';
 import { useAuth } from '@/presentation/context/AuthContext';
@@ -340,7 +340,7 @@ export function MeetupComposer({
             }}
           />
 
-          <EventLocationMap
+          <EventLocationMapLazy
             eventLatitude={eventLatitude}
             eventLongitude={eventLongitude}
             onEventLocationChange={(fix) => {

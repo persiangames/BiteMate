@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import type { ChatMessageDto, ChatSummaryDto, ChatTypingEventDto, ChatMessageType } from '@bitemate/shared';
 import { ChatInputBar } from '@/presentation/components/ChatInputBar';
+import { ChatBubbleMedia } from '@/presentation/components/ChatBubbleMedia';
 import { ChatMessageText } from '@/presentation/components/ChatMessageText';
 import {
   connectRealtime,
@@ -31,7 +32,6 @@ import {
   formatInboxTime,
   formatMessageTime,
 } from '@/presentation/utils/chatTime';
-import { resolveMediaUrl } from '@/utils/mediaUrl';
 
 export function ChatThreadPage() {
   const { chatId } = useParams<{ chatId: string }>();
@@ -298,30 +298,18 @@ export function ChatThreadPage() {
                   {message.type === 'TEXT' && (
                     <ChatMessageText text={message.content ?? ''} className="bubble__text" />
                   )}
-                  {message.type === 'IMAGE' && message.mediaUrl ? (
-                    <img src={resolveMediaUrl(message.mediaUrl)} alt="" className="bubble__media" />
-                  ) : null}
-                  {message.type === 'VIDEO' && message.mediaUrl ? (
-                    <video
-                      src={resolveMediaUrl(message.mediaUrl)}
-                      controls
-                      playsInline
-                      className="bubble__media"
+                  {message.mediaUrl &&
+                  (message.type === 'IMAGE' ||
+                    message.type === 'VIDEO' ||
+                    message.type === 'VOICE' ||
+                    message.type === 'FILE') ? (
+                    <ChatBubbleMedia
+                      type={message.type}
+                      mediaUrl={message.mediaUrl}
+                      mediaMimeType={message.mediaMimeType}
+                      durationSeconds={message.durationSeconds}
+                      label={message.content ?? undefined}
                     />
-                  ) : null}
-                  {message.type === 'VOICE' && message.mediaUrl ? (
-                    <audio src={resolveMediaUrl(message.mediaUrl)} controls className="bubble__audio" />
-                  ) : null}
-                  {message.type === 'FILE' && message.mediaUrl ? (
-                    <a
-                      href={resolveMediaUrl(message.mediaUrl)}
-                      className="bubble__file"
-                      target="_blank"
-                      rel="noreferrer"
-                      download
-                    >
-                      📎 {message.content ?? t('chat.file')}
-                    </a>
                   ) : null}
                   <span className="bubble__meta">
                     <time dateTime={message.createdAt}>{formatMessageTime(message.createdAt, locale)}</time>
@@ -358,6 +346,7 @@ export function ChatThreadPage() {
           disabled={loading}
           uploading={uploading}
         />
+        {uploading ? <p className="hint thread-uploading">{t('chat.uploading')}</p> : null}
         {error ? <p className="error">{error}</p> : null}
       </div>
     </div>

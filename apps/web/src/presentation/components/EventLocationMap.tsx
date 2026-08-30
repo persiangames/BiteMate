@@ -83,18 +83,32 @@ export function EventLocationMap({
     });
   }
 
+  const [mapFailed, setMapFailed] = useState(false);
+
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) {
+    if (!containerRef.current || mapRef.current || mapFailed) {
       return;
     }
 
     const startLng = eventLongitude ?? 51.389;
     const startLat = eventLatitude ?? 35.6892;
 
-    const map = createStreetMap(containerRef.current, {
-      center: [startLng, startLat],
-      zoom: eventLatitude != null ? 15 : 11,
+    let map: maplibregl.Map;
+    try {
+      map = createStreetMap(containerRef.current, {
+        center: [startLng, startLat],
+        zoom: eventLatitude != null ? 15 : 11,
+      });
+    } catch (error) {
+      console.error('[EventLocationMap] init failed', error);
+      setMapFailed(true);
+      return;
+    }
+
+    map.on('error', (event) => {
+      console.error('[EventLocationMap] runtime error', event.error);
     });
+
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
     const eventMarker = new maplibregl.Marker({
@@ -129,7 +143,7 @@ export function EventLocationMap({
       map.remove();
       mapRef.current = null;
     };
-  }, []);
+  }, [mapFailed]);
 
   useEffect(() => {
     if (eventLatitude == null || eventLongitude == null || !eventMarkerRef.current) {
@@ -206,6 +220,15 @@ export function EventLocationMap({
         setGpsError(gpsErrorKey(error.code));
       },
       GPS_OPTIONS,
+    );
+  }
+
+  if (mapFailed) {
+    return (
+      <div className="event-map event-map--fallback">
+        <p className="hint">{t('event.map.unavailable')}</p>
+        <p className="hint">{t('event.locationPending')}</p>
+      </div>
     );
   }
 

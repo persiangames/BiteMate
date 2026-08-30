@@ -12,6 +12,7 @@ import { createReadStream, existsSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Request, Response } from 'express';
 import { Public } from '../../common/decorators/auth.decorators';
+import { contentTypeForUploadFilename } from '../../common/utils/media-mime.util';
 import { MediaService } from './media.service';
 
 @Controller('uploads')
@@ -51,6 +52,8 @@ export class MediaServeController {
   private streamLocalFile(localPath: string, req: Request, res: Response): void {
     const stat = statSync(localPath);
     const range = req.headers.range;
+    const filename = localPath.split(/[/\\]/).pop() ?? '';
+    res.setHeader('Content-Type', contentTypeForUploadFilename(filename));
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     res.setHeader('Accept-Ranges', 'bytes');
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');

@@ -28,7 +28,15 @@ export async function prepareChatMedia(
   type: 'IMAGE' | 'VIDEO' | 'VOICE' | 'FILE',
 ): Promise<{ file: File; durationSeconds?: number }> {
   if (type === 'VOICE') {
-    return { file };
+    const mime = file.type.startsWith('audio/') ? file.type : 'audio/webm';
+    if (file.type === mime) {
+      return { file };
+    }
+    return {
+      file: new File([file], file.name.endsWith('.webm') ? file.name : `voice-${Date.now()}.webm`, {
+        type: mime,
+      }),
+    };
   }
 
   if (type === 'FILE') {

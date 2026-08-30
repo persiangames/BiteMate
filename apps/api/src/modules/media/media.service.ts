@@ -13,6 +13,8 @@ export interface ProcessedMedia {
   extension: string;
   thumbnailBuffer?: Buffer;
   contentType?: string;
+  /** Override default `posts/` storage prefix (e.g. chat voice notes). */
+  keyPrefix?: string;
 }
 
 export interface ProcessUploadOptions {
@@ -34,6 +36,9 @@ export class MediaService {
   s3KeyFromLocalFilename(filename: string): string {
     if (filename.startsWith('posts_')) {
       return filename.replace(/^posts_/, 'posts/');
+    }
+    if (filename.startsWith('chat_voice_')) {
+      return filename.replace(/^chat_voice_/, 'chat/voice/');
     }
     return filename;
   }
@@ -126,11 +131,21 @@ export class MediaService {
   }
 
   async processAudioUpload(file: Express.Multer.File): Promise<ProcessedMedia> {
+    const extension = (extname(file.originalname) || '.webm').toLowerCase();
+    const contentType = file.mimetype?.startsWith('audio/')
+      ? file.mimetype
+      : extension === '.ogg'
+        ? 'audio/ogg'
+        : extension === '.mp4' || extension === '.m4a'
+          ? 'audio/mp4'
+          : 'audio/webm';
+
     return {
       buffer: file.buffer,
       mediaType: 'VIDEO',
-      extension: extname(file.originalname) || '.webm',
-      contentType: file.mimetype,
+      extension,
+      contentType,
+      keyPrefix: 'chat/voice',
     };
   }
 
@@ -148,7 +163,7 @@ export class MediaService {
     thumbnailUrl: string | null;
     mediaType: MediaType;
   }> {
-    const keyBase = `posts/${randomUUID()}`;
+    const keyBase = `${processed.keyPrefix ?? 'posts'}/${randomUUID()}`;
     const mediaKey = `${keyBase}${processed.extension}`;
     const thumbnailKey = processed.thumbnailBuffer ? `${keyBase}_thumb.jpg` : null;
 

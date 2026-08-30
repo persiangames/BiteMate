@@ -10,6 +10,7 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { contentTypeForUploadFilename } from './common/utils/media-mime.util';
 import { AppModule } from './app.module';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
@@ -77,7 +78,12 @@ async function bootstrap(): Promise<void> {
   }
 
   const absoluteUploadDir = join(process.cwd(), uploadDir);
-  const uploadStaticHeaders = (res: { setHeader: (name: string, value: string) => void }) => {
+  const uploadStaticHeaders = (
+    res: { setHeader: (name: string, value: string) => void },
+    filePath: string,
+  ) => {
+    const filename = filePath.split(/[/\\]/).pop() ?? '';
+    res.setHeader('Content-Type', contentTypeForUploadFilename(filename));
     res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   };
