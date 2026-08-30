@@ -30,10 +30,11 @@ export function LandingPage() {
           <div className="landing-scene__scrim" />
         </div>
         <div className="landing-scene__content landing-scene__content--hero">
-          <BrandLockup size="xl" />
-          <h1>{t('landing.hero.title')}</h1>
-          <p className="landing-hero__subtitle">{t('landing.hero.subtitle')}</p>
-          <div className="landing-hero__actions">
+          <div className="landing-copy-panel landing-copy-panel--hero">
+            <BrandLockup size="xl" />
+            <h1 className="landing-hero-title">{t('landing.hero.title')}</h1>
+            <p className="landing-hero__subtitle">{t('landing.hero.subtitle')}</p>
+            <div className="landing-hero__actions">
             {inApp ? (
               <Link to="/feed" className="btn-primary landing-btn">
                 {t('nav.openApp')}
@@ -49,6 +50,7 @@ export function LandingPage() {
               </>
             )}
           </div>
+          </div>
         </div>
       </section>
 
@@ -57,6 +59,7 @@ export function LandingPage() {
           <div className="landing-scene__scrim" />
         </div>
         <div className="landing-scene__content landing-scene__content--stats">
+          <div className="landing-copy-panel landing-copy-panel--compact">
           <div className="landing-stats-row" aria-label="Stats">
             <article>
               <strong>120K+</strong>
@@ -72,6 +75,7 @@ export function LandingPage() {
             </article>
           </div>
           <h2 className="landing-features-headline">{t('landing.features.title')}</h2>
+          </div>
         </div>
       </section>
 
@@ -109,6 +113,7 @@ export function LandingPage() {
           <div className="landing-scene__scrim" />
         </div>
         <div className="landing-scene__content landing-scene__content--cta">
+          <div className="landing-copy-panel">
           <h2>{t('landing.how.title')}</h2>
           <p className="landing-cta__lead">{t('landing.cta.subtitle')}</p>
           <h3 className="landing-cta__title">{t('landing.cta.title')}</h3>
@@ -122,6 +127,7 @@ export function LandingPage() {
               </Link>
             </div>
           ) : null}
+          </div>
         </div>
       </section>
     </main>

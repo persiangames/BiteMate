@@ -7,7 +7,7 @@
   display: grid;
   place-items: center;
   pointer-events: none;
-  background: color-mix(in srgb, #fafafa 38%, transparent);
+  background: #fafafa;
   opacity: 1;
   visibility: visible;
   transition: opacity 0.45s ease, visibility 0.45s ease;
@@ -15,51 +15,7 @@
 }
 
 html[data-theme='dark'] .bite-logo-intro {
-  background: color-mix(in srgb, var(--color-bg) 34%, transparent);
-}
-
-.bite-logo-intro__backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.bite-logo-intro__backdrop::before {
-  content: '';
-  position: absolute;
-  inset: -6%;
-  background: url('/brand/auth-intro-couple.jpg') center 42% / cover no-repeat;
-  opacity: 0.72;
-  filter: blur(4px) saturate(1.1) brightness(1.04);
-  transform: scale(1.03);
-}
-
-html[data-theme='dark'] .bite-logo-intro__backdrop::before {
-  opacity: 0.64;
-  filter: blur(5px) saturate(1) brightness(0.86);
-}
-
-.bite-logo-intro__backdrop-scrim {
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, #fafafa 28%, transparent) 0%,
-      color-mix(in srgb, #fafafa 18%, transparent) 50%,
-      color-mix(in srgb, #fafafa 32%, transparent) 100%
-    );
-}
-
-html[data-theme='dark'] .bite-logo-intro__backdrop-scrim {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-bg) 28%, transparent) 0%,
-      color-mix(in srgb, var(--color-bg) 18%, transparent) 50%,
-      color-mix(in srgb, var(--color-bg) 32%, transparent) 100%
-    );
+  background: #000000;
 }
 
 .bite-logo-intro--fade-out {
@@ -87,19 +43,11 @@ html[data-theme='dark'] .bite-logo-intro__backdrop-scrim {
   width: 2rem;
   height: 2rem;
   pointer-events: none;
-  background: linear-gradient(
-    135deg,
-    transparent 24%,
-    color-mix(in srgb, #fafafa 72%, transparent) 62%
-  );
+  background: linear-gradient(135deg, transparent 24%, #fafafa 62%);
 }
 
 html[data-theme='dark'] .bite-logo-intro__video-shell::after {
-  background: linear-gradient(
-    135deg,
-    transparent 24%,
-    color-mix(in srgb, var(--color-bg) 72%, transparent) 62%
-  );
+  background: linear-gradient(135deg, transparent 24%, #000000 62%);
 }
 
 .bite-logo-intro__video {

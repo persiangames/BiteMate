@@ -1,5 +1,41 @@
 /* Auth forms — reveal after logo intro fades out */
 
+.auth-entry-shell {
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+}
+
+.auth-entry-shell::before,
+.auth-entry-shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.65s ease;
+  z-index: 0;
+}
+
+.auth-entry-shell::before {
+  background: url('/brand/auth-intro-couple.jpg') center 42% / cover no-repeat;
+  filter: blur(3px) saturate(1.06) brightness(1.03);
+}
+
+.auth-entry-shell::after {
+  background: color-mix(in srgb, var(--color-bg) 24%, transparent);
+}
+
+.auth-entry-shell--ready::before,
+.auth-entry-shell--ready::after {
+  opacity: 1;
+}
+
+.auth-entry-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
 .auth-entry-shell:not(.auth-entry-shell--ready) .ig-auth__card,
 .auth-entry-shell:not(.auth-entry-shell--ready) .auth-screen__panel {
   opacity: 0;
@@ -75,6 +111,16 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .auth-entry-shell::before,
+  .auth-entry-shell::after {
+    transition: none;
+  }
+
+  .auth-entry-shell--ready::before,
+  .auth-entry-shell--ready::after {
+    opacity: 1;
+  }
+
   .auth-entry-shell:not(.auth-entry-shell--ready) .ig-auth__card,
   .auth-entry-shell:not(.auth-entry-shell--ready) .auth-screen__panel {
     opacity: 1;
