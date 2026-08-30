@@ -3,6 +3,10 @@
 :root {
   /* Sampled from logo-animation.mp4 backdrop (warm cream) */
   --logo-intro-bg: #f4ebd7;
+  /* Crop + focus tuned to 1280×720 source (logo + tagline, ~86% content height) */
+  --intro-video-aspect: 2.1;
+  --intro-video-focus-y: 43%;
+  --intro-video-crop-bottom: 13.5%;
 }
 
 html[data-theme='dark'] {
@@ -16,7 +20,7 @@ html[data-theme='dark'] {
   display: grid;
   place-items: center;
   pointer-events: none;
-  background: var(--logo-intro-bg);
+  background: transparent;
   opacity: 1;
   visibility: visible;
   transition: opacity 0.45s ease, visibility 0.45s ease;
@@ -31,11 +35,30 @@ html[data-theme='dark'] {
 .bite-logo-intro__video-wrap {
   position: relative;
   z-index: 1;
-  display: inline-block;
+  width: min(74vw, 360px);
+  aspect-ratio: var(--intro-video-aspect);
+  overflow: hidden;
   line-height: 0;
   background: transparent;
   border: 0;
   box-shadow: none;
+  /* Soft dissolve — no hard card edge against the world map */
+  -webkit-mask-image: radial-gradient(
+    ellipse 102% 98% at 50% var(--intro-video-focus-y),
+    #000 52%,
+    rgba(0, 0, 0, 0.92) 66%,
+    rgba(0, 0, 0, 0.55) 82%,
+    rgba(0, 0, 0, 0.18) 94%,
+    transparent 100%
+  );
+  mask-image: radial-gradient(
+    ellipse 102% 98% at 50% var(--intro-video-focus-y),
+    #000 52%,
+    rgba(0, 0, 0, 0.92) 66%,
+    rgba(0, 0, 0, 0.55) 82%,
+    rgba(0, 0, 0, 0.18) 94%,
+    transparent 100%
+  );
 }
 
 .bite-logo-intro__video-wrap::after {
@@ -43,24 +66,30 @@ html[data-theme='dark'] {
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
   pointer-events: none;
-  background: linear-gradient(135deg, transparent 24%, var(--logo-intro-bg) 62%);
+  background: linear-gradient(135deg, transparent 28%, rgba(244, 235, 215, 0.01) 62%);
+}
+
+html[data-theme='dark'] .bite-logo-intro__video-wrap::after {
+  background: linear-gradient(135deg, transparent 28%, rgba(0, 0, 0, 0.01) 62%);
 }
 
 .bite-logo-intro__video {
-  width: min(94vw, 520px);
-  height: auto;
-  max-height: 72vh;
-  object-fit: contain;
-  object-position: center center;
+  width: 112%;
+  height: 112%;
+  max-width: none;
+  max-height: none;
+  margin: -6% -6%;
+  object-fit: cover;
+  object-position: center var(--intro-video-focus-y);
   border: 0;
   outline: none;
   box-shadow: none;
   background: transparent;
   display: block;
-  vertical-align: top;
+  clip-path: inset(0 0 var(--intro-video-crop-bottom) 0);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -70,8 +99,19 @@ html[data-theme='dark'] {
 }
 
 @media (max-width: 480px) {
+  .bite-logo-intro__video-wrap {
+    width: min(82vw, 340px);
+  }
+}
+
+@media (max-width: 360px) {
+  .bite-logo-intro__video-wrap {
+    width: min(88vw, 320px);
+  }
+
   .bite-logo-intro__video {
-    width: min(96vw, 520px);
-    max-height: 64vh;
+    width: 115%;
+    height: 115%;
+    margin: -7.5% -7.5%;
   }
 }
