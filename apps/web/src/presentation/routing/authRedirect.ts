@@ -3,9 +3,11 @@ export type AuthEntryLocationState = {
   returnTo?: string;
 };
 
+export const AUTH_HOME_PATH = '/profile';
+
 export function sanitizeReturnTo(path: string | undefined | null): string {
   if (!path || !path.startsWith('/') || path.startsWith('//')) {
-    return '/feed';
+    return AUTH_HOME_PATH;
   }
 
   if (
@@ -15,7 +17,7 @@ export function sanitizeReturnTo(path: string | undefined | null): string {
     path.startsWith('/reset-password') ||
     path.startsWith('/language')
   ) {
-    return '/feed';
+    return AUTH_HOME_PATH;
   }
 
   return path;
@@ -30,9 +32,9 @@ export function buildAuthLoginState(returnTo: string): AuthEntryLocationState {
 
 export function readReturnTo(state: unknown): string {
   if (!state || typeof state !== 'object' || !('returnTo' in state)) {
-    return '/feed';
+    return AUTH_HOME_PATH;
   }
 
   const value = (state as { returnTo?: unknown }).returnTo;
-  return typeof value === 'string' ? sanitizeReturnTo(value) : '/feed';
+  return typeof value === 'string' ? sanitizeReturnTo(value) : AUTH_HOME_PATH;
 }

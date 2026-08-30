@@ -14,6 +14,7 @@ import { formatPlace } from '@/data/localize';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import type { PostDto, PublicUserDto } from '@bitemate/shared';
+import { resolveMediaUrl } from '@/utils/mediaUrl';
 
 export function ProfilePage() {
   const { user, accessToken, logout } = useAuth();

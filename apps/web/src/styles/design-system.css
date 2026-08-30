@@ -296,6 +296,25 @@ button {
   flex: 1;
 }
 
+.app-header__inner--logo {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
+.app-header__brand {
+  justify-self: center;
+}
+
+.app-header__inner--logo .app-header__start {
+  flex: unset;
+  min-width: 0;
+}
+
+.app-header__inner--logo .app-header__actions {
+  justify-self: end;
+}
+
 .app-header__title {
   margin: 0;
   font-family: var(--font-body);

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ChatMessageType } from '@bitemate/shared';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { uploadUrlCandidates } from '@/utils/mediaUrl';
+import { useMediaConfigReady } from '@/data/api/MediaConfigProvider';
 
 type ChatBubbleMediaProps = {
   type: ChatMessageType;
@@ -21,9 +22,10 @@ export function ChatBubbleMedia({
   className = 'bubble__media',
 }: ChatBubbleMediaProps) {
   const { t } = useI18n();
+  const mediaReady = useMediaConfigReady();
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const candidates = useMemo(() => uploadUrlCandidates(mediaUrl), [mediaUrl]);
+  const candidates = useMemo(() => uploadUrlCandidates(mediaUrl), [mediaUrl, mediaReady]);
   const [index, setIndex] = useState(0);
   const [failed, setFailed] = useState(false);
 

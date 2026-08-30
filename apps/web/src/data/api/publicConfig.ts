@@ -1,5 +1,6 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? '/api';
+import { resolveApiBaseUrl } from '@/data/api/apiBase';
+
+const API_BASE_URL = resolveApiBaseUrl();
 
 let uploadsBaseUrl: string | null = null;
 let loadPromise: Promise<string | null> | null = null;

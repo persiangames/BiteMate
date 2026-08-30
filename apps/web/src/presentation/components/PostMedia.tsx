@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { MediaType } from '@bitemate/shared';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { uploadUrlCandidates } from '@/utils/mediaUrl';
+import { useMediaConfigReady } from '@/data/api/MediaConfigProvider';
 
 type PostMediaProps = {
   mediaType: MediaType;
@@ -21,9 +22,10 @@ export function PostMedia({
   priority = false,
 }: PostMediaProps) {
   const { t } = useI18n();
+  const mediaReady = useMediaConfigReady();
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const mediaCandidates = useMemo(() => uploadUrlCandidates(mediaUrl), [mediaUrl]);
-  const posterCandidates = useMemo(() => uploadUrlCandidates(thumbnailUrl), [thumbnailUrl]);
+  const mediaCandidates = useMemo(() => uploadUrlCandidates(mediaUrl), [mediaUrl, mediaReady]);
+  const posterCandidates = useMemo(() => uploadUrlCandidates(thumbnailUrl), [thumbnailUrl, mediaReady]);
   const [mediaIndex, setMediaIndex] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
   const [videoMuted, setVideoMuted] = useState(true);

@@ -1,4 +1,16 @@
+import { resolveApiBaseUrl } from '@/data/api/apiBase';
 import { getRuntimeUploadsBaseUrl } from '@/data/api/publicConfig';
+
+function productionUploadsBase(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  const host = window.location.hostname;
+  if (host === 'www.bitemate.ir' || host === 'bitemate.ir') {
+    return 'https://api.bitemate.ir/api/uploads';
+  }
+  return null;
+}
 
 /** Public base for uploaded media (absolute API URL or same-origin `/api/uploads` in dev). */
 export function uploadsPublicBase(): string {
@@ -12,9 +24,14 @@ export function uploadsPublicBase(): string {
     return explicit;
   }
 
-  const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
-  if (apiBase?.startsWith('http')) {
+  const apiBase = resolveApiBaseUrl();
+  if (apiBase.startsWith('http')) {
     return `${apiBase}/uploads`;
+  }
+
+  const production = productionUploadsBase();
+  if (production) {
+    return production;
   }
 
   if (typeof window !== 'undefined') {
@@ -56,13 +73,20 @@ export function uploadUrlCandidates(stored: string | null | undefined): string[]
   const uploadPath = extractUploadPath(trimmed);
   if (uploadPath) {
     const suffix = uploadFileSuffix(uploadPath);
-    const apiBase = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
+    const apiBase = resolveApiBaseUrl();
 
-    if (apiBase?.startsWith('http')) {
+    add(`${uploadsPublicBase()}${suffix}`);
+
+    if (apiBase.startsWith('http')) {
       add(`${apiBase}/uploads${suffix}`);
       if (apiBase.endsWith('/api')) {
         add(`${apiBase.slice(0, -4)}/uploads${suffix}`);
       }
+    }
+
+    const production = productionUploadsBase();
+    if (production) {
+      add(`${production}${suffix}`);
     }
 
     if (typeof window !== 'undefined') {
@@ -70,7 +94,6 @@ export function uploadUrlCandidates(stored: string | null | undefined): string[]
       add(`${window.location.origin}/uploads${suffix}`);
     }
 
-    add(`${uploadsPublicBase()}${suffix}`);
     add(resolveUploadPath(trimmed));
   }
 

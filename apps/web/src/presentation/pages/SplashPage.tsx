@@ -17,7 +17,7 @@ export function SplashPage() {
         navigate('/verify-otp', { replace: true });
         return;
       }
-      navigate('/feed', { replace: true });
+      navigate('/profile', { replace: true });
     }, 1600);
 
     return () => window.clearTimeout(timer);

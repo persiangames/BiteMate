@@ -1,12 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import type { NearbyUserDto } from '@bitemate/shared';
 import { createStreetMap, maplibregl } from '@/data/geo/osm-style';
 import { useI18n } from '@/presentation/context/I18nContext';
-import { resolveMediaUrl } from '@/utils/mediaUrl';
 
 type NearbyMapProps = {
   center: { latitude: number; longitude: number };
-  nearbyUsers: NearbyUserDto[];
 };
 
 function isValidCoord(latitude: number, longitude: number) {
@@ -18,6 +15,13 @@ function isValidCoord(latitude: number, longitude: number) {
     longitude >= -180 &&
     longitude <= 180
   );
+}
+
+function createUserDotElement(): HTMLElement {
+  const el = document.createElement('div');
+  el.className = 'event-map__user-dot';
+  el.setAttribute('aria-hidden', 'true');
+  return el;
 }
 
 function RecenterIcon() {
@@ -34,12 +38,11 @@ function RecenterIcon() {
   );
 }
 
-export function NearbyMap({ center, nearbyUsers }: NearbyMapProps) {
+export function NearbyMap({ center }: NearbyMapProps) {
   const { t } = useI18n();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
   const selfMarkerRef = useRef<maplibregl.Marker | null>(null);
-  const markersRef = useRef<maplibregl.Marker[]>([]);
   const centerRef = useRef(center);
   const [failed, setFailed] = useState(false);
 
@@ -63,9 +66,8 @@ export function NearbyMap({ center, nearbyUsers }: NearbyMapProps) {
     }
 
     mapRef.current = map;
-    selfMarkerRef.current = new maplibregl.Marker({ color: '#ea580c' })
+    selfMarkerRef.current = new maplibregl.Marker({ element: createUserDotElement() })
       .setLngLat([center.longitude, center.latitude])
-      .setPopup(new maplibregl.Popup().setText('You'))
       .addTo(map);
 
     const resize = () => {
@@ -80,8 +82,6 @@ export function NearbyMap({ center, nearbyUsers }: NearbyMapProps) {
 
     return () => {
       window.clearTimeout(resizeTimer);
-      markersRef.current.forEach((marker) => marker.remove());
-      markersRef.current = [];
       selfMarkerRef.current?.remove();
       selfMarkerRef.current = null;
       try {
@@ -101,31 +101,6 @@ export function NearbyMap({ center, nearbyUsers }: NearbyMapProps) {
     mapRef.current.setCenter([center.longitude, center.latitude]);
     selfMarkerRef.current?.setLngLat([center.longitude, center.latitude]);
   }, [center.latitude, center.longitude]);
-
-  useEffect(() => {
-    markersRef.current.forEach((marker) => marker.remove());
-    markersRef.current = [];
-
-    if (!mapRef.current) {
-      return;
-    }
-
-    markersRef.current = nearbyUsers
-      .filter((user) => isValidCoord(user.latitude, user.longitude))
-      .map((user) =>
-        new maplibregl.Marker({ color: '#2563eb' })
-          .setLngLat([user.longitude, user.latitude])
-          .setPopup(
-            new maplibregl.Popup().setHTML(
-              `<div style="display:flex;gap:8px;align-items:center">
-                ${user.profileImage ? `<img src="${resolveMediaUrl(user.profileImage)}" alt="" width="36" height="36" style="border-radius:50%;object-fit:cover">` : ''}
-                <div><strong>${user.fullName ?? user.username ?? 'User'}</strong><br/>${user.distanceKm.toFixed(1)} km</div>
-              </div>`,
-            ),
-          )
-          .addTo(mapRef.current!),
-      );
-  }, [nearbyUsers]);
 
   function recenterOnSelf() {
     const next = centerRef.current;

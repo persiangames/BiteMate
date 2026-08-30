@@ -294,7 +294,7 @@ export function DiscoverPage() {
         </button>
       </div>
 
-      {showMap ? <NearbyMap center={center} nearbyUsers={nearbyUsers} /> : null}
+      {showMap ? <NearbyMap center={center} /> : null}
 
       {showFilters ? (
         <section className="glass-card flow discover-filters">

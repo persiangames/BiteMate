@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { uploadUrlCandidates } from '@/utils/mediaUrl';
+import { useMediaConfigReady } from '@/data/api/MediaConfigProvider';
 
 function initials(name?: string | null) {
   if (!name) return '?';
@@ -18,7 +19,8 @@ interface AvatarProps {
 }
 
 export function Avatar({ name, imageUrl, size = 'md' }: AvatarProps) {
-  const candidates = useMemo(() => uploadUrlCandidates(imageUrl), [imageUrl]);
+  const mediaReady = useMediaConfigReady();
+  const candidates = useMemo(() => uploadUrlCandidates(imageUrl), [imageUrl, mediaReady]);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {

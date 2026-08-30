@@ -1,7 +1,7 @@
+import { resolveApiBaseUrl } from '@/data/api/apiBase';
 import { getAccessToken, refreshSessionTokens } from '@/data/api/sessionBridge';
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ?? '/api';
+const API_BASE_URL = resolveApiBaseUrl();
 
 export class ApiError extends Error {
   constructor(

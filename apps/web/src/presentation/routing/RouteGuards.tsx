@@ -1,6 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/presentation/context/AuthContext';
-import { buildAuthLoginState } from '@/presentation/routing/authRedirect';
+import { buildAuthLoginState, AUTH_HOME_PATH } from '@/presentation/routing/authRedirect';
 
 export function LanguageGate() {
   const { hasSelectedLanguage } = useAuth();
@@ -20,7 +20,7 @@ export function GuestGate() {
   }
 
   if (isAuthenticated && isOtpVerified) {
-    return <Navigate to="/feed" replace />;
+    return <Navigate to={AUTH_HOME_PATH} replace />;
   }
 
   return <Outlet />;
@@ -48,7 +48,7 @@ export function OtpGate() {
   }
 
   if (isOtpVerified) {
-    return <Navigate to="/feed" replace />;
+    return <Navigate to={AUTH_HOME_PATH} replace />;
   }
 
   return <Outlet />;

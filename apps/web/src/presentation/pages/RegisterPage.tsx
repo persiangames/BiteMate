@@ -20,6 +20,7 @@ import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { citySelectOptions, countrySelectOptions } from '@/data/localize';
 import { localizeError } from '@/presentation/i18n/localizeError';
+import { AUTH_HOME_PATH } from '@/presentation/routing/authRedirect';
 
 type AuthMethod = 'email' | 'phone' | 'google';
 
@@ -142,7 +143,7 @@ export function RegisterPage() {
           role: form.role,
           locale,
         });
-        navigate(created.user.otpVerified ? '/feed' : '/verify-otp', { replace: true });
+        navigate(created.user.otpVerified ? AUTH_HOME_PATH : '/verify-otp', { replace: true });
         return;
       }
 
@@ -162,7 +163,7 @@ export function RegisterPage() {
         role: form.role,
         locale,
       });
-      navigate(created.user.otpVerified ? '/feed' : '/verify-otp', { replace: true });
+      navigate(created.user.otpVerified ? AUTH_HOME_PATH : '/verify-otp', { replace: true });
     } catch (err) {
       setError(localizeError(t, err, 'auth.registerFailed'));
     } finally {

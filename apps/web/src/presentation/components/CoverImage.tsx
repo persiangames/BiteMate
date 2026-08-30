@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { uploadUrlCandidates } from '@/utils/mediaUrl';
+import { useMediaConfigReady } from '@/data/api/MediaConfigProvider';
 
 interface CoverImageProps {
   imageUrl?: string | null;
@@ -8,7 +9,8 @@ interface CoverImageProps {
 }
 
 export function CoverImage({ imageUrl, className, emptyClassName = 'ig-profile__cover-empty' }: CoverImageProps) {
-  const candidates = useMemo(() => uploadUrlCandidates(imageUrl), [imageUrl]);
+  const mediaReady = useMediaConfigReady();
+  const candidates = useMemo(() => uploadUrlCandidates(imageUrl), [imageUrl, mediaReady]);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
