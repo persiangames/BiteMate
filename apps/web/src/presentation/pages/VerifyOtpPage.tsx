@@ -1,9 +1,11 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { requestOtp } from '@/data/repositories/authRepository';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { localizeError } from '@/presentation/i18n/localizeError';
+import { readReturnTo } from '@/presentation/routing/authRedirect';
 
 function maskDestination(value: string): string {
   if (value.includes('@')) {
@@ -24,6 +26,7 @@ function maskDestination(value: string): string {
 export function VerifyOtpPage() {
   const { user, accessToken, completeOtp } = useAuth();
   const { t } = useI18n();
+  const location = useLocation();
   const destination = useMemo(
     () => user?.email || user?.phoneNumber || '',
     [user?.email, user?.phoneNumber],
@@ -76,7 +79,7 @@ export function VerifyOtpPage() {
     setError(null);
     try {
       await completeOtp(destination, code);
-      window.location.href = '/feed';
+      window.location.href = readReturnTo(location.state);
     } catch (err) {
       setError(localizeError(t, err, 'auth.otp.invalid'));
     } finally {

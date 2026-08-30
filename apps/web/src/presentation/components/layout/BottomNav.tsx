@@ -1,5 +1,6 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useI18n } from '@/presentation/context/I18nContext';
+import { useRequireAuthNavigate } from '@/presentation/routing/useRequireAuthNavigate';
 import {
   NavChatIcon,
   NavFeedIcon,
@@ -25,6 +26,7 @@ function isTabActive(pathname: string, match: readonly string[]) {
 export function BottomNav() {
   const { t, locale } = useI18n();
   const { pathname } = useLocation();
+  const requireAuth = useRequireAuthNavigate();
 
   return (
     <nav className="bottom-nav" aria-label={t('nav.main')} lang={locale}>
@@ -38,6 +40,11 @@ export function BottomNav() {
             aria-label={t(tab.labelKey)}
             aria-current={active ? 'page' : undefined}
             className={`bottom-nav__item${active ? ' active' : ''}`}
+            onClick={(event) => {
+              if (!requireAuth(tab.to)) {
+                event.preventDefault();
+              }
+            }}
           >
             <span className="bottom-nav__icon" aria-hidden>
               <Icon />

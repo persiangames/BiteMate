@@ -1,5 +1,6 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/presentation/context/AuthContext';
+import { buildAuthLoginState } from '@/presentation/routing/authRedirect';
 
 export function LanguageGate() {
   const { hasSelectedLanguage } = useAuth();
@@ -27,9 +28,11 @@ export function GuestGate() {
 
 export function AuthGate() {
   const { isAuthenticated } = useAuth();
+  const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate to="/login" replace state={buildAuthLoginState(returnTo)} />;
   }
 
   return <Outlet />;
@@ -37,9 +40,11 @@ export function AuthGate() {
 
 export function OtpGate() {
   const { isAuthenticated, isOtpVerified } = useAuth();
+  const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate to="/login" replace state={buildAuthLoginState(returnTo)} />;
   }
 
   if (isOtpVerified) {
@@ -51,13 +56,16 @@ export function OtpGate() {
 
 export function VerifiedGate() {
   const { isAuthenticated, isOtpVerified } = useAuth();
+  const location = useLocation();
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate to="/login" replace state={buildAuthLoginState(returnTo)} />;
   }
 
   if (!isOtpVerified) {
-    return <Navigate to="/verify-otp" replace />;
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    return <Navigate to="/verify-otp" replace state={{ returnTo }} />;
   }
 
   return <Outlet />;

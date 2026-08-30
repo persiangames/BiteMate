@@ -1,5 +1,5 @@
 import { FormEvent, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { normalizeLoginIdentifier } from '@bitemate/shared';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
 import { PasswordInput } from '@/presentation/components/auth/PasswordInput';
@@ -8,11 +8,13 @@ import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 import { localizeError } from '@/presentation/i18n/localizeError';
 import { verifyTwoFactorLogin } from '@/data/repositories/authRepository';
+import { readReturnTo } from '@/presentation/routing/authRedirect';
 
 export function LoginPage() {
   const { login, setSession } = useAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
+  const location = useLocation();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [challengeToken, setChallengeToken] = useState<string | null>(null);
@@ -21,7 +23,12 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   function afterAuth(otpVerified: boolean) {
-    navigate(otpVerified ? '/feed' : '/verify-otp', { replace: true });
+    const returnTo = readReturnTo(location.state);
+    if (!otpVerified) {
+      navigate('/verify-otp', { replace: true, state: { returnTo } });
+      return;
+    }
+    navigate(returnTo, { replace: true });
   }
 
   async function handleSubmit(event: FormEvent) {

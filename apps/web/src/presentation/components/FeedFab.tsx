@@ -1,11 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/presentation/context/I18nContext';
+import { useRequireAuthNavigate } from '@/presentation/routing/useRequireAuthNavigate';
 
 export function FeedFab() {
   const { t } = useI18n();
+  const requireAuth = useRequireAuthNavigate();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
+
+  function handleProtectedClick(event: MouseEvent<HTMLAnchorElement>, to: string) {
+    setOpen(false);
+    if (!requireAuth(to)) {
+      event.preventDefault();
+    }
+  }
 
   useEffect(() => {
     if (!open) {
@@ -36,7 +45,12 @@ export function FeedFab() {
     <div className="feed-fab" ref={rootRef}>
       {open ? (
         <div className="feed-fab__menu" role="menu" aria-label={t('feed.createMenu')}>
-          <Link to="/feed/create" className="feed-fab__option" role="menuitem" onClick={() => setOpen(false)}>
+          <Link
+            to="/feed/create"
+            className="feed-fab__option"
+            role="menuitem"
+            onClick={(event) => handleProtectedClick(event, '/feed/create')}
+          >
             <span className="feed-fab__option-icon" aria-hidden>
               📝
             </span>
@@ -45,7 +59,12 @@ export function FeedFab() {
               <small>{t('feed.createPostHint')}</small>
             </span>
           </Link>
-          <Link to="/feed/create-event" className="feed-fab__option feed-fab__option--event" role="menuitem" onClick={() => setOpen(false)}>
+          <Link
+            to="/feed/create-event"
+            className="feed-fab__option feed-fab__option--event"
+            role="menuitem"
+            onClick={(event) => handleProtectedClick(event, '/feed/create-event')}
+          >
             <span className="feed-fab__option-icon" aria-hidden>
               🍽️
             </span>
