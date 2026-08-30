@@ -1,6 +1,8 @@
 import type { User } from '@prisma/client';
 import type { AuthUserDto, ProfileInterest } from '@bitemate/shared';
 import { computeProfileCompletion } from '@bitemate/shared';
+import type { MediaUrlResolver } from '../../../common/media-url';
+import { normalizeStoredMediaPath } from '../../../common/media-url';
 
 export interface AuthUserCompletionContext {
   hasRestaurantListing?: boolean;
@@ -11,6 +13,7 @@ export interface AuthUserCompletionContext {
 export function mapUserToAuthDto(
   user: User,
   completionContext: AuthUserCompletionContext = {},
+  resolveMedia: MediaUrlResolver = (url) => normalizeStoredMediaPath(url),
 ): AuthUserDto {
   const completion = computeProfileCompletion({
     role: user.role,
@@ -54,8 +57,8 @@ export function mapUserToAuthDto(
       ? user.dateOfBirth.toISOString().slice(0, 10)
       : null,
     role: user.role,
-    profileImage: user.profileImage,
-    coverImage: user.coverImage,
+    profileImage: resolveMedia(user.profileImage),
+    coverImage: resolveMedia(user.coverImage),
     locale: user.locale,
     authProvider: user.authProvider,
     emailVerified: user.emailVerified,

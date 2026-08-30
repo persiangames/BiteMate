@@ -45,6 +45,7 @@ import { FraudDetectionService } from '../security/fraud-detection.service';
 import { FirebaseService } from './firebase.service';
 import { MessagingService } from '../messaging/messaging.service';
 import { mapUserToAuthDto } from './mappers/user.mapper';
+import { MediaPublicUrlService } from '../media/media-public-url.service';
 import { verifyTotpCode } from './totp';
 import type { JwtPayload } from './types/jwt-payload.type';
 
@@ -65,7 +66,11 @@ export class AuthService {
     private readonly messagingService: MessagingService,
     private readonly rateLimiter: RateLimiterService,
     private readonly fraudDetection: FraudDetectionService,
+    private readonly mediaPublicUrl: MediaPublicUrlService,
   ) {}
+
+  private resolveMedia = (url: string | null | undefined): string | null =>
+    this.mediaPublicUrl.resolve(url);
 
   async register(
     dto: RegisterRequestDto,
@@ -211,7 +216,7 @@ export class AuthService {
         { expiresIn: '5m', issuer, audience },
       );
       return {
-        user: mapUserToAuthDto(hydrated),
+        user: mapUserToAuthDto(hydrated, {}, this.resolveMedia),
         tokens: { accessToken: '', refreshToken: '', expiresIn: 0 },
         twoFactorRequired: true,
         challengeToken,
@@ -741,7 +746,7 @@ export class AuthService {
     }
 
     return {
-      user: mapUserToAuthDto(user),
+      user: mapUserToAuthDto(user, {}, this.resolveMedia),
       tokens: {
         accessToken,
         refreshToken,

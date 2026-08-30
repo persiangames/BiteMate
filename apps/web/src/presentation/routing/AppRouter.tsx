@@ -1,5 +1,7 @@
-import { lazy, Suspense, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+
+import { loadPublicMediaConfig } from '@/data/api/publicConfig';
 
 import { AuthProvider } from '@/presentation/context/AuthContext';
 import { I18nProvider } from '@/presentation/context/I18nContext';
@@ -128,6 +130,14 @@ function SafeScreen({ children }: { children: ReactNode }) {
   return <RouteErrorBoundary>{children}</RouteErrorBoundary>;
 }
 
+function MediaConfigBootstrap({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    void loadPublicMediaConfig();
+  }, []);
+
+  return children;
+}
+
 export function AppRouter() {
   return (
     <AuthProvider>
@@ -136,6 +146,7 @@ export function AppRouter() {
           <SoundProvider>
             <ClickSoundListener />
             <BrowserRouter>
+              <MediaConfigBootstrap>
               <LanguageSwitcher placement="floating" />
               <Suspense fallback={<RouteFallback />}>
                 <Routes>
@@ -212,6 +223,7 @@ export function AppRouter() {
                   </Route>
                 </Routes>
               </Suspense>
+              </MediaConfigBootstrap>
             </BrowserRouter>
           </SoundProvider>
         </ThemeProvider>

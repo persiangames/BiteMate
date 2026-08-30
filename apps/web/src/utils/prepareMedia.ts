@@ -74,7 +74,7 @@ export async function preparePostMedia(file: File): Promise<{
       throw new Error(`Clips must be ${MAX_CLIP_SECONDS} seconds or shorter.`);
     }
     if (file.size > MAX_VIDEO_BYTES) {
-      throw new Error('Video is too large. Use a clip under 12 MB.');
+      throw new Error('Video is too large. Use a clip under 48 MB.');
     }
     const poster = (await captureVideoPoster(file)) ?? undefined;
     return { file, mediaType: 'VIDEO', poster };

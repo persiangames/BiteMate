@@ -198,7 +198,7 @@ NODE_ENV=production
 PORT=3000
 CORS_ORIGINS=https://www.bitemate.ir,https://bitemate.ir
 APP_PUBLIC_URL=https://www.bitemate.ir
-MEDIA_PUBLIC_BASE_URL=https://www.bitemate.ir/uploads
+MEDIA_PUBLIC_BASE_URL=https://www.bitemate.ir/api/uploads
 JWT_SECRET=generate-a-long-random-secret-min-32-chars
 TRUST_PROXY=true
 ```
@@ -207,7 +207,10 @@ Build web with:
 
 ```env
 VITE_API_BASE_URL=https://www.bitemate.ir/api
+VITE_UPLOADS_BASE_URL=https://www.bitemate.ir/api/uploads
 ```
+
+If the web app is on static hosting without `/api` proxy, point both vars at your API host directly, e.g. `https://bitemate-api.onrender.com/api` and `https://bitemate-api.onrender.com/api/uploads`, and set the same value in Render as `MEDIA_PUBLIC_BASE_URL`.
 
 ---
 

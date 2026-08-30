@@ -1,5 +1,12 @@
+import { getRuntimeUploadsBaseUrl } from '@/data/api/publicConfig';
+
 /** Public base for uploaded media (absolute API URL or same-origin `/api/uploads` in dev). */
 export function uploadsPublicBase(): string {
+  const runtime = getRuntimeUploadsBaseUrl();
+  if (runtime) {
+    return runtime;
+  }
+
   const explicit = import.meta.env.VITE_UPLOADS_BASE_URL?.replace(/\/$/, '');
   if (explicit) {
     return explicit;

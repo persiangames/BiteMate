@@ -15,11 +15,15 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { OtpVerifiedGuard } from '../../common/guards/otp-verified.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { MediaService } from './media.service';
+import { MediaPublicUrlService } from './media-public-url.service';
 
 @Controller('media')
 @UseGuards(JwtAuthGuard, OtpVerifiedGuard, RolesGuard)
 export class MediaController {
-  constructor(private readonly mediaService: MediaService) {}
+  constructor(
+    private readonly mediaService: MediaService,
+    private readonly mediaPublicUrl: MediaPublicUrlService,
+  ) {}
 
   @Post('upload')
   @RequireOtpVerified()
@@ -44,7 +48,7 @@ export class MediaController {
 
     if (file.mimetype.startsWith('audio/')) {
       const processed = await this.mediaService.processAudioUpload(file);
-      return this.mediaService.uploadProcessedMedia(processed);
+      return this.toPublicUploadResponse(await this.mediaService.uploadProcessedMedia(processed));
     }
 
     if (
@@ -52,11 +56,23 @@ export class MediaController {
       (file.mimetype.startsWith('text/') && !file.mimetype.startsWith('text/html'))
     ) {
       const processed = await this.mediaService.processDocumentUpload(file);
-      return this.mediaService.uploadProcessedMedia(processed);
+      return this.toPublicUploadResponse(await this.mediaService.uploadProcessedMedia(processed));
     }
 
     const highQuality = quality === 'high';
     const processed = await this.mediaService.processUpload(file, { highQuality });
-    return this.mediaService.uploadProcessedMedia(processed);
+    return this.toPublicUploadResponse(await this.mediaService.uploadProcessedMedia(processed));
+  }
+
+  private toPublicUploadResponse(result: {
+    mediaUrl: string;
+    thumbnailUrl: string | null;
+    mediaType: 'IMAGE' | 'VIDEO';
+  }): MediaUploadResponseDto {
+    return {
+      mediaUrl: this.mediaPublicUrl.resolve(result.mediaUrl) ?? result.mediaUrl,
+      thumbnailUrl: this.mediaPublicUrl.resolve(result.thumbnailUrl),
+      mediaType: result.mediaType,
+    };
   }
 }

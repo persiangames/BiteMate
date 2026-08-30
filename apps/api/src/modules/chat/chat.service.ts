@@ -23,6 +23,7 @@ import { Chat, ChatDocument } from './schemas/chat.schema';
 import { Message, MessageDocument } from './schemas/message.schema';
 import { PresenceService } from './presence.service';
 import type { CreateMessageDto } from './dto/chat.dto';
+import { MediaPublicUrlService } from '../media/media-public-url.service';
 
 type UserFields = {
   id: string;
@@ -43,6 +44,7 @@ export class ChatService {
     @Inject(forwardRef(() => NotificationsService))
     private readonly notificationsService: NotificationsService,
     private readonly configService: ConfigService,
+    private readonly mediaPublicUrl: MediaPublicUrlService,
   ) {}
 
   async listChats(userId: string): Promise<ChatsListResponseDto> {
@@ -346,7 +348,7 @@ export class ChatService {
       senderId: message.senderId,
       type: message.type,
       content: message.content ?? null,
-      mediaUrl: message.mediaUrl ?? null,
+      mediaUrl: this.mediaPublicUrl.resolve(message.mediaUrl),
       mediaMimeType: message.mediaMimeType ?? null,
       durationSeconds: message.durationSeconds ?? null,
       readBy: message.readBy.map((receipt) => ({
@@ -366,7 +368,7 @@ export class ChatService {
       id: user?.id ?? 'unknown',
       username: user?.username ?? null,
       fullName: user?.fullName ?? null,
-      profileImage: user?.profileImage ?? null,
+      profileImage: this.mediaPublicUrl.resolve(user?.profileImage),
       isOnline: presence?.isOnline ?? false,
       lastSeen: presence?.lastSeen ?? null,
     };

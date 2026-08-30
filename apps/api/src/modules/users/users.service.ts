@@ -25,6 +25,7 @@ import type {
 import { ageFromDateOfBirth } from '../../common/dining';
 import { PrismaService } from '../database/prisma.service';
 import { mapUserToAuthDto } from '../auth/mappers/user.mapper';
+import { MediaPublicUrlService } from '../media/media-public-url.service';
 import { buildOtpAuthUrl, generateTotpSecret, verifyTotpCode } from '../auth/totp';
 import QRCode from 'qrcode';
 import type {
@@ -81,7 +82,11 @@ export class UsersService {
     private readonly configService: ConfigService,
     private readonly rateLimiter: RateLimiterService,
     private readonly messagingService: MessagingService,
+    private readonly mediaPublicUrl: MediaPublicUrlService,
   ) {}
+
+  private resolveMedia = (url: string | null | undefined): string | null =>
+    this.mediaPublicUrl.resolve(url);
 
   async getProfile(userId: string): Promise<AuthUserDto> {
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
@@ -90,7 +95,7 @@ export class UsersService {
     }
 
     const context = await this.loadCompletionContext(user.id, user.role);
-    return mapUserToAuthDto(user, context);
+    return mapUserToAuthDto(user, context, this.resolveMedia);
   }
 
   private async loadCompletionContext(userId: string, role: AuthUserDto['role']) {
@@ -266,8 +271,8 @@ export class UsersService {
       username: user.username,
       fullName: user.fullName,
       bio: user.bio,
-      profileImage: user.profileImage,
-      coverImage: user.coverImage,
+      profileImage: this.mediaPublicUrl.resolve(user.profileImage),
+      coverImage: this.mediaPublicUrl.resolve(user.coverImage),
       role: user.role,
       city: user.city,
       country: user.country,
@@ -410,7 +415,7 @@ export class UsersService {
 
       await this.locationService.syncRedisIndex(user);
       const context = await this.loadCompletionContext(user.id, user.role);
-      return mapUserToAuthDto(user, context);
+      return mapUserToAuthDto(user, context, this.resolveMedia);
     } catch (error) {
       this.throwUniqueConflict(error);
       throw error;
@@ -553,7 +558,7 @@ export class UsersService {
                 otpVerified: true,
               },
       });
-      return mapUserToAuthDto(user);
+      return mapUserToAuthDto(user, {}, this.resolveMedia);
     } catch (error) {
       this.throwUniqueConflict(error);
       throw error;
@@ -569,7 +574,7 @@ export class UsersService {
       data: { locale: dto.locale },
     });
 
-    return mapUserToAuthDto(user);
+    return mapUserToAuthDto(user, {}, this.resolveMedia);
   }
 
   private normalizeDestination(channel: 'email' | 'phone', value: string): string {
@@ -657,7 +662,7 @@ export class UsersService {
       where: { id: userId },
       data: { totpEnabled: true },
     });
-    return mapUserToAuthDto(updated);
+    return mapUserToAuthDto(updated, {}, this.resolveMedia);
   }
 
   async disableTwoFactor(userId: string, dto: DisableTwoFactorDto): Promise<AuthUserDto> {
@@ -676,7 +681,7 @@ export class UsersService {
       where: { id: userId },
       data: { totpEnabled: false, totpSecret: null },
     });
-    return mapUserToAuthDto(updated);
+    return mapUserToAuthDto(updated, {}, this.resolveMedia);
   }
 
   async changePassword(userId: string, dto: ChangePasswordDto): Promise<{ message: string }> {
@@ -701,7 +706,7 @@ export class UsersService {
       where: { id: userId },
       data: { themePreference: dto.theme },
     });
-    return mapUserToAuthDto(user);
+    return mapUserToAuthDto(user, {}, this.resolveMedia);
   }
 
   async requestAccountDeletion(

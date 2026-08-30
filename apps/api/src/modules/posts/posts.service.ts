@@ -20,6 +20,7 @@ import { GeoLocationService } from '../location/geo-location.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { mapPostToDto, loadMeetupAcceptedCounts, POST_INCLUDE, buildMeetupFeedCaption } from './post.mapper';
 import { normalizeStoredMediaPath } from '../../common/media-url';
+import { MediaPublicUrlService } from '../media/media-public-url.service';
 import {
   computeTrendingScore,
   FeedCursor,
@@ -39,7 +40,11 @@ export class FeedService {
     private readonly prisma: PrismaService,
     private readonly geoLocationService: GeoLocationService,
     private readonly paginationHelper: PaginationHelper,
+    private readonly mediaPublicUrl: MediaPublicUrlService,
   ) {}
+
+  private resolveMedia = (url: string | null | undefined): string | null =>
+    this.mediaPublicUrl.resolve(url);
 
   async getFeed(
     userId: string,
@@ -203,7 +208,7 @@ export class FeedService {
           meetupAcceptedCount: post.meetupId
             ? meetupAcceptedCounts.get(post.meetupId) ?? 0
             : 0,
-        }),
+        }, this.resolveMedia),
       );
 
     const last = selected.at(-1);
@@ -265,7 +270,11 @@ export class PostsService {
     private readonly paginationHelper: PaginationHelper,
     private readonly gamificationService: GamificationService,
     private readonly notificationsService: NotificationsService,
+    private readonly mediaPublicUrl: MediaPublicUrlService,
   ) {}
+
+  private resolveMedia = (url: string | null | undefined): string | null =>
+    this.mediaPublicUrl.resolve(url);
 
   async createPost(userId: string, dto: CreatePostRequestDto): Promise<PostDto> {
     const uniqueTags = this.normalizeTags(dto.tags);
@@ -329,7 +338,7 @@ export class PostsService {
       feedSource: 'FOLLOWING',
       isLiked: false,
       isFollowingAuthor: false,
-    });
+    }, this.resolveMedia);
   }
 
   async createMeetupFeedPost(userId: string, meetup: FoodMeetup): Promise<PostDto> {
@@ -344,7 +353,7 @@ export class PostsService {
         isLiked: false,
         isFollowingAuthor: true,
         meetupAcceptedCount: meetupAcceptedCounts.get(meetup.id) ?? 0,
-      });
+      }, this.resolveMedia);
     }
 
     const post = await this.prisma.post.create({
@@ -370,7 +379,7 @@ export class PostsService {
       isLiked: false,
       isFollowingAuthor: true,
       meetupAcceptedCount: 0,
-    });
+    }, this.resolveMedia);
   }
 
   private normalizeTags(
@@ -419,7 +428,7 @@ export class PostsService {
       feedSource: 'FOLLOWING',
       isLiked: Boolean(liked),
       isFollowingAuthor: true,
-    });
+    }, this.resolveMedia);
   }
 
   async deletePost(userId: string, postId: string): Promise<{ message: string }> {
@@ -675,7 +684,7 @@ export class PostsService {
           meetupAcceptedCount: post.meetupId
             ? meetupAcceptedCounts.get(post.meetupId) ?? 0
             : 0,
-        }),
+        }, this.resolveMedia),
       ),
       nextCursor: null,
       hasMore: false,

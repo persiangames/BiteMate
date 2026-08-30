@@ -73,6 +73,8 @@ async function bootstrap(): Promise<void> {
     }),
   );
 
+  const storageProvider = configService.get<string>('storage.provider', 'local');
+
   if (!existsSync(uploadDir)) {
     mkdirSync(uploadDir, { recursive: true });
   }
@@ -88,14 +90,16 @@ async function bootstrap(): Promise<void> {
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
   };
 
-  app.useStaticAssets(absoluteUploadDir, {
-    prefix: '/uploads/',
-    setHeaders: uploadStaticHeaders,
-  });
-  app.useStaticAssets(absoluteUploadDir, {
-    prefix: `/${apiPrefix}/uploads/`,
-    setHeaders: uploadStaticHeaders,
-  });
+  if (storageProvider !== 's3') {
+    app.useStaticAssets(absoluteUploadDir, {
+      prefix: '/uploads/',
+      setHeaders: uploadStaticHeaders,
+    });
+    app.useStaticAssets(absoluteUploadDir, {
+      prefix: `/${apiPrefix}/uploads/`,
+      setHeaders: uploadStaticHeaders,
+    });
+  }
   app.useLogger(resolveLogLevels(logLevel));
   app.setGlobalPrefix(apiPrefix);
   app.enableCors({

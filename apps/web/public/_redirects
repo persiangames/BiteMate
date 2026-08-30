@@ -1,1 +1,7 @@
+# SPA fallback
 /*    /index.html   200
+
+# If your static host supports reverse-proxy rules (Netlify/Cloudflare Pages),
+# uncomment and set YOUR_API_HOST to your Render/ECS API URL, e.g.:
+# /api/*       https://bitemate-api.onrender.com/api/:splat       200
+# /uploads/*   https://bitemate-api.onrender.com/uploads/:splat   200

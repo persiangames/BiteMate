@@ -65,7 +65,7 @@ export const storageConfig = registerAs('storage', () => ({
   awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID || undefined,
   awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || undefined,
   localUploadDir: process.env.LOCAL_UPLOAD_DIR ?? 'uploads',
-  publicBaseUrl: process.env.MEDIA_PUBLIC_BASE_URL ?? 'http://localhost:3000/uploads',
+  publicBaseUrl: process.env.MEDIA_PUBLIC_BASE_URL ?? 'http://localhost:3000/api/uploads',
 }));
 
 export const meetupConfig = registerAs('meetup', () => ({

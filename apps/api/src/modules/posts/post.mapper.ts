@@ -8,7 +8,9 @@ import type {
 import { parseMeetupNotes } from '@bitemate/shared';
 import type { FoodMeetup, Post, PostTag, User } from '@prisma/client';
 import { meetupCapacity } from '../../common/dining';
-import { normalizeStoredMediaPath } from '../../common/media-url';
+import { normalizeStoredMediaPath, type MediaUrlResolver } from '../../common/media-url';
+
+const defaultMediaResolver: MediaUrlResolver = (url) => normalizeStoredMediaPath(url);
 
 const AUTHOR_SELECT = {
   id: true,
@@ -35,12 +37,15 @@ type PostWithRelations = Post & {
   meetup?: FoodMeetup | null;
 };
 
-export function mapPostTags(tags: Array<PostTag & { user: TaggedUser }> | undefined): PostTagDto[] {
+export function mapPostTags(
+  tags: Array<PostTag & { user: TaggedUser }> | undefined,
+  resolveMedia: MediaUrlResolver = defaultMediaResolver,
+): PostTagDto[] {
   return (tags ?? []).map((tag) => ({
     userId: tag.user.id,
     username: tag.user.username,
     fullName: tag.user.fullName,
-    profileImage: tag.user.profileImage,
+    profileImage: resolveMedia(tag.user.profileImage),
     role: tag.role as PostTagRole,
   }));
 }
@@ -94,15 +99,16 @@ export function mapPostToDto(
     isFollowingAuthor: boolean;
     meetupAcceptedCount?: number;
   },
+  resolveMedia: MediaUrlResolver = defaultMediaResolver,
 ): PostDto {
   return {
     id: post.id,
     caption: post.caption,
     mediaType: post.mediaType,
-    mediaUrl: normalizeStoredMediaPath(post.mediaUrl) ?? post.mediaUrl,
-    thumbnailUrl: normalizeStoredMediaPath(post.thumbnailUrl),
+    mediaUrl: resolveMedia(post.mediaUrl) ?? post.mediaUrl,
+    thumbnailUrl: resolveMedia(post.thumbnailUrl),
     restaurantTag: post.restaurantTag,
-    tags: mapPostTags(post.tags),
+    tags: mapPostTags(post.tags, resolveMedia),
     locationLabel: post.locationLabel,
     locationLat: post.locationLat,
     locationLng: post.locationLng,
@@ -119,7 +125,7 @@ export function mapPostToDto(
       id: post.author.id,
       username: post.author.username,
       fullName: post.author.fullName,
-      profileImage: post.author.profileImage,
+      profileImage: resolveMedia(post.author.profileImage),
     },
     createdAt: post.createdAt.toISOString(),
   };
