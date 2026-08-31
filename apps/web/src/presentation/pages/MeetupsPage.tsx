@@ -28,6 +28,7 @@ import { localizeFoodType } from '@/data/localize';
 import { MeetupComposer } from '@/presentation/components/MeetupComposer';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
+import { localizeError } from '@/presentation/i18n/localizeError';
 
 export function MeetupsPage() {
   const { accessToken } = useAuth();
@@ -143,10 +144,12 @@ export function MeetupsPage() {
         await sendMeetupInvite(accessToken, { meetupId: intent.meetupId, inviteeId });
         setMessage(t('meetups.inviteSent'));
       }
-      await loadMatches(intent.id);
-      await loadData();
-    } catch {
-      setError(t('error.generic'));
+    } catch (err) {
+      setError(localizeError(t, err, 'error.generic'));
+    }
+
+    if (intent.meetupId) {
+      navigate(`/meetups/${intent.meetupId}`, { replace: true });
     }
   }
 
@@ -230,7 +233,13 @@ export function MeetupsPage() {
           <h2>{t('meetups.mine')}</h2>
           {myIntents.map((intent) => (
             <article key={intent.id} className="glass-card meetup-card">
-              <h3>{localizeFoodType(intent.foodType, locale)}</h3>
+              <h3>
+                {intent.meetupId ? (
+                  <Link to={`/meetups/${intent.meetupId}`}>{localizeFoodType(intent.foodType, locale)}</Link>
+                ) : (
+                  localizeFoodType(intent.foodType, locale)
+                )}
+              </h3>
               <p>
                 {new Date(intent.timeStart).toLocaleString()} · {intent.desiredPeople} ·{' '}
                 {intent.radiusKm} km

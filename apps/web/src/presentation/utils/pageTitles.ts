@@ -17,7 +17,9 @@ export function resolvePageTitle(
     return t('nav.nearby');
   }
   if (pathname === '/meetups' || pathname.startsWith('/meetups/')) {
-    return pathname.includes('/room/') ? t('meetups.room') : t('nav.meetups');
+    if (pathname.includes('/room/')) return t('meetups.room');
+    if (/^\/meetups\/[^/]+$/.test(pathname)) return t('event.detail');
+    return t('nav.meetups');
   }
   if (pathname === '/chats') {
     return t('nav.chat');

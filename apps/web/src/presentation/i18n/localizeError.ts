@@ -21,6 +21,13 @@ export function localizeError(
     'Password must be 8–128 characters and include a letter, a number, and a symbol':
       'auth.password.rules',
     'Invalid email or password': 'auth.error.invalid',
+    'Food type is required': 'event.foodTypeRequired',
+    'Event time must be in the future': 'event.scheduleFuture',
+    'Complete at least 70% of your profile before creating food events':
+      'event.profileIncomplete',
+    'Daily food intent limit reached': 'meetups.intentLimitReached',
+    'Too many active food intents': 'meetups.intentLimitReached',
+    'You do not match this event preferences': 'event.joinBlocked',
   };
 
   if (message && mapped[message]) {

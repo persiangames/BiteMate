@@ -57,6 +57,9 @@ const ChatsPage = lazy(() => import('@/presentation/pages/ChatsPage').then((m) =
 const ChatThreadPage = lazy(() =>
   import('@/presentation/pages/ChatThreadPage').then((m) => ({ default: m.ChatThreadPage })),
 );
+const MeetupDetailPage = lazy(() =>
+  import('@/presentation/pages/MeetupDetailPage').then((m) => ({ default: m.MeetupDetailPage })),
+);
 const MeetupsPage = lazy(() =>
   import('@/presentation/pages/MeetupsPage').then((m) => ({ default: m.MeetupsPage })),
 );
@@ -186,6 +189,8 @@ export function AppRouter() {
                           <Route path="/search" element={<Navigate to="/people" replace />} />
                           <Route path="/discover" element={<DiscoverPage />} />
                           <Route path="/meetups" element={<SafeScreen><MeetupsPage /></SafeScreen>} />
+                          <Route path="/meetups/room/:roomId" element={<MeetupRoomPage />} />
+                          <Route path="/meetups/:meetupId" element={<SafeScreen><MeetupDetailPage /></SafeScreen>} />
                           <Route path="/chats" element={<ChatsPage />} />
                           <Route path="/profile" element={<ProfilePage />} />
                           <Route path="/u/:username" element={<PublicProfilePage />} />
@@ -207,7 +212,6 @@ export function AppRouter() {
                           <Route path="/marketplace/home-chefs/:id" element={<HomeChefPage />} />
                           <Route path="/marketplace/home-chef/dashboard" element={<HomeChefPage />} />
                           <Route path="/bookings" element={<BookingsPage />} />
-                          <Route path="/meetups/room/:roomId" element={<MeetupRoomPage />} />
                           <Route path="/wallet" element={<WalletPage />} />
                           <Route path="/notifications" element={<NotificationsPage />} />
                           <Route path="/rankings" element={<RankingsPage />} />

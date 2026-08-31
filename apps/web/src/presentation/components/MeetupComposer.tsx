@@ -25,6 +25,7 @@ import { RestaurantNamePicker } from '@/presentation/components/RestaurantNamePi
 import { SearchableSelect } from '@/presentation/components/SearchableSelect';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
+import { localizeError } from '@/presentation/i18n/localizeError';
 import {
   buildMeetupComposerNotes,
   creatorKindLabelKey,
@@ -89,7 +90,29 @@ export function MeetupComposer({
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    if (!accessToken || eventLatitude === null || eventLongitude === null || profileLocked) {
+    if (!accessToken || profileLocked) {
+      return;
+    }
+
+    if (eventLatitude === null || eventLongitude === null) {
+      setError(t('event.locationPending'));
+      return;
+    }
+
+    const resolvedFoodType = foodType.trim() || foodName.trim();
+    if (!resolvedFoodType) {
+      setError(t('event.foodTypeRequired'));
+      return;
+    }
+
+    if (!scheduledAt) {
+      setError(t('event.scheduleRequired'));
+      return;
+    }
+
+    const timeStart = new Date(scheduledAt);
+    if (Number.isNaN(timeStart.getTime()) || timeStart <= new Date()) {
+      setError(t('event.scheduleFuture'));
       return;
     }
 
@@ -97,15 +120,14 @@ export function MeetupComposer({
     setError(null);
     setMessage(null);
 
-    const timeStart = new Date(scheduledAt);
     const timeEnd = new Date(timeStart.getTime() + 2 * 60 * 60 * 1000);
 
     try {
       const response = await createFoodIntent(accessToken, {
-        foodType,
+        foodType: resolvedFoodType,
         foodCategory: mealSlot.toLowerCase(),
         mealSlot,
-        foodName: foodName || foodType,
+        foodName: foodName.trim() || resolvedFoodType,
         preferredGender: preferredGender || undefined,
         ageMin,
         ageMax,
@@ -133,8 +155,8 @@ export function MeetupComposer({
 
       setMessage(t(successMessageKey));
       onCreated?.(response);
-    } catch {
-      setError(t('error.generic'));
+    } catch (err) {
+      setError(localizeError(t, err, 'error.generic'));
     } finally {
       setLoading(false);
     }

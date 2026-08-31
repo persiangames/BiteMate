@@ -21,7 +21,7 @@ import type {
   NearbyMeetupsResponseDto,
 } from '@bitemate/shared';
 import { mealFromCategory, meetupCapacity, tagsMatch } from '../../common/dining';
-import { parseMeetupNotes, userMatchesMeetupPreferences } from '@bitemate/shared';
+import { buildMeetupNotes, parseMeetupNotes, userMatchesMeetupPreferences } from '@bitemate/shared';
 import type {
   FoodMeetup,
   MeetupInvite,
@@ -37,7 +37,7 @@ import { FraudDetectionService } from '../security/fraud-detection.service';
 import { RealtimeGateway } from '../realtime/realtime.gateway';
 import { MeetupCacheService } from './meetup-cache.service';
 import { MeetupMatchingService } from './meetup-matching.service';
-import type { CreateMeetupDto, NearbyMeetupsQueryDto, SendRoomMessageDto } from './dto/meetups.dto';
+import type { CreateMeetupDto, NearbyMeetupsQueryDto, SendRoomMessageDto, UpdateMeetupDto } from './dto/meetups.dto';
 
 type MeetupWithCreator = FoodMeetup & {
   creator: UserSummaryFields;
@@ -153,24 +153,227 @@ export class MeetupsService {
       },
     });
 
-    await this.meetupCache.cacheActiveMeetup(
-      {
-        id: meetup.id,
-        creatorId: meetup.creatorId,
-        foodType: meetup.foodType,
-        foodCategory: meetup.foodCategory ?? '',
-        scheduledAt: meetup.scheduledAt.toISOString(),
-        radiusKm: meetup.radiusKm.toString(),
-        desiredPeople: meetup.desiredPeople.toString(),
-        latitude: meetup.latitude.toString(),
-        longitude: meetup.longitude.toString(),
-        status: meetup.status,
-        creatorRating: creator.meetupRating.toString(),
-      },
-      expiresAt,
-    );
+    try {
+      await this.meetupCache.cacheActiveMeetup(
+        {
+          id: meetup.id,
+          creatorId: meetup.creatorId,
+          foodType: meetup.foodType,
+          foodCategory: meetup.foodCategory ?? '',
+          scheduledAt: meetup.scheduledAt.toISOString(),
+          radiusKm: meetup.radiusKm.toString(),
+          desiredPeople: meetup.desiredPeople.toString(),
+          latitude: meetup.latitude.toString(),
+          longitude: meetup.longitude.toString(),
+          status: meetup.status,
+          creatorRating: creator.meetupRating.toString(),
+        },
+        expiresAt,
+      );
+    } catch {
+      // Nearby discovery reads from Postgres; cache is optional.
+    }
 
     return this.toMeetupDto(meetup, 0);
+  }
+
+  async getMeetupById(userId: string, meetupId: string): Promise<MeetupDto> {
+    const meetup = await this.prisma.foodMeetup.findUnique({
+      where: { id: meetupId },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            profileImage: true,
+            meetupRating: true,
+            meetupReviewCount: true,
+            isPremium: true,
+            rankScore: true,
+            relationshipStatus: true,
+          },
+        },
+        room: true,
+      },
+    });
+
+    if (!meetup) {
+      throw new NotFoundException('Meetup not found');
+    }
+
+    if (
+      meetup.creatorId !== userId &&
+      !['OPEN', 'SCHEDULED', 'FULL'].includes(meetup.status)
+    ) {
+      throw new NotFoundException('Meetup not found');
+    }
+
+    const acceptedCount = await this.countAccepted(meetup.id);
+    return this.toMeetupDto(meetup, acceptedCount);
+  }
+
+  async updateMeetup(
+    userId: string,
+    meetupId: string,
+    dto: UpdateMeetupDto,
+  ): Promise<MeetupDto> {
+    const meetup = await this.prisma.foodMeetup.findUnique({
+      where: { id: meetupId },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            profileImage: true,
+            meetupRating: true,
+            meetupReviewCount: true,
+            isPremium: true,
+            rankScore: true,
+            relationshipStatus: true,
+          },
+        },
+        room: true,
+      },
+    });
+
+    if (!meetup) {
+      throw new NotFoundException('Meetup not found');
+    }
+    if (meetup.creatorId !== userId) {
+      throw new ForbiddenException('Only the event creator can edit this event');
+    }
+    if (!['OPEN', 'SCHEDULED'].includes(meetup.status)) {
+      throw new BadRequestException('This event can no longer be edited');
+    }
+
+    let scheduledAt = meetup.scheduledAt;
+    if (dto.scheduledAt) {
+      scheduledAt = new Date(dto.scheduledAt);
+      if (Number.isNaN(scheduledAt.getTime()) || scheduledAt <= new Date()) {
+        throw new BadRequestException('Event time must be in the future');
+      }
+    }
+
+    let notes = meetup.notes;
+    if (dto.notes !== undefined) {
+      notes = dto.notes.trim() || null;
+    } else if (dto.description !== undefined) {
+      const { meta } = parseMeetupNotes(meetup.notes);
+      notes = buildMeetupNotes(dto.description, meta);
+    }
+
+    const updated = await this.prisma.foodMeetup.update({
+      where: { id: meetupId },
+      data: {
+        ...(dto.foodName !== undefined ? { foodName: dto.foodName.trim() || null } : {}),
+        ...(dto.locationLabel !== undefined
+          ? { locationLabel: dto.locationLabel.trim() || null }
+          : {}),
+        ...(dto.desiredPeople !== undefined ? { desiredPeople: dto.desiredPeople } : {}),
+        ...(dto.scheduledAt ? { scheduledAt } : {}),
+        ...(notes !== meetup.notes ? { notes } : {}),
+        ...(dto.country !== undefined ? { country: dto.country.trim() || null } : {}),
+        ...(dto.city !== undefined ? { city: dto.city.trim() || null } : {}),
+      },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            profileImage: true,
+            meetupRating: true,
+            meetupReviewCount: true,
+            isPremium: true,
+            rankScore: true,
+            relationshipStatus: true,
+          },
+        },
+        room: true,
+      },
+    });
+
+    const acceptedCount = await this.countAccepted(updated.id);
+    return this.toMeetupDto(updated, acceptedCount);
+  }
+
+  async cancelMeetupByCreator(userId: string, meetupId: string): Promise<MeetupDto> {
+    const meetup = await this.prisma.foodMeetup.findUnique({
+      where: { id: meetupId },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            profileImage: true,
+            meetupRating: true,
+            meetupReviewCount: true,
+            isPremium: true,
+            rankScore: true,
+            relationshipStatus: true,
+          },
+        },
+        room: true,
+        intent: true,
+      },
+    });
+
+    if (!meetup) {
+      throw new NotFoundException('Meetup not found');
+    }
+    if (meetup.creatorId !== userId) {
+      throw new ForbiddenException('Only the event creator can cancel this event');
+    }
+    if (['CANCELLED', 'COMPLETED', 'EXPIRED'].includes(meetup.status)) {
+      throw new BadRequestException('This event is already closed');
+    }
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const nextMeetup = await tx.foodMeetup.update({
+        where: { id: meetupId },
+        data: { status: 'CANCELLED' },
+        include: {
+          creator: {
+            select: {
+              id: true,
+              username: true,
+              fullName: true,
+              profileImage: true,
+              meetupRating: true,
+              meetupReviewCount: true,
+              isPremium: true,
+              rankScore: true,
+              relationshipStatus: true,
+            },
+          },
+          room: true,
+        },
+      });
+
+      if (meetup.intent) {
+        await tx.foodIntent.update({
+          where: { id: meetup.intent.id },
+          data: {
+            status: 'CANCELLED',
+            cancelledAt: new Date(),
+          },
+        });
+      }
+
+      return nextMeetup;
+    });
+
+    try {
+      await this.meetupCache.removeMeetup(meetupId, meetup.foodType);
+    } catch {
+      // Optional cache layer.
+    }
+
+    const acceptedCount = await this.countAccepted(updated.id);
+    return this.toMeetupDto(updated, acceptedCount);
   }
 
   async getMatches(userId: string, meetupId: string): Promise<MeetupMatchesResponseDto> {

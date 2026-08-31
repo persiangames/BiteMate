@@ -12,6 +12,7 @@ import type {
   RequestMeetupJoinRequestDto,
   SendMeetupInviteRequestDto,
   SendRoomMessageRequestDto,
+  UpdateMeetupRequestDto,
 } from '@bitemate/shared';
 import { apiFetch, authHeaders } from '@/data/api/client';
 
@@ -23,6 +24,37 @@ export async function createMeetup(
     method: 'POST',
     headers: authHeaders(accessToken),
     body: JSON.stringify(payload),
+  });
+}
+
+export async function fetchMeetupById(
+  accessToken: string,
+  meetupId: string,
+): Promise<MeetupDto> {
+  return apiFetch<MeetupDto>(`/meetups/${encodeURIComponent(meetupId)}`, {
+    headers: authHeaders(accessToken),
+  });
+}
+
+export async function updateMeetup(
+  accessToken: string,
+  meetupId: string,
+  payload: UpdateMeetupRequestDto,
+): Promise<MeetupDto> {
+  return apiFetch<MeetupDto>(`/meetups/${encodeURIComponent(meetupId)}`, {
+    method: 'PATCH',
+    headers: authHeaders(accessToken),
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function cancelMeetup(
+  accessToken: string,
+  meetupId: string,
+): Promise<MeetupDto> {
+  return apiFetch<MeetupDto>(`/meetups/${encodeURIComponent(meetupId)}/cancel`, {
+    method: 'POST',
+    headers: authHeaders(accessToken),
   });
 }
 

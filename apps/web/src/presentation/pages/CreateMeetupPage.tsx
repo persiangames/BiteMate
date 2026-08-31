@@ -16,9 +16,16 @@ export function CreateMeetupPage() {
 
       <MeetupComposer
         onCreated={(response) => {
+          const meetupId = response.intent.meetupId;
           if (response.feedPost) {
             navigate('/feed', { replace: true, state: { newPost: response.feedPost } });
+            return;
           }
+          if (meetupId) {
+            navigate(`/meetups/${meetupId}`, { replace: true });
+            return;
+          }
+          navigate('/meetups', { replace: true });
         }}
       />
     </div>

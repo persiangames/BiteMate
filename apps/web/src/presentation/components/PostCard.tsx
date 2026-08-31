@@ -274,8 +274,12 @@ export function PostCard({ post, accessToken, onUpdate, onDelete }: PostCardProp
             </button>
           ) : null}
           {user?.id === post.author.id ? (
-            <Link to="/meetups" className="btn-secondary btn-compact">
+            <Link to={meetup ? `/meetups/${meetup.id}` : '/meetups'} className="btn-secondary btn-compact">
               {t('feed.manageEvent')}
+            </Link>
+          ) : meetup ? (
+            <Link to={`/meetups/${meetup.id}`} className="btn-secondary btn-compact">
+              {t('event.viewDetails')}
             </Link>
           ) : null}
           {joinMessage ? (

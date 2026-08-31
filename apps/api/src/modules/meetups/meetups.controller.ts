@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -32,6 +33,7 @@ import {
   RequestMeetupJoinDto,
   SendMeetupInviteDto,
   SendRoomMessageDto,
+  UpdateMeetupDto,
 } from './dto/meetups.dto';
 import { MeetupsService } from './meetups.service';
 
@@ -151,5 +153,33 @@ export class MeetupsController {
     @Body() dto: SendRoomMessageDto,
   ): Promise<MeetupRoomMessageDto> {
     return this.meetupsService.sendRoomMessage(user.sub, roomId, dto);
+  }
+
+  @Get('meetups/:meetupId')
+  @RequireOtpVerified()
+  getMeetup(
+    @CurrentUser() user: JwtPayload,
+    @Param('meetupId') meetupId: string,
+  ): Promise<MeetupDto> {
+    return this.meetupsService.getMeetupById(user.sub, meetupId);
+  }
+
+  @Patch('meetups/:meetupId')
+  @RequireOtpVerified()
+  updateMeetup(
+    @CurrentUser() user: JwtPayload,
+    @Param('meetupId') meetupId: string,
+    @Body() dto: UpdateMeetupDto,
+  ): Promise<MeetupDto> {
+    return this.meetupsService.updateMeetup(user.sub, meetupId, dto);
+  }
+
+  @Post('meetups/:meetupId/cancel')
+  @RequireOtpVerified()
+  cancelMeetup(
+    @CurrentUser() user: JwtPayload,
+    @Param('meetupId') meetupId: string,
+  ): Promise<MeetupDto> {
+    return this.meetupsService.cancelMeetupByCreator(user.sub, meetupId);
   }
 }

@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -42,6 +43,8 @@ type IntentWithUser = FoodIntent & {
 
 @Injectable()
 export class IntentService {
+  private readonly logger = new Logger(IntentService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly intentCache: IntentCacheService,
@@ -64,7 +67,10 @@ export class IntentService {
       throw new BadRequestException('Invalid time window');
     }
     if (timeStart <= new Date()) {
-      throw new BadRequestException('timeStart must be in the future');
+      throw new BadRequestException('Event time must be in the future');
+    }
+    if (!dto.foodType?.trim()) {
+      throw new BadRequestException('Food type is required');
     }
     if (timeEnd <= timeStart) {
       throw new BadRequestException('timeEnd must be after timeStart');
@@ -152,54 +158,63 @@ export class IntentService {
       return { intent, meetup };
     });
 
-    await Promise.all([
-      this.intentCache.cacheActiveIntent(
-        {
-          id: result.intent.id,
-          userId,
-          foodType: result.intent.foodType,
-          foodCategory: result.intent.foodCategory ?? '',
-          timeStart: result.intent.timeStart.toISOString(),
-          timeEnd: result.intent.timeEnd.toISOString(),
-          radiusKm: result.intent.radiusKm.toString(),
-          desiredPeople: result.intent.desiredPeople.toString(),
-          latitude: result.intent.latitude.toString(),
-          longitude: result.intent.longitude.toString(),
-          budgetMin: result.intent.budgetMin?.toString() ?? '',
-          budgetMax: result.intent.budgetMax?.toString() ?? '',
-          status: result.intent.status,
-          userRating: user.meetupRating.toString(),
-          userReviewCount: user.meetupReviewCount.toString(),
-          userSuccessfulMeetups: user.successfulMeetups.toString(),
-          userCancelCount: cancelCount.toString(),
-          userRankScore: user.rankScore.toString(),
-          userRole: user.role ?? '',
-          isPremium: user.isPremium.toString(),
-        },
-        expiresAt,
-      ),
-      this.meetupCache.cacheActiveMeetup(
-        {
-          id: result.meetup.id,
-          creatorId: userId,
-          foodType: result.meetup.foodType,
-          foodCategory: result.meetup.foodCategory ?? '',
-          scheduledAt: result.meetup.scheduledAt.toISOString(),
-          radiusKm: result.meetup.radiusKm.toString(),
-          desiredPeople: result.meetup.desiredPeople.toString(),
-          latitude: result.meetup.latitude.toString(),
-          longitude: result.meetup.longitude.toString(),
-          status: result.meetup.status,
-          creatorRating: user.meetupRating.toString(),
-        },
-        expiresAt,
-      ),
-    ]);
+    try {
+      await Promise.all([
+        this.intentCache.cacheActiveIntent(
+          {
+            id: result.intent.id,
+            userId,
+            foodType: result.intent.foodType,
+            foodCategory: result.intent.foodCategory ?? '',
+            timeStart: result.intent.timeStart.toISOString(),
+            timeEnd: result.intent.timeEnd.toISOString(),
+            radiusKm: result.intent.radiusKm.toString(),
+            desiredPeople: result.intent.desiredPeople.toString(),
+            latitude: result.intent.latitude.toString(),
+            longitude: result.intent.longitude.toString(),
+            budgetMin: result.intent.budgetMin?.toString() ?? '',
+            budgetMax: result.intent.budgetMax?.toString() ?? '',
+            status: result.intent.status,
+            userRating: user.meetupRating.toString(),
+            userReviewCount: user.meetupReviewCount.toString(),
+            userSuccessfulMeetups: user.successfulMeetups.toString(),
+            userCancelCount: cancelCount.toString(),
+            userRankScore: user.rankScore.toString(),
+            userRole: user.role ?? '',
+            isPremium: user.isPremium.toString(),
+          },
+          expiresAt,
+        ),
+        this.meetupCache.cacheActiveMeetup(
+          {
+            id: result.meetup.id,
+            creatorId: userId,
+            foodType: result.meetup.foodType,
+            foodCategory: result.meetup.foodCategory ?? '',
+            scheduledAt: result.meetup.scheduledAt.toISOString(),
+            radiusKm: result.meetup.radiusKm.toString(),
+            desiredPeople: result.meetup.desiredPeople.toString(),
+            latitude: result.meetup.latitude.toString(),
+            longitude: result.meetup.longitude.toString(),
+            status: result.meetup.status,
+            creatorRating: user.meetupRating.toString(),
+          },
+          expiresAt,
+        ),
+      ]);
+    } catch (error) {
+      this.logger.warn(`Intent cache skipped for ${result.intent.id}: ${String(error)}`);
+    }
 
-    const matches = await this.matchingService.findMatches(result.intent);
-    const ttl = this.configService.get<number>('intent.matchCacheTtlSeconds', 120)!;
-    await this.intentCache.setMatchCache(result.intent.id, JSON.stringify(matches), ttl);
-    void this.matchingService.refreshMatchesForNearbyIntents(result.intent);
+    let matches: Awaited<ReturnType<IntentMatchingService['findMatches']>> = [];
+    try {
+      matches = await this.matchingService.findMatches(result.intent);
+      const ttl = this.configService.get<number>('intent.matchCacheTtlSeconds', 120)!;
+      await this.intentCache.setMatchCache(result.intent.id, JSON.stringify(matches), ttl);
+      void this.matchingService.refreshMatchesForNearbyIntents(result.intent);
+    } catch (error) {
+      this.logger.warn(`Intent matching skipped for ${result.intent.id}: ${String(error)}`);
+    }
 
     void this.notificationsService.notify({
       userId,
@@ -226,7 +241,12 @@ export class IntentService {
       });
     }
 
-    const feedPost = await this.postsService.createMeetupFeedPost(userId, result.meetup);
+    let feedPost: CreateFoodIntentResponseDto['feedPost'] = null;
+    try {
+      feedPost = await this.postsService.createMeetupFeedPost(userId, result.meetup);
+    } catch (error) {
+      this.logger.warn(`Meetup feed post skipped for ${result.meetup.id}: ${String(error)}`);
+    }
 
     return {
       intent: this.toIntentDto(result.intent),

@@ -596,11 +596,13 @@ export function DiscoverPage() {
               <li key={event.id} className="table-card">
                 <div>
                   <strong>
-                    {event.foodName
-                      ? localizeDish(event.foodName, locale)
-                      : event.foodType
-                        ? localizeFoodType(event.foodType, locale)
-                        : ''}
+                    <Link to={`/meetups/${event.id}`}>
+                      {event.foodName
+                        ? localizeDish(event.foodName, locale)
+                        : event.foodType
+                          ? localizeFoodType(event.foodType, locale)
+                          : ''}
+                    </Link>
                   </strong>
                   <p className="hint">
                     {event.mealSlot ? `${t(`dining.meal.${event.mealSlot as MealSlot}`)} · ` : ''}

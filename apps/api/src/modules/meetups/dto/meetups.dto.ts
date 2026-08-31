@@ -119,6 +119,54 @@ export class CreateMeetupDto {
   city?: string;
 }
 
+export class UpdateMeetupDto {
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  foodName?: string;
+
+  @IsOptional()
+  @IsString()
+  scheduledAt?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(2)
+  @Max(20)
+  desiredPeople?: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  locationLabel?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(900)
+  notes?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(900)
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  country?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  city?: string;
+}
+
+export class MeetupIdParamDto {
+  @IsString()
+  meetupId!: string;
+}
+
 export class NearbyMeetupsQueryDto {
   @Type(() => Number)
   @IsNumber()

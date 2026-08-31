@@ -86,6 +86,17 @@ export interface CreateMeetupRequestDto {
   city?: string;
 }
 
+export interface UpdateMeetupRequestDto {
+  foodName?: string;
+  scheduledAt?: string;
+  desiredPeople?: number;
+  locationLabel?: string;
+  notes?: string;
+  description?: string;
+  country?: string;
+  city?: string;
+}
+
 export interface NearbyMeetupDto extends MeetupDto {
   distanceKm: number;
 }

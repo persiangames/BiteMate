@@ -2,6 +2,7 @@ import {
   IsArray,
   IsEnum,
   IsInt,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -23,6 +24,7 @@ import {
 
 export class CreateIntentDto {
   @IsString()
+  @IsNotEmpty()
   @MaxLength(120)
   foodType!: string;
 
