@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ICON_MARK_VERSION } from '@/presentation/components/brand/icon-mark.version';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 
@@ -48,11 +49,50 @@ function LandingHeroTitle({ title }: { title: string }) {
 function LandingHeroPhones() {
   return (
     <div className="landing-hero__phones" aria-hidden>
+      <figure className="landing-hero__phone landing-hero__phone--brand">
+        <div className="landing-hero__device">
+          <div className="landing-hero__screen landing-hero__screen--brand">
+            <div className="landing-hero__screen-map" aria-hidden>
+              <span className="landing-hero__screen-map-layer landing-hero__screen-map-layer--base" />
+              <span className="landing-hero__screen-map-layer landing-hero__screen-map-layer--relief" />
+            </div>
+            <img
+              className="landing-hero__screen-logo"
+              src={`/brand/icon-mark.png?v=${ICON_MARK_VERSION}`}
+              alt=""
+              width={120}
+              height={120}
+              decoding="async"
+            />
+            <span className="landing-hero__screen-word">BiteMate</span>
+          </div>
+        </div>
+      </figure>
       <figure className="landing-hero__phone landing-hero__phone--discover">
-        <img src="/brand/landing-phone-discover-4k.png" alt="" width={540} height={1080} loading="eager" decoding="async" />
+        <img
+          src="/brand/landing-phone-discover-4k.png"
+          srcSet="/brand/landing-phone-discover-4k.png 1400w"
+          sizes="(min-width: 1200px) 560px, (min-width: 768px) 44vw, 58vw"
+          alt=""
+          width={1400}
+          height={933}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+        />
       </figure>
       <figure className="landing-hero__phone landing-hero__phone--profile">
-        <img src="/brand/landing-phone-profile-4k.png" alt="" width={540} height={1080} loading="eager" decoding="async" />
+        <img
+          src="/brand/landing-phone-profile-4k.png"
+          srcSet="/brand/landing-phone-profile-4k.png 1400w"
+          sizes="(min-width: 1200px) 560px, (min-width: 768px) 44vw, 58vw"
+          alt=""
+          width={1400}
+          height={933}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+        />
       </figure>
     </div>
   );
