@@ -161,11 +161,11 @@ function LandingHeroTitle({ title }: { title: string }) {
 function LandingHeroPhones() {
   return (
     <div className="landing-hero__phones" aria-hidden>
-      <figure className="landing-hero__phone landing-hero__phone--map">
-        <img src="/brand/landing-phone-map-hero.png" alt="" width={260} height={520} loading="eager" decoding="async" />
+      <figure className="landing-hero__phone landing-hero__phone--discover">
+        <img src="/brand/landing-phone-discover-hero.png" alt="" width={520} height={1040} loading="eager" decoding="async" />
       </figure>
       <figure className="landing-hero__phone landing-hero__phone--profile">
-        <img src="/brand/landing-phone-profile-hero.png" alt="" width={260} height={520} loading="eager" decoding="async" />
+        <img src="/brand/landing-phone-profile-hero.png" alt="" width={520} height={1040} loading="eager" decoding="async" />
       </figure>
     </div>
   );
