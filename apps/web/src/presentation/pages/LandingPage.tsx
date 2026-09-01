@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { useEffect, useRef, useState } from 'react';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
@@ -27,62 +26,21 @@ const GALLERY_IMAGES = [
   { src: '/brand/landing-slide-05.jpg', alt: 'Brunch with friends' },
 ] as const;
 
-function LandingGallerySlideshow() {
-  const { t } = useI18n();
-  const [index, setIndex] = useState(0);
-  const pauseRef = useRef(false);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      if (pauseRef.current) {
-        return;
-      }
-      setIndex((current) => (current + 1) % GALLERY_IMAGES.length);
-    }, 4500);
-    return () => window.clearInterval(timer);
-  }, []);
-
-  function go(delta: number) {
-    pauseRef.current = true;
-    setIndex((current) => (current + delta + GALLERY_IMAGES.length) % GALLERY_IMAGES.length);
-    window.setTimeout(() => {
-      pauseRef.current = false;
-    }, 8000);
+function splitHeroTitle(title: string): { lead: string; accent: string } {
+  const match = title.match(/^(.+?[.،,—–…]\s*)(.+)$/u);
+  if (!match) {
+    return { lead: title, accent: '' };
   }
+  return { lead: match[1].trimEnd(), accent: match[2].trim() };
+}
 
+function LandingHeroTitle({ title }: { title: string }) {
+  const { lead, accent } = splitHeroTitle(title);
   return (
-    <section className="landing-gallery" aria-labelledby="landing-gallery-title">
-      <div className="landing-gallery__glow" aria-hidden />
-      <div className="landing-gallery__inner">
-        <h2 id="landing-gallery-title" className="landing-section-title landing-section-title--center landing-section-title--light">
-          {t('landing.footer.tagline')}
-        </h2>
-        <div className="landing-slideshow">
-          <button type="button" className="landing-slideshow__nav landing-slideshow__nav--prev" aria-label="Previous" onClick={() => go(-1)}>
-            ‹
-          </button>
-          <div className="landing-slideshow__viewport">
-            {GALLERY_IMAGES.map((image, imageIndex) => (
-              <figure
-                key={image.src}
-                className={`landing-slideshow__slide${imageIndex === index ? ' is-active' : ''}`}
-                aria-hidden={imageIndex !== index}
-              >
-                <img src={image.src} alt={image.alt} loading={imageIndex === 0 ? 'eager' : 'lazy'} />
-              </figure>
-            ))}
-          </div>
-          <button type="button" className="landing-slideshow__nav landing-slideshow__nav--next" aria-label="Next" onClick={() => go(1)}>
-            ›
-          </button>
-          <div className="landing-slideshow__dots" aria-hidden>
-            {GALLERY_IMAGES.map((image, dotIndex) => (
-              <span key={image.src} className={dotIndex === index ? 'is-active' : ''} />
-            ))}
-          </div>
-        </div>
-      </div>
-    </section>
+    <h1 id="landing-hero-title" className="landing-hero__title">
+      {lead ? <span className="landing-hero__title-lead">{lead}</span> : null}
+      {accent ? <span className="landing-hero__title-accent">{accent}</span> : null}
+    </h1>
   );
 }
 
@@ -135,39 +93,24 @@ function FeatureIcon({ kind }: { kind: (typeof FEATURE_KEYS)[number][2] }) {
   }
 }
 
-function splitHeroTitle(title: string): { lead: string; accent: string } {
-  const match = title.match(/^(.+?[.،,—–…]\s*)(.+)$/u);
-  if (!match) {
-    return { lead: title, accent: '' };
-  }
-  return { lead: match[1].trimEnd(), accent: match[2].trim() };
-}
+function LandingGalleryRow() {
+  const { t } = useI18n();
 
-function LandingHeroTitle({ title }: { title: string }) {
-  const { lead, accent } = splitHeroTitle(title);
   return (
-    <h1 id="landing-hero-title" className="landing-hero__title">
-      {lead ? <span className="landing-hero__title-lead">{lead}</span> : null}
-      {accent ? (
-        <>
-          {' '}
-          <span className="landing-hero__title-accent">{accent}</span>
-        </>
-      ) : null}
-    </h1>
-  );
-}
-
-function LandingHeroPhones() {
-  return (
-    <div className="landing-hero__phones" aria-hidden>
-      <figure className="landing-hero__phone landing-hero__phone--discover">
-        <img src="/brand/landing-phone-discover-hero.png" alt="" width={520} height={1040} loading="eager" decoding="async" />
-      </figure>
-      <figure className="landing-hero__phone landing-hero__phone--profile">
-        <img src="/brand/landing-phone-profile-hero.png" alt="" width={520} height={1040} loading="eager" decoding="async" />
-      </figure>
-    </div>
+    <section className="landing-gallery landing-gallery--ref" aria-labelledby="landing-gallery-title">
+      <div className="landing-gallery__inner">
+        <h2 id="landing-gallery-title" className="landing-section-title landing-section-title--center landing-section-title--light">
+          {t('landing.footer.tagline')}
+        </h2>
+        <div className="landing-gallery__row">
+          {GALLERY_IMAGES.map((image) => (
+            <figure key={image.src} className="landing-gallery__card">
+              <img src={image.src} alt={image.alt} loading="lazy" />
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -177,15 +120,14 @@ export function LandingPage() {
   const inApp = isAuthenticated && isOtpVerified;
 
   return (
-    <main className="landing-page">
-      <section className="landing-hero landing-hero--cinematic" aria-labelledby="landing-hero-title">
+    <main className="landing-page landing-page--ref">
+      <section className="landing-hero landing-hero--ref" aria-labelledby="landing-hero-title">
         <div className="landing-hero__bg" aria-hidden>
-          <img src="/brand/landing-hero-cinematic.jpg" alt="" loading="eager" decoding="async" />
+          <img src="/brand/landing-hero-dining.jpg" alt="" loading="eager" decoding="async" />
         </div>
         <div className="landing-hero__scrim" aria-hidden />
         <div className="landing-hero__inner">
           <div className="landing-hero__copy">
-            <BrandLockup size="md" tone="light" showTagline={false} />
             <p className="landing-hero__badge">{t('landing.footer.tagline')}</p>
             <LandingHeroTitle title={t('landing.hero.title')} />
             <p className="landing-hero__subtitle">{t('landing.hero.subtitle')}</p>
@@ -212,11 +154,20 @@ export function LandingPage() {
             </div>
           </div>
 
-          <LandingHeroPhones />
+          <div className="landing-hero__phones-shot">
+            <img
+              src="/brand/landing-hero-phones-ref.png"
+              alt=""
+              width={886}
+              height={992}
+              loading="eager"
+              decoding="async"
+            />
+          </div>
         </div>
       </section>
 
-      <section className="landing-strip" id="features" aria-label="Features">
+      <section className="landing-strip landing-strip--ref" id="features" aria-label="Features">
         <div className="landing-strip__inner">
           <div className="landing-strip__grid">
             {FEATURE_KEYS.map(([titleKey, descKey, kind]) => (
@@ -232,9 +183,9 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-how" id="how-it-works" aria-labelledby="landing-how-title">
+      <section className="landing-how landing-how--ref" id="how-it-works" aria-labelledby="landing-how-title">
         <div className="landing-how__inner">
-          <h2 id="landing-how-title" className="landing-section-title landing-section-title--center">
+          <h2 id="landing-how-title" className="landing-section-title landing-section-title--center landing-how__title">
             {t('landing.how.title')}
           </h2>
           <ol className="landing-how__steps">
@@ -251,9 +202,9 @@ export function LandingPage() {
         </div>
       </section>
 
-      <LandingGallerySlideshow />
+      <LandingGalleryRow />
 
-      <section className="landing-final" aria-labelledby="landing-final-title">
+      <section className="landing-final landing-final--ref" aria-labelledby="landing-final-title">
         <div className="landing-final__inner">
           <div className="landing-final__copy">
             <h2 id="landing-final-title" className="landing-final__title">
@@ -272,7 +223,8 @@ export function LandingPage() {
               </Link>
             )}
           </div>
-          <div className="landing-stats-row" aria-label="Stats">
+
+          <div className="landing-stats-row landing-stats-row--ref" aria-label="Stats">
             <article>
               <strong>120K+</strong>
               <span>{t('landing.stats.users')}</span>
@@ -285,6 +237,11 @@ export function LandingPage() {
               <strong>24/7</strong>
               <span>{t('landing.stats.meetups')}</span>
             </article>
+          </div>
+
+          <div className="landing-final__visual" aria-hidden>
+            <BrandLockup size="md" tone="light" showTagline={false} />
+            <img className="landing-final__food" src="/brand/landing-slide-03.jpg" alt="" loading="lazy" />
           </div>
         </div>
       </section>
