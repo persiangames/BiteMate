@@ -8,19 +8,40 @@
 }
 
 .auth-world-backdrop--intro {
-  background: var(--logo-intro-bg, #f4ebd7);
+  background: #0c0c0e;
 }
 
 .auth-world-backdrop--form {
-  background: var(--color-bg);
+  background: #0c0c0e;
 }
 
-html[data-theme='dark'] .auth-world-backdrop--intro {
-  background: var(--logo-intro-bg, #000000);
+.auth-world-backdrop__photo {
+  position: absolute;
+  inset: -8%;
+  background-image: url('/brand/auth-bg-dining.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: blur(2px) saturate(1.08);
+  transform: scale(1.04);
 }
 
-html[data-theme='dark'] .auth-world-backdrop--form {
-  background: var(--color-bg);
+.auth-world-backdrop__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(12, 12, 14, 0.72) 0%,
+    rgba(12, 12, 14, 0.82) 45%,
+    rgba(12, 12, 14, 0.88) 100%
+  );
+}
+
+.auth-world-backdrop--intro .auth-world-backdrop__photo {
+  opacity: 0.55;
+}
+
+.auth-world-backdrop--form .auth-world-backdrop__photo {
+  opacity: 0.65;
 }
 
 .auth-world-backdrop--intro::before,
@@ -29,31 +50,23 @@ html[data-theme='dark'] .auth-world-backdrop--form {
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 1;
 }
 
 .auth-world-backdrop--intro::before {
-  background: radial-gradient(ellipse 88% 72% at 50% 44%, #f7f0de 0%, transparent 68%);
-  opacity: 0.72;
+  background: radial-gradient(ellipse 88% 72% at 50% 44%, rgba(255, 138, 0, 0.12) 0%, transparent 68%);
+  opacity: 0.9;
 }
 
 .auth-world-backdrop--form::before {
-  background: radial-gradient(ellipse 90% 70% at 50% 42%, #ffffff 0%, transparent 72%);
-  opacity: 0.55;
-}
-
-html[data-theme='dark'] .auth-world-backdrop--intro::before {
-  background: radial-gradient(ellipse 88% 72% at 50% 44%, #141414 0%, transparent 68%);
-  opacity: 0.45;
-}
-
-html[data-theme='dark'] .auth-world-backdrop--form::before {
-  background: radial-gradient(ellipse 90% 70% at 50% 42%, #1c1c1e 0%, transparent 72%);
-  opacity: 0.4;
+  background: radial-gradient(ellipse 90% 70% at 50% 42%, rgba(255, 138, 0, 0.08) 0%, transparent 72%);
+  opacity: 0.85;
 }
 
 .auth-world-backdrop__map {
   position: absolute;
   inset: 2%;
+  z-index: 2;
   -webkit-mask-image: url('/brand/world-map.svg');
   mask-image: url('/brand/world-map.svg');
   -webkit-mask-repeat: no-repeat;
@@ -62,45 +75,37 @@ html[data-theme='dark'] .auth-world-backdrop--form::before {
   mask-position: center;
   -webkit-mask-size: contain;
   mask-size: contain;
+  opacity: 0.35;
 }
 
 .auth-world-backdrop--intro .auth-world-backdrop__map--base {
-  background-color: rgba(98, 72, 46, 0.24);
-  opacity: 0.92;
-  filter: drop-shadow(0 3px 2px rgba(255, 244, 220, 0.55)) drop-shadow(0 -2px 3px rgba(68, 44, 24, 0.16));
+  background-color: rgba(255, 180, 80, 0.14);
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
 }
 
 .auth-world-backdrop--intro .auth-world-backdrop__map--relief {
-  background-color: rgba(132, 98, 62, 0.1);
-  opacity: 0.55;
+  background-color: rgba(255, 200, 120, 0.06);
   transform: translate(-0.35%, -0.45%) scale(1.008);
-  filter: drop-shadow(0 1px 0 rgba(255, 250, 238, 0.35));
 }
 
 .auth-world-backdrop--form .auth-world-backdrop__map--base {
-  background-color: rgba(113, 113, 122, 0.13);
-  opacity: 0.88;
-  filter: drop-shadow(0 2px 1px rgba(255, 255, 255, 0.5)) drop-shadow(0 -1px 2px rgba(82, 82, 91, 0.1));
+  background-color: rgba(255, 180, 80, 0.1);
+  filter: drop-shadow(0 2px 1px rgba(0, 0, 0, 0.25));
 }
 
 .auth-world-backdrop--form .auth-world-backdrop__map--relief {
-  background-color: rgba(161, 161, 170, 0.07);
-  opacity: 0.5;
+  background-color: rgba(255, 200, 120, 0.05);
   transform: translate(-0.3%, -0.35%) scale(1.006);
-  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.28));
 }
 
-html[data-theme='dark'] .auth-world-backdrop--intro .auth-world-backdrop__map--base {
-  background-color: rgba(180, 150, 110, 0.12);
-  filter: drop-shadow(0 2px 2px rgba(40, 36, 30, 0.45));
-}
-
-html[data-theme='dark'] .auth-world-backdrop--intro .auth-world-backdrop__map--relief {
-  background-color: rgba(210, 180, 130, 0.06);
-}
-
+html[data-theme='dark'] .auth-world-backdrop--intro .auth-world-backdrop__map--base,
 html[data-theme='dark'] .auth-world-backdrop--form .auth-world-backdrop__map--base {
-  background-color: rgba(161, 161, 170, 0.1);
+  background-color: rgba(255, 180, 80, 0.08);
+}
+
+html[data-theme='dark'] .auth-world-backdrop--intro .auth-world-backdrop__map--relief,
+html[data-theme='dark'] .auth-world-backdrop--form .auth-world-backdrop__map--relief {
+  background-color: rgba(255, 200, 120, 0.04);
 }
 
 .bite-logo-intro .auth-world-backdrop {
@@ -108,9 +113,9 @@ html[data-theme='dark'] .auth-world-backdrop--form .auth-world-backdrop__map--ba
 }
 
 .bite-logo-intro .auth-world-backdrop--intro .auth-world-backdrop__map--base {
-  opacity: 0.96;
+  opacity: 0.5;
 }
 
 .bite-logo-intro .auth-world-backdrop--intro .auth-world-backdrop__map--relief {
-  opacity: 0.62;
+  opacity: 0.35;
 }

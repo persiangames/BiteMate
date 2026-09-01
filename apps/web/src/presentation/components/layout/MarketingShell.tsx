@@ -8,9 +8,10 @@ export function MarketingShell() {
   const { isAuthenticated, isOtpVerified } = useAuth();
   const { pathname } = useLocation();
   const inApp = isAuthenticated && isOtpVerified;
+  const isLanding = pathname === '/';
 
   return (
-    <div className="marketing-shell">
+    <div className={`marketing-shell${isLanding ? ' marketing-shell--landing' : ''}`}>
       <header className="marketing-nav">
         <div className="marketing-nav__inner">
           <Link to="/" className="marketing-nav__brand" aria-label="BiteMate">
@@ -44,12 +45,29 @@ export function MarketingShell() {
       </header>
       <Outlet />
       <footer className="marketing-footer">
-        <p>{t('landing.footer.tagline')}</p>
-        <p>{t('landing.footer.rights', { year: new Date().getFullYear() })}</p>
-        <div className="marketing-footer__links">
-          <Link to="/about">{t('nav.about')}</Link>
-          <Link to="/faq">{t('nav.faq')}</Link>
+        <div className="marketing-footer__inner">
+          <div className="marketing-footer__brand">
+            <BrandMark size="sm" linked={false} />
+            <p className="marketing-footer__tagline">{t('landing.footer.tagline')}</p>
+          </div>
+          <div className="marketing-footer__cols">
+            <div className="marketing-footer__col">
+              <strong>{t('nav.about')}</strong>
+              <Link to="/about">{t('nav.about')}</Link>
+              <Link to="/faq">{t('nav.faq')}</Link>
+            </div>
+            <div className="marketing-footer__col">
+              <strong>{t('nav.login')}</strong>
+              <Link to="/login" state={{ authIntro: true }}>{t('nav.login')}</Link>
+              <Link to="/register" state={{ authIntro: true }}>{t('nav.signup')}</Link>
+            </div>
+            <div className="marketing-footer__col">
+              <strong>{t('language.title')}</strong>
+              <Link to="/language">{t('language.title')}</Link>
+            </div>
+          </div>
         </div>
+        <p className="marketing-footer__rights">{t('landing.footer.rights', { year: new Date().getFullYear() })}</p>
       </footer>
     </div>
   );
