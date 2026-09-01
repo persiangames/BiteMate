@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 
@@ -13,9 +12,11 @@ const FEATURE_KEYS = [
 ] as const;
 
 const HOW_KEYS = [
-  ['landing.how.step1.title', 'landing.how.step1.desc'],
-  ['landing.how.step2.title', 'landing.how.step2.desc'],
-  ['landing.how.step3.title', 'landing.how.step3.desc'],
+  ['landing.how.step1.title', 'landing.how.step1.desc', 'landing-how-phone-1.png'],
+  ['landing.how.step2.title', 'landing.how.step2.desc', 'landing-how-phone-2.png'],
+  ['landing.how.step3.title', 'landing.how.step3.desc', 'landing-how-phone-3.png'],
+  ['landing.how.step4.title', 'landing.how.step4.desc', 'landing-how-phone-4.png'],
+  ['landing.how.step5.title', 'landing.how.step5.desc', 'landing-how-phone-5.png'],
 ] as const;
 
 const GALLERY_IMAGES = [
@@ -41,6 +42,19 @@ function LandingHeroTitle({ title }: { title: string }) {
       {lead ? <span className="landing-hero__title-lead">{lead}</span> : null}
       {accent ? <span className="landing-hero__title-accent">{accent}</span> : null}
     </h1>
+  );
+}
+
+function LandingHeroPhones() {
+  return (
+    <div className="landing-hero__phones" aria-hidden>
+      <figure className="landing-hero__phone landing-hero__phone--discover">
+        <img src="/brand/landing-phone-discover-4k.png" alt="" width={540} height={1080} loading="eager" decoding="async" />
+      </figure>
+      <figure className="landing-hero__phone landing-hero__phone--profile">
+        <img src="/brand/landing-phone-profile-4k.png" alt="" width={540} height={1080} loading="eager" decoding="async" />
+      </figure>
+    </div>
   );
 }
 
@@ -154,16 +168,7 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="landing-hero__phones-shot">
-            <img
-              src="/brand/landing-hero-phones-ref.png"
-              alt=""
-              width={886}
-              height={992}
-              loading="eager"
-              decoding="async"
-            />
-          </div>
+          <LandingHeroPhones />
         </div>
       </section>
 
@@ -188,9 +193,13 @@ export function LandingPage() {
           <h2 id="landing-how-title" className="landing-section-title landing-section-title--center landing-how__title">
             {t('landing.how.title')}
           </h2>
-          <ol className="landing-how__steps">
-            {HOW_KEYS.map(([titleKey, descKey], index) => (
-              <li key={titleKey} className="landing-how__step">
+          <ol className="landing-how__steps landing-how__steps--ref">
+            {HOW_KEYS.map(([titleKey, descKey, image], index) => (
+              <li key={titleKey} className="landing-how__step landing-how__step--ref">
+                <div className="landing-how__phone-wrap">
+                  <img className="landing-how__phone-shot" src={`/brand/${image}`} alt="" loading="lazy" />
+                </div>
+                {index < HOW_KEYS.length - 1 ? <span className="landing-how__arrow" aria-hidden>→</span> : null}
                 <span className="landing-how__num">{index + 1}</span>
                 <div className="landing-how__card">
                   <h3>{t(titleKey)}</h3>
@@ -212,13 +221,16 @@ export function LandingPage() {
             </h2>
             <p className="landing-final__lead">{t('landing.cta.subtitle')}</p>
             {!inApp ? (
-              <div className="landing-hero__actions landing-hero__actions--start">
-                <Link to="/register" state={{ authIntro: true }} className="btn-primary landing-btn landing-btn--primary">
-                  {t('landing.hero.cta.primary')}
+              <div className="landing-final__actions">
+                <Link to="/register" state={{ authIntro: true }} className="btn-primary landing-btn landing-btn--primary landing-btn--cta">
+                  {t('landing.cta.getStarted')}
+                </Link>
+                <Link to="/about" className="landing-btn landing-btn--outline">
+                  {t('landing.cta.business')}
                 </Link>
               </div>
             ) : (
-              <Link to="/feed" className="btn-primary landing-btn landing-btn--primary">
+              <Link to="/feed" className="btn-primary landing-btn landing-btn--primary landing-btn--cta">
                 {t('nav.openApp')}
               </Link>
             )}
@@ -237,11 +249,14 @@ export function LandingPage() {
               <strong>24/7</strong>
               <span>{t('landing.stats.meetups')}</span>
             </article>
+            <article>
+              <strong>4.8★</strong>
+              <span>{t('landing.stats.rating')}</span>
+            </article>
           </div>
 
           <div className="landing-final__visual" aria-hidden>
-            <BrandLockup size="md" tone="light" showTagline={false} />
-            <img className="landing-final__food" src="/brand/landing-slide-03.jpg" alt="" loading="lazy" />
+            <img className="landing-final__promo" src="/brand/landing-cta-visual.png" alt="" loading="lazy" />
           </div>
         </div>
       </section>
