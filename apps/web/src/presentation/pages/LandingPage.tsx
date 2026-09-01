@@ -21,7 +21,7 @@ const HOW_KEYS = [
 
 const GALLERY_IMAGES = [
   { src: '/brand/landing-portrait-mixed.jpg', alt: 'Friends dining together' },
-  { src: '/brand/landing-portrait-women-v2.jpg', alt: 'Women sharing a meal' },
+  { src: '/brand/landing-portrait-man-sage.jpg', alt: 'Guest at a restaurant' },
   { src: '/brand/landing-gallery-couples.jpg', alt: 'Couples at a restaurant' },
   { src: '/brand/landing-gallery-streetfood.jpg', alt: 'Street food meetup' },
   { src: '/brand/landing-hero-dining.jpg', alt: 'Social dining experience' },
@@ -168,7 +168,7 @@ export function LandingPage() {
         <HeroOrbits />
         <div className="landing-hero__inner">
           <div className="landing-hero__copy">
-            <BrandLockup size="lg" tone="light" />
+            <BrandLockup size="lg" tone="light" showTagline={false} />
             <h1 id="landing-hero-title" className="landing-hero__title">
               {t('landing.hero.title')}
             </h1>
@@ -195,7 +195,7 @@ export function LandingPage() {
             <div className="landing-devices">
               <img
                 className="landing-devices__phone landing-devices__phone--profile"
-                src="/brand/landing-phone-profile-4k.jpg"
+                src="/brand/landing-phone-profile-cutout.png"
                 alt=""
                 width={280}
                 height={560}
@@ -204,7 +204,7 @@ export function LandingPage() {
               />
               <img
                 className="landing-devices__phone landing-devices__phone--map"
-                src="/brand/landing-phone-map-4k.jpg"
+                src="/brand/landing-phone-map-cutout.png"
                 alt=""
                 width={320}
                 height={640}
@@ -214,17 +214,14 @@ export function LandingPage() {
             </div>
             <div className="landing-hero__portraits">
               <img className="landing-hero__portrait landing-hero__portrait--a" src="/brand/landing-portrait-mixed.jpg" alt="" loading="lazy" />
-              <img className="landing-hero__portrait landing-hero__portrait--b" src="/brand/landing-portrait-women-v2.jpg" alt="" loading="lazy" />
+              <img className="landing-hero__portrait landing-hero__portrait--b" src="/brand/landing-portrait-man-sage.jpg" alt="" loading="lazy" />
             </div>
           </div>
         </div>
       </section>
 
-      <section className="landing-strip" id="features" aria-labelledby="landing-features-title">
+      <section className="landing-strip" id="features" aria-label="Features">
         <div className="landing-strip__inner">
-          <h2 id="landing-features-title" className="landing-section-title landing-section-title--center">
-            {t('landing.features.title')}
-          </h2>
           <div className="landing-strip__grid">
             {FEATURE_KEYS.map(([titleKey, descKey, kind]) => (
               <article key={titleKey} className="landing-strip__item">

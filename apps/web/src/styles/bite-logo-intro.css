@@ -2,9 +2,9 @@
 
 :root {
   --logo-intro-bg: #0a0a0c;
-  --intro-video-crop-x: 8%;
+  --intro-video-crop-x: 6%;
   --intro-video-focus-y: 44%;
-  --intro-frame-size: min(82vw, 480px);
+  --intro-frame-size: min(88vw, 560px);
 }
 
 html[data-theme='dark'] {
@@ -57,9 +57,9 @@ html[data-theme='dark'] {
 }
 
 .bite-logo-intro__video {
-  width: 130%;
+  width: 118%;
   height: 100%;
-  margin-left: -15%;
+  margin-left: -9%;
   max-width: none;
   max-height: none;
   object-fit: cover;
@@ -69,7 +69,7 @@ html[data-theme='dark'] {
   box-shadow: none;
   background: transparent;
   display: block;
-  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
   mix-blend-mode: normal;
 }
 
@@ -87,7 +87,13 @@ html[data-theme='dark'] {
 
 @media (min-width: 900px) {
   :root {
-    --intro-frame-size: min(42vw, 520px);
+    --intro-frame-size: min(44vw, 560px);
+  }
+}
+
+@media (min-width: 1400px) {
+  :root {
+    --intro-frame-size: min(38vw, 640px);
   }
 }
 

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AuthWorldBackdrop } from '@/presentation/components/decor/AuthWorldBackdrop';
 import { LOGO_ANIMATION_VERSION } from '@/presentation/components/brand/logo-animation.version';
 
+const VIDEO_MP4_4K = `/brand/logo-animation-4k.mp4?v=${LOGO_ANIMATION_VERSION}`;
 const VIDEO_MP4 = `/brand/logo-animation.mp4?v=${LOGO_ANIMATION_VERSION}`;
 const VIDEO_WEBM = `/brand/logo-animation-alpha.webm?v=${LOGO_ANIMATION_VERSION}`;
 const FADE_OUT_MS = 450;
@@ -117,6 +118,7 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
           disablePictureInPicture
         >
           <source src={VIDEO_WEBM} type="video/webm" />
+          <source src={VIDEO_MP4_4K} type="video/mp4" />
           <source src={VIDEO_MP4} type="video/mp4" />
         </video>
       </div>

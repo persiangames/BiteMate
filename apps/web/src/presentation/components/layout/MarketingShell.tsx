@@ -21,10 +21,7 @@ export function MarketingShell() {
           </Link>
           <nav className="marketing-nav__links" aria-label="Site">
             {isLanding ? (
-              <>
-                <a href="#features">{t('landing.features.title')}</a>
-                <a href="#how-it-works">{t('landing.how.title')}</a>
-              </>
+              <a href="#how-it-works">{t('landing.how.title')}</a>
             ) : null}
             <Link to="/about" className={pathname === '/about' ? 'is-active' : ''}>
               {t('nav.about')}
