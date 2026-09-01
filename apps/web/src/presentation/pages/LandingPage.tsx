@@ -135,24 +135,38 @@ function FeatureIcon({ kind }: { kind: (typeof FEATURE_KEYS)[number][2] }) {
   }
 }
 
-function HeroOrbits() {
+function splitHeroTitle(title: string): { lead: string; accent: string } {
+  const match = title.match(/^(.+?[.،,—–…]\s*)(.+)$/u);
+  if (!match) {
+    return { lead: title, accent: '' };
+  }
+  return { lead: match[1].trimEnd(), accent: match[2].trim() };
+}
+
+function LandingHeroTitle({ title }: { title: string }) {
+  const { lead, accent } = splitHeroTitle(title);
   return (
-    <div className="landing-hero__orbits" aria-hidden>
-      <svg className="landing-hero__orbit landing-hero__orbit--a" viewBox="0 0 200 200">
-        <ellipse cx="100" cy="100" rx="88" ry="42" fill="none" stroke="url(#orbitGrad)" strokeWidth="1.2" strokeDasharray="4 8" />
-        <defs>
-          <linearGradient id="orbitGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#ff8a00" stopOpacity="0.2" />
-            <stop offset="50%" stopColor="#ff4b3e" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#ffd54f" stopOpacity="0.2" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <svg className="landing-hero__orbit landing-hero__orbit--b" viewBox="0 0 200 200">
-        <ellipse cx="100" cy="100" rx="72" ry="58" fill="none" stroke="rgba(255,138,0,0.25)" strokeWidth="1" />
-      </svg>
-      <span className="landing-hero__float-icon landing-hero__float-icon--heart">♥</span>
-      <span className="landing-hero__float-icon landing-hero__float-icon--pin">📍</span>
+    <h1 id="landing-hero-title" className="landing-hero__title">
+      {lead ? <span className="landing-hero__title-lead">{lead}</span> : null}
+      {accent ? (
+        <>
+          {' '}
+          <span className="landing-hero__title-accent">{accent}</span>
+        </>
+      ) : null}
+    </h1>
+  );
+}
+
+function LandingHeroPhones() {
+  return (
+    <div className="landing-hero__phones" aria-hidden>
+      <figure className="landing-hero__phone landing-hero__phone--map">
+        <img src="/brand/landing-phone-map-hero.png" alt="" width={260} height={520} loading="eager" decoding="async" />
+      </figure>
+      <figure className="landing-hero__phone landing-hero__phone--profile">
+        <img src="/brand/landing-phone-profile-hero.png" alt="" width={260} height={520} loading="eager" decoding="async" />
+      </figure>
     </div>
   );
 }
@@ -164,27 +178,33 @@ export function LandingPage() {
 
   return (
     <main className="landing-page">
-      <section className="landing-hero" aria-labelledby="landing-hero-title">
-        <div className="landing-hero__glow" aria-hidden />
-        <HeroOrbits />
+      <section className="landing-hero landing-hero--cinematic" aria-labelledby="landing-hero-title">
+        <div className="landing-hero__bg" aria-hidden>
+          <img src="/brand/landing-hero-cinematic.jpg" alt="" loading="eager" decoding="async" />
+        </div>
+        <div className="landing-hero__scrim" aria-hidden />
         <div className="landing-hero__inner">
           <div className="landing-hero__copy">
-            <BrandLockup size="lg" tone="light" showTagline={false} />
-            <h1 id="landing-hero-title" className="landing-hero__title">
-              {t('landing.hero.title')}
-            </h1>
+            <BrandLockup size="md" tone="light" showTagline={false} />
+            <p className="landing-hero__badge">{t('landing.footer.tagline')}</p>
+            <LandingHeroTitle title={t('landing.hero.title')} />
             <p className="landing-hero__subtitle">{t('landing.hero.subtitle')}</p>
             <div className="landing-hero__actions">
               {inApp ? (
-                <Link to="/feed" className="btn-primary landing-btn landing-btn--primary">
+                <Link to="/feed" className="btn-primary landing-btn landing-btn--primary landing-btn--hero">
                   {t('nav.openApp')}
                 </Link>
               ) : (
                 <>
-                  <Link to="/register" state={{ authIntro: true }} className="btn-primary landing-btn landing-btn--primary">
+                  <Link to="/register" state={{ authIntro: true }} className="btn-primary landing-btn landing-btn--primary landing-btn--hero">
                     {t('landing.hero.cta.primary')}
                   </Link>
-                  <Link to="#how-it-works" className="landing-btn landing-btn--ghost">
+                  <Link to="#how-it-works" className="landing-hero__cta-secondary">
+                    <span className="landing-hero__play" aria-hidden>
+                      <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </span>
                     {t('landing.hero.cta.secondary')}
                   </Link>
                 </>
@@ -192,32 +212,7 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="landing-hero__visual">
-            <div className="landing-devices">
-              <img
-                className="landing-devices__phone landing-devices__phone--profile"
-                src="/brand/landing-phone-profile-dark.png"
-                alt=""
-                width={280}
-                height={560}
-                loading="eager"
-                decoding="async"
-              />
-              <img
-                className="landing-devices__phone landing-devices__phone--map"
-                src="/brand/landing-phone-map-dark.png"
-                alt=""
-                width={320}
-                height={640}
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-            <div className="landing-hero__portraits">
-              <img className="landing-hero__portrait landing-hero__portrait--a" src="/brand/landing-portrait-mixed.jpg" alt="" loading="lazy" />
-              <img className="landing-hero__portrait landing-hero__portrait--b" src="/brand/landing-portrait-seniors-dining.jpg" alt="" loading="lazy" />
-            </div>
-          </div>
+          <LandingHeroPhones />
         </div>
       </section>
 
