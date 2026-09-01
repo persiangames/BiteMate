@@ -23,7 +23,6 @@ const GALLERY_IMAGES = [
   { src: '/brand/landing-portrait-women.jpg', alt: 'Women sharing a meal' },
   { src: '/brand/landing-gallery-couples.jpg', alt: 'Couples at a restaurant' },
   { src: '/brand/landing-gallery-streetfood.jpg', alt: 'Street food meetup' },
-  { src: '/brand/landing-portrait-men.jpg', alt: 'Friends at dinner' },
   { src: '/brand/landing-hero-dining.jpg', alt: 'Social dining experience' },
 ] as const;
 
@@ -76,6 +75,28 @@ function FeatureIcon({ kind }: { kind: (typeof FEATURE_KEYS)[number][2] }) {
   }
 }
 
+function HeroOrbits() {
+  return (
+    <div className="landing-hero__orbits" aria-hidden>
+      <svg className="landing-hero__orbit landing-hero__orbit--a" viewBox="0 0 200 200">
+        <ellipse cx="100" cy="100" rx="88" ry="42" fill="none" stroke="url(#orbitGrad)" strokeWidth="1.2" strokeDasharray="4 8" />
+        <defs>
+          <linearGradient id="orbitGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#ff8a00" stopOpacity="0.2" />
+            <stop offset="50%" stopColor="#ff4b3e" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#ffd54f" stopOpacity="0.2" />
+          </linearGradient>
+        </defs>
+      </svg>
+      <svg className="landing-hero__orbit landing-hero__orbit--b" viewBox="0 0 200 200">
+        <ellipse cx="100" cy="100" rx="72" ry="58" fill="none" stroke="rgba(255,138,0,0.25)" strokeWidth="1" />
+      </svg>
+      <span className="landing-hero__float-icon landing-hero__float-icon--heart">♥</span>
+      <span className="landing-hero__float-icon landing-hero__float-icon--pin">📍</span>
+    </div>
+  );
+}
+
 export function LandingPage() {
   const { t } = useI18n();
   const { isAuthenticated, isOtpVerified } = useAuth();
@@ -85,9 +106,10 @@ export function LandingPage() {
     <main className="landing-page">
       <section className="landing-hero" aria-labelledby="landing-hero-title">
         <div className="landing-hero__glow" aria-hidden />
+        <HeroOrbits />
         <div className="landing-hero__inner">
           <div className="landing-hero__copy">
-            <BrandLockup size="lg" />
+            <BrandLockup size="lg" tone="light" />
             <h1 id="landing-hero-title" className="landing-hero__title">
               {t('landing.hero.title')}
             </h1>
@@ -102,7 +124,7 @@ export function LandingPage() {
                   <Link to="/register" state={{ authIntro: true }} className="btn-primary landing-btn landing-btn--primary">
                     {t('landing.hero.cta.primary')}
                   </Link>
-                  <Link to="/about" className="landing-btn landing-btn--ghost">
+                  <Link to="#how-it-works" className="landing-btn landing-btn--ghost">
                     {t('landing.hero.cta.secondary')}
                   </Link>
                 </>
@@ -110,25 +132,36 @@ export function LandingPage() {
             </div>
           </div>
 
-          <div className="landing-hero__visual" aria-hidden>
-            <div className="landing-hero__phones">
-              <div className="landing-phone landing-phone--back">
-                <div className="landing-phone__screen landing-phone__screen--map" />
-              </div>
-              <div className="landing-phone landing-phone--front">
-                <div className="landing-phone__screen landing-phone__screen--profile" />
-              </div>
+          <div className="landing-hero__visual">
+            <div className="landing-devices">
+              <img
+                className="landing-devices__phone landing-devices__phone--profile"
+                src="/brand/landing-phone-profile-4k.jpg"
+                alt=""
+                width={280}
+                height={560}
+                loading="eager"
+                decoding="async"
+              />
+              <img
+                className="landing-devices__phone landing-devices__phone--map"
+                src="/brand/landing-phone-map-4k.jpg"
+                alt=""
+                width={320}
+                height={640}
+                loading="eager"
+                decoding="async"
+              />
             </div>
             <div className="landing-hero__portraits">
               <img className="landing-hero__portrait landing-hero__portrait--a" src="/brand/landing-portrait-mixed.jpg" alt="" loading="lazy" />
               <img className="landing-hero__portrait landing-hero__portrait--b" src="/brand/landing-portrait-women.jpg" alt="" loading="lazy" />
-              <img className="landing-hero__portrait landing-hero__portrait--c" src="/brand/landing-portrait-men.jpg" alt="" loading="lazy" />
             </div>
           </div>
         </div>
       </section>
 
-      <section className="landing-strip" aria-labelledby="landing-features-title">
+      <section className="landing-strip" id="features" aria-labelledby="landing-features-title">
         <div className="landing-strip__inner">
           <h2 id="landing-features-title" className="landing-section-title landing-section-title--center">
             {t('landing.features.title')}
@@ -147,7 +180,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-how" aria-labelledby="landing-how-title">
+      <section className="landing-how" id="how-it-works" aria-labelledby="landing-how-title">
         <div className="landing-how__inner">
           <h2 id="landing-how-title" className="landing-section-title landing-section-title--center">
             {t('landing.how.title')}
@@ -160,26 +193,9 @@ export function LandingPage() {
                   <h3>{t(titleKey)}</h3>
                   <p>{t(descKey)}</p>
                 </div>
-                {index < HOW_KEYS.length - 1 ? <span className="landing-how__arrow" aria-hidden /> : null}
               </li>
             ))}
           </ol>
-        </div>
-      </section>
-
-      <section className="landing-features" aria-label={t('landing.features.title')}>
-        <div className="landing-features__inner">
-          <div className="landing-features__grid">
-            {FEATURE_KEYS.map(([titleKey, descKey, kind]) => (
-              <article key={`detail-${titleKey}`} className="landing-feature-card">
-                <span className="landing-feature-card__icon">
-                  <FeatureIcon kind={kind} />
-                </span>
-                <h3>{t(titleKey)}</h3>
-                <p>{t(descKey)}</p>
-              </article>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -198,9 +214,26 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-stats-band" aria-label="Stats">
-        <div className="landing-stats-band__inner">
-          <div className="landing-stats-row">
+      <section className="landing-final" aria-labelledby="landing-final-title">
+        <div className="landing-final__inner">
+          <div className="landing-final__copy">
+            <h2 id="landing-final-title" className="landing-final__title">
+              {t('landing.cta.title')}
+            </h2>
+            <p className="landing-final__lead">{t('landing.cta.subtitle')}</p>
+            {!inApp ? (
+              <div className="landing-hero__actions landing-hero__actions--start">
+                <Link to="/register" state={{ authIntro: true }} className="btn-primary landing-btn landing-btn--primary">
+                  {t('landing.hero.cta.primary')}
+                </Link>
+              </div>
+            ) : (
+              <Link to="/feed" className="btn-primary landing-btn landing-btn--primary">
+                {t('nav.openApp')}
+              </Link>
+            )}
+          </div>
+          <div className="landing-stats-row" aria-label="Stats">
             <article>
               <strong>120K+</strong>
               <span>{t('landing.stats.users')}</span>
@@ -214,29 +247,6 @@ export function LandingPage() {
               <span>{t('landing.stats.meetups')}</span>
             </article>
           </div>
-        </div>
-      </section>
-
-      <section className="landing-cta" aria-labelledby="landing-cta-title">
-        <div className="landing-cta__inner">
-          <p className="landing-cta__lead">{t('landing.cta.subtitle')}</p>
-          <h2 id="landing-cta-title" className="landing-cta__title">
-            {t('landing.cta.title')}
-          </h2>
-          {!inApp ? (
-            <div className="landing-hero__actions">
-              <Link to="/register" state={{ authIntro: true }} className="btn-primary landing-btn landing-btn--primary">
-                {t('nav.signup')}
-              </Link>
-              <Link to="/login" state={{ authIntro: true }} className="landing-btn landing-btn--outline">
-                {t('nav.login')}
-              </Link>
-            </div>
-          ) : (
-            <Link to="/feed" className="btn-primary landing-btn landing-btn--primary">
-              {t('nav.openApp')}
-            </Link>
-          )}
         </div>
       </section>
     </main>

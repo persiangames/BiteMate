@@ -260,7 +260,7 @@ export function RegisterPage() {
     <main className="auth-screen">
       <section className="auth-screen__panel glass-card glass-card--lg flow">
         <div className="auth-brand">
-          <BrandLockup size="md" />
+          <BrandLockup size="md" tone="light" />
         </div>
         <div>
           <p className="hint">{t('auth.step', { current: Math.min(step, totalSteps), total: totalSteps })}</p>

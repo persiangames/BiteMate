@@ -64,7 +64,7 @@ export function LoginPage() {
   return (
     <main className="ig-auth">
       <section className="ig-auth__card">
-        <BrandLockup size="md" />
+        <BrandLockup size="md" tone="light" />
         <form className="ig-auth__form" onSubmit={(event) => void handleSubmit(event)}>
           {challengeToken ? (
             <input

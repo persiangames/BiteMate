@@ -1,23 +1,33 @@
+import { useI18n } from '@/presentation/context/I18nContext';
+import { ICON_MARK_VERSION } from '@/presentation/components/brand/icon-mark.version';
+
 type BrandLockupProps = {
   size?: 'md' | 'lg' | 'xl';
+  /** Text colors: dark hero uses light text; auth card uses dark text */
+  tone?: 'light' | 'dark';
+  showTagline?: boolean;
 };
 
-const WIDTH = { md: 180, lg: 220, xl: 280 } as const;
+const ICON_PX = { md: 68, lg: 92, xl: 112 } as const;
 
-export function BrandLockup({ size = 'lg' }: BrandLockupProps) {
-  const width = WIDTH[size];
+export function BrandLockup({ size = 'lg', tone = 'dark', showTagline = true }: BrandLockupProps) {
+  const { t } = useI18n();
+  const px = ICON_PX[size];
 
   return (
-    <div className={`brand-lockup brand-lockup--${size} brand-elevated`}>
+    <div className={`brand-lockup brand-lockup--${size} brand-lockup--tone-${tone} brand-elevated`}>
       <img
-        src="/brand/BiteMate-logo.png"
-        srcSet="/brand/lockup-320.png 320w, /brand/lockup-512.png 512w, /brand/lockup-768.png 768w, /brand/lockup-1024.png 1024w"
-        sizes={`${width}px`}
-        width={width}
-        height={width}
-        alt="BiteMate — Meet. Eat. Enjoy Together."
+        className="brand-lockup__mark"
+        src={`/brand/icon-mark.png?v=${ICON_MARK_VERSION}`}
+        width={px}
+        height={px}
+        alt="BiteMate"
         decoding="async"
       />
+      <span className="brand-lockup__word">BiteMate</span>
+      {showTagline ? (
+        <p className="brand-lockup__tagline">{t('landing.footer.tagline')}</p>
+      ) : null}
     </div>
   );
 }

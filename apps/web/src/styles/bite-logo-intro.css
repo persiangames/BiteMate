@@ -1,16 +1,14 @@
-/* Logo intro — synced from /brand/logo animation.mp4 before dev/build */
+/* Logo intro — premium dark auth backdrop, high-res playback */
 
 :root {
-  /* Sampled from logo-animation.mp4 backdrop (warm cream) */
-  --logo-intro-bg: #f4ebd7;
-  /* 10% trim each side (was 20%; restored half per side) → center 4/5 width */
-  --intro-video-crop-x: 10%;
+  --logo-intro-bg: #0a0a0c;
+  --intro-video-crop-x: 8%;
   --intro-video-focus-y: 44%;
-  --intro-frame-size: min(78vw, 400px);
+  --intro-frame-size: min(82vw, 480px);
 }
 
 html[data-theme='dark'] {
-  --logo-intro-bg: #000000;
+  --logo-intro-bg: #0a0a0c;
 }
 
 .bite-logo-intro {
@@ -42,7 +40,10 @@ html[data-theme='dark'] {
   line-height: 0;
   background: transparent;
   border: 0;
-  box-shadow: none;
+  box-shadow:
+    0 0 0 1px rgba(255, 138, 0, 0.12),
+    0 24px 64px rgba(0, 0, 0, 0.55),
+    0 0 80px rgba(255, 138, 0, 0.08);
   border-radius: 50%;
   clip-path: circle(50% at 50% 50%);
 }
@@ -50,23 +51,15 @@ html[data-theme='dark'] {
 .bite-logo-intro__video-wrap::after {
   content: '';
   position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 1.75rem;
-  height: 1.75rem;
+  inset: 0;
   pointer-events: none;
-  background: linear-gradient(135deg, transparent 28%, rgba(244, 235, 215, 0.01) 62%);
-}
-
-html[data-theme='dark'] .bite-logo-intro__video-wrap::after {
-  background: linear-gradient(135deg, transparent 28%, rgba(0, 0, 0, 0.01) 62%);
+  background: radial-gradient(circle at 50% 42%, transparent 42%, rgba(10, 10, 12, 0.35) 100%);
 }
 
 .bite-logo-intro__video {
-  /* 10% trimmed each side → show center 80%, scale to fill circle */
-  width: 125%;
+  width: 130%;
   height: 100%;
-  margin-left: -12.5%;
+  margin-left: -15%;
   max-width: none;
   max-height: none;
   object-fit: cover;
@@ -76,12 +69,13 @@ html[data-theme='dark'] .bite-logo-intro__video-wrap::after {
   box-shadow: none;
   background: transparent;
   display: block;
+  image-rendering: -webkit-optimize-contrast;
   mix-blend-mode: normal;
 }
 
-@supports (mix-blend-mode: darken) {
+@supports (mix-blend-mode: lighten) {
   .bite-logo-intro__video.bite-logo-intro__video--blend {
-    mix-blend-mode: darken;
+    mix-blend-mode: lighten;
   }
 }
 
@@ -91,14 +85,20 @@ html[data-theme='dark'] .bite-logo-intro__video-wrap::after {
   }
 }
 
+@media (min-width: 900px) {
+  :root {
+    --intro-frame-size: min(42vw, 520px);
+  }
+}
+
 @media (max-width: 480px) {
   :root {
-    --intro-frame-size: min(84vw, 360px);
+    --intro-frame-size: min(86vw, 380px);
   }
 }
 
 @media (max-width: 360px) {
   :root {
-    --intro-frame-size: min(88vw, 340px);
+    --intro-frame-size: min(90vw, 340px);
   }
 }

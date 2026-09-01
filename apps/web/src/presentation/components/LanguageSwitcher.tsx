@@ -18,8 +18,16 @@ function GlobeIcon() {
   );
 }
 
+function ChevronDownIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" aria-hidden>
+      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 type LanguageSwitcherProps = {
-  placement?: 'floating' | 'header';
+  placement?: 'floating' | 'header' | 'marketing';
 };
 
 export function LanguageSwitcher({ placement = 'floating' }: LanguageSwitcherProps) {
@@ -58,7 +66,11 @@ export function LanguageSwitcher({ placement = 'floating' }: LanguageSwitcherPro
   const rootClass =
     placement === 'header'
       ? 'language-switcher language-switcher--header'
-      : 'language-switcher language-switcher--floating';
+      : placement === 'marketing'
+        ? 'language-switcher language-switcher--marketing'
+        : 'language-switcher language-switcher--floating';
+
+  const localeCode = locale.toUpperCase().slice(0, 2);
 
   return (
     <div className={rootClass} ref={rootRef}>
@@ -76,7 +88,16 @@ export function LanguageSwitcher({ placement = 'floating' }: LanguageSwitcherPro
         <span className="language-switcher__icon" aria-hidden>
           <GlobeIcon />
         </span>
-        {placement === 'floating' ? <span>Ln</span> : null}
+        {placement === 'marketing' ? (
+          <>
+            <span className="language-switcher__code">{localeCode}</span>
+            <span className="language-switcher__chevron" aria-hidden>
+              <ChevronDownIcon />
+            </span>
+          </>
+        ) : placement === 'floating' ? (
+          <span>Ln</span>
+        ) : null}
       </button>
       {open ? (
         <ul className="language-switcher__menu" role="listbox" aria-label={t('language.title')}>

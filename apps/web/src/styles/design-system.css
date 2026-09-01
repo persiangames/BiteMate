@@ -384,22 +384,22 @@ html[dir='rtl'] .back-btn__icon {
   background: transparent;
 }
 
-.brand-lockup img {
+.brand-lockup img,
+.brand-lockup__mark {
   display: block;
-  width: 100%;
   height: auto;
 }
 
 .brand-lockup--md {
-  width: 180px;
+  width: auto;
 }
 
 .brand-lockup--lg {
-  width: 220px;
+  width: auto;
 }
 
 .brand-lockup--xl {
-  width: 280px;
+  width: auto;
 }
 
 .auth-brand {

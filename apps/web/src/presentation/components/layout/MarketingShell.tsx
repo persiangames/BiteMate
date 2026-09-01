@@ -1,5 +1,6 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { BrandMark } from '@/presentation/components/brand/BrandMark';
+import { LanguageSwitcher } from '@/presentation/components/LanguageSwitcher';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 
@@ -19,13 +20,19 @@ export function MarketingShell() {
             <span className="marketing-nav__word">BiteMate</span>
           </Link>
           <nav className="marketing-nav__links" aria-label="Site">
+            {isLanding ? (
+              <>
+                <a href="#features">{t('landing.features.title')}</a>
+                <a href="#how-it-works">{t('landing.how.title')}</a>
+              </>
+            ) : null}
             <Link to="/about" className={pathname === '/about' ? 'is-active' : ''}>
               {t('nav.about')}
             </Link>
             <Link to="/faq" className={pathname === '/faq' ? 'is-active' : ''}>
               {t('nav.faq')}
             </Link>
-            <Link to="/language">{t('language.title')}</Link>
+            <LanguageSwitcher placement="marketing" />
             {inApp ? (
               <Link to="/feed" className="marketing-nav__cta marketing-nav__cta--ghost">
                 {t('nav.openApp')}
@@ -56,18 +63,12 @@ export function MarketingShell() {
               <Link to="/about">{t('nav.about')}</Link>
               <Link to="/faq">{t('nav.faq')}</Link>
             </div>
-            <div className="marketing-footer__col">
-              <strong>{t('nav.login')}</strong>
-              <Link to="/login" state={{ authIntro: true }}>{t('nav.login')}</Link>
-              <Link to="/register" state={{ authIntro: true }}>{t('nav.signup')}</Link>
-            </div>
-            <div className="marketing-footer__col">
-              <strong>{t('language.title')}</strong>
-              <Link to="/language">{t('language.title')}</Link>
-            </div>
           </div>
         </div>
-        <p className="marketing-footer__rights">{t('landing.footer.rights', { year: new Date().getFullYear() })}</p>
+        <div className="marketing-footer__bottom">
+          <p className="marketing-footer__rights">{t('landing.footer.rights', { year: new Date().getFullYear() })}</p>
+          <LanguageSwitcher placement="marketing" />
+        </div>
       </footer>
     </div>
   );
