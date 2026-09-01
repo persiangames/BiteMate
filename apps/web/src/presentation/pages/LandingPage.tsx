@@ -20,11 +20,11 @@ const HOW_KEYS = [
 ] as const;
 
 const GALLERY_IMAGES = [
-  { src: '/brand/landing-portrait-mixed.jpg', alt: 'Friends dining together' },
-  { src: '/brand/landing-portrait-man-sage.jpg', alt: 'Guest at a restaurant' },
-  { src: '/brand/landing-gallery-couples.jpg', alt: 'Couples at a restaurant' },
-  { src: '/brand/landing-gallery-streetfood.jpg', alt: 'Street food meetup' },
-  { src: '/brand/landing-hero-dining.jpg', alt: 'Social dining experience' },
+  { src: '/brand/landing-slide-01.jpg', alt: 'Friends dining together' },
+  { src: '/brand/landing-slide-02.jpg', alt: 'Senior friends at a luxury dinner' },
+  { src: '/brand/landing-slide-03.jpg', alt: 'Couples at a restaurant' },
+  { src: '/brand/landing-slide-04.jpg', alt: 'Street food meetup' },
+  { src: '/brand/landing-slide-05.jpg', alt: 'Brunch with friends' },
 ] as const;
 
 function LandingGallerySlideshow() {
@@ -52,6 +52,7 @@ function LandingGallerySlideshow() {
 
   return (
     <section className="landing-gallery" aria-labelledby="landing-gallery-title">
+      <div className="landing-gallery__glow" aria-hidden />
       <div className="landing-gallery__inner">
         <h2 id="landing-gallery-title" className="landing-section-title landing-section-title--center landing-section-title--light">
           {t('landing.footer.tagline')}
@@ -195,7 +196,7 @@ export function LandingPage() {
             <div className="landing-devices">
               <img
                 className="landing-devices__phone landing-devices__phone--profile"
-                src="/brand/landing-phone-profile-cutout.png"
+                src="/brand/landing-phone-profile-dark.png"
                 alt=""
                 width={280}
                 height={560}
@@ -204,7 +205,7 @@ export function LandingPage() {
               />
               <img
                 className="landing-devices__phone landing-devices__phone--map"
-                src="/brand/landing-phone-map-cutout.png"
+                src="/brand/landing-phone-map-dark.png"
                 alt=""
                 width={320}
                 height={640}
@@ -214,7 +215,7 @@ export function LandingPage() {
             </div>
             <div className="landing-hero__portraits">
               <img className="landing-hero__portrait landing-hero__portrait--a" src="/brand/landing-portrait-mixed.jpg" alt="" loading="lazy" />
-              <img className="landing-hero__portrait landing-hero__portrait--b" src="/brand/landing-portrait-man-sage.jpg" alt="" loading="lazy" />
+              <img className="landing-hero__portrait landing-hero__portrait--b" src="/brand/landing-portrait-seniors-dining.jpg" alt="" loading="lazy" />
             </div>
           </div>
         </div>
