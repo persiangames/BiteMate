@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
 import { BrandLockup } from '@/presentation/components/brand/BrandLockup';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
@@ -20,11 +21,69 @@ const HOW_KEYS = [
 
 const GALLERY_IMAGES = [
   { src: '/brand/landing-portrait-mixed.jpg', alt: 'Friends dining together' },
-  { src: '/brand/landing-portrait-women.jpg', alt: 'Women sharing a meal' },
+  { src: '/brand/landing-portrait-women-v2.jpg', alt: 'Women sharing a meal' },
   { src: '/brand/landing-gallery-couples.jpg', alt: 'Couples at a restaurant' },
   { src: '/brand/landing-gallery-streetfood.jpg', alt: 'Street food meetup' },
   { src: '/brand/landing-hero-dining.jpg', alt: 'Social dining experience' },
 ] as const;
+
+function LandingGallerySlideshow() {
+  const { t } = useI18n();
+  const [index, setIndex] = useState(0);
+  const pauseRef = useRef(false);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (pauseRef.current) {
+        return;
+      }
+      setIndex((current) => (current + 1) % GALLERY_IMAGES.length);
+    }, 4500);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  function go(delta: number) {
+    pauseRef.current = true;
+    setIndex((current) => (current + delta + GALLERY_IMAGES.length) % GALLERY_IMAGES.length);
+    window.setTimeout(() => {
+      pauseRef.current = false;
+    }, 8000);
+  }
+
+  return (
+    <section className="landing-gallery" aria-labelledby="landing-gallery-title">
+      <div className="landing-gallery__inner">
+        <h2 id="landing-gallery-title" className="landing-section-title landing-section-title--center landing-section-title--light">
+          {t('landing.footer.tagline')}
+        </h2>
+        <div className="landing-slideshow">
+          <button type="button" className="landing-slideshow__nav landing-slideshow__nav--prev" aria-label="Previous" onClick={() => go(-1)}>
+            ‹
+          </button>
+          <div className="landing-slideshow__viewport">
+            {GALLERY_IMAGES.map((image, imageIndex) => (
+              <figure
+                key={image.src}
+                className={`landing-slideshow__slide${imageIndex === index ? ' is-active' : ''}`}
+                aria-hidden={imageIndex !== index}
+              >
+                <img src={image.src} alt={image.alt} loading={imageIndex === 0 ? 'eager' : 'lazy'} />
+              </figure>
+            ))}
+          </div>
+          <button type="button" className="landing-slideshow__nav landing-slideshow__nav--next" aria-label="Next" onClick={() => go(1)}>
+            ›
+          </button>
+          <div className="landing-slideshow__dots" aria-hidden>
+            {GALLERY_IMAGES.map((image, dotIndex) => (
+              <span key={image.src} className={dotIndex === index ? 'is-active' : ''} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function FeatureIcon({ kind }: { kind: (typeof FEATURE_KEYS)[number][2] }) {
   const common = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, 'aria-hidden': true as const };
@@ -155,7 +214,7 @@ export function LandingPage() {
             </div>
             <div className="landing-hero__portraits">
               <img className="landing-hero__portrait landing-hero__portrait--a" src="/brand/landing-portrait-mixed.jpg" alt="" loading="lazy" />
-              <img className="landing-hero__portrait landing-hero__portrait--b" src="/brand/landing-portrait-women.jpg" alt="" loading="lazy" />
+              <img className="landing-hero__portrait landing-hero__portrait--b" src="/brand/landing-portrait-women-v2.jpg" alt="" loading="lazy" />
             </div>
           </div>
         </div>
@@ -199,20 +258,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-gallery" aria-labelledby="landing-gallery-title">
-        <div className="landing-gallery__inner">
-          <h2 id="landing-gallery-title" className="landing-section-title landing-section-title--center landing-section-title--light">
-            {t('landing.footer.tagline')}
-          </h2>
-          <div className="landing-gallery__track">
-            {GALLERY_IMAGES.map((image) => (
-              <figure key={image.src} className="landing-gallery__item">
-                <img src={image.src} alt={image.alt} loading="lazy" />
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+      <LandingGallerySlideshow />
 
       <section className="landing-final" aria-labelledby="landing-final-title">
         <div className="landing-final__inner">

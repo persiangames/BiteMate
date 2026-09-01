@@ -59,16 +59,12 @@ export function MarketingShell() {
           </div>
           <div className="marketing-footer__cols">
             <div className="marketing-footer__col">
-              <strong>{t('nav.about')}</strong>
               <Link to="/about">{t('nav.about')}</Link>
               <Link to="/faq">{t('nav.faq')}</Link>
             </div>
           </div>
         </div>
-        <div className="marketing-footer__bottom">
-          <p className="marketing-footer__rights">{t('landing.footer.rights', { year: new Date().getFullYear() })}</p>
-          <LanguageSwitcher placement="marketing" />
-        </div>
+        <p className="marketing-footer__rights">{t('landing.footer.rights', { year: new Date().getFullYear() })}</p>
       </footer>
     </div>
   );

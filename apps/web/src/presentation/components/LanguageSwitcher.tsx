@@ -1,8 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import type { SupportedLocale } from '@bitemate/shared';
 import { APP_LOCALES } from '@/presentation/i18n/catalogs';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
+
+const MARKETING_PATHS = new Set(['/', '/about', '/faq']);
 
 function GlobeIcon() {
   return (
@@ -31,11 +34,13 @@ type LanguageSwitcherProps = {
 };
 
 export function LanguageSwitcher({ placement = 'floating' }: LanguageSwitcherProps) {
+  const { pathname } = useLocation();
   const { locale, setLocale, markLanguageSelected, isAuthenticated, isOtpVerified } = useAuth();
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const inApp = isAuthenticated && isOtpVerified;
+  const onMarketingPage = MARKETING_PATHS.has(pathname);
 
   useEffect(() => {
     if (!open) {
@@ -50,7 +55,7 @@ export function LanguageSwitcher({ placement = 'floating' }: LanguageSwitcherPro
     return () => document.removeEventListener('click', onClick);
   }, [open]);
 
-  if (placement === 'floating' && inApp) {
+  if (placement === 'floating' && (inApp || onMarketingPage)) {
     return null;
   }
   if (placement === 'header' && !inApp) {
