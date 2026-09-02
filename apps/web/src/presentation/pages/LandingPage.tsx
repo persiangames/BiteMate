@@ -27,7 +27,6 @@ const GALLERY_IMAGES = [
   { src: '/brand/landing-slide-03.jpg', alt: 'Couples at a restaurant' },
   { src: '/brand/landing-slide-04.jpg', alt: 'Street food meetup' },
   { src: '/brand/landing-slide-05.jpg', alt: 'Brunch with friends' },
-  { src: '/brand/landing-phone-profile-4k.png', alt: 'BiteMate profile match' },
   { src: '/brand/landing-gallery-streetfood.jpg', alt: 'Street food night' },
   { src: '/brand/landing-gallery-couples.jpg', alt: 'Couples sharing a meal' },
   { src: '/brand/landing-hero-map-discover.jpg', alt: 'Discover people nearby' },
@@ -312,7 +311,7 @@ export function LandingPage() {
           </div>
 
           <div className="landing-final__visual" aria-hidden>
-            <img className="landing-final__promo" src="/brand/landing-phone-profile-4k.png?v=2" alt="" loading="lazy" />
+            <img className="landing-final__promo" src="/brand/landing-phone-profile-4k.jpg?v=3" alt="" loading="lazy" />
           </div>
         </div>
       </section>

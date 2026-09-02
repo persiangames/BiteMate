@@ -804,11 +804,11 @@
 }
 
 .landing-final__promo {
-  width: min(100%, 280px);
+  width: min(100%, 360px);
   height: auto;
   display: block;
   background: transparent;
-  border-radius: 28px;
+  mix-blend-mode: lighten;
 }
 
 /* Hero — cinematic (legacy) */
