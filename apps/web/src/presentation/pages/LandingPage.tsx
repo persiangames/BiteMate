@@ -54,7 +54,7 @@ function LandingHeroVisual() {
   return (
     <figure className="landing-hero__visual-ref" aria-hidden>
       <img
-        src="/brand/landing-hero-phones-composite.png?v=4"
+        src="/brand/landing-hero-phones-composite.png?v=7"
         alt=""
         width={1536}
         height={1024}
