@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ICON_MARK_VERSION } from '@/presentation/components/brand/icon-mark.version';
 import { useAuth } from '@/presentation/context/AuthContext';
@@ -13,11 +14,11 @@ const FEATURE_KEYS = [
 ] as const;
 
 const HOW_KEYS = [
-  ['landing.how.step1.title', 'landing.how.step1.desc', 'landing-how-phone-1.png'],
-  ['landing.how.step2.title', 'landing.how.step2.desc', 'landing-how-phone-2.png'],
-  ['landing.how.step3.title', 'landing.how.step3.desc', 'landing-how-phone-3.png'],
-  ['landing.how.step4.title', 'landing.how.step4.desc', 'landing-how-phone-4.png'],
-  ['landing.how.step5.title', 'landing.how.step5.desc', 'landing-how-phone-5.png'],
+  ['landing.how.step1.title', 'landing.how.step1.desc', 'landing-how-card-1.png'],
+  ['landing.how.step2.title', 'landing.how.step2.desc', 'landing-how-card-2.png'],
+  ['landing.how.step3.title', 'landing.how.step3.desc', 'landing-how-card-3.png'],
+  ['landing.how.step4.title', 'landing.how.step4.desc', 'landing-how-card-4.png'],
+  ['landing.how.step5.title', 'landing.how.step5.desc', 'landing-how-card-5.png'],
 ] as const;
 
 const GALLERY_IMAGES = [
@@ -26,6 +27,10 @@ const GALLERY_IMAGES = [
   { src: '/brand/landing-slide-03.jpg', alt: 'Couples at a restaurant' },
   { src: '/brand/landing-slide-04.jpg', alt: 'Street food meetup' },
   { src: '/brand/landing-slide-05.jpg', alt: 'Brunch with friends' },
+  { src: '/brand/landing-portrait-mixed.jpg', alt: 'Mixed group dining' },
+  { src: '/brand/landing-gallery-streetfood.jpg', alt: 'Street food night' },
+  { src: '/brand/landing-gallery-couples.jpg', alt: 'Couples sharing a meal' },
+  { src: '/brand/landing-hero-map-discover.jpg', alt: 'Discover people nearby' },
 ] as const;
 
 function splitHeroTitle(title: string): { lead: string; accent: string } {
@@ -129,6 +134,17 @@ function FeatureIcon({ kind }: { kind: (typeof FEATURE_KEYS)[number][2] }) {
 
 function LandingGalleryRow() {
   const { t } = useI18n();
+  const [index, setIndex] = useState(0);
+  const count = GALLERY_IMAGES.length;
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setIndex((current) => (current + 1) % count);
+    }, 4200);
+    return () => window.clearInterval(timer);
+  }, [count]);
+
+  const visible = [0, 1, 2].map((offset) => GALLERY_IMAGES[(index + offset) % count]);
 
   return (
     <section className="landing-card landing-gallery landing-gallery--ref" aria-labelledby="landing-gallery-title">
@@ -136,12 +152,34 @@ function LandingGalleryRow() {
         <h2 id="landing-gallery-title" className="landing-section-title landing-section-title--center landing-section-title--light">
           {t('landing.footer.tagline')}
         </h2>
-        <div className="landing-gallery__row">
-          {GALLERY_IMAGES.map((image) => (
-            <figure key={image.src} className="landing-gallery__card">
-              <img src={image.src} alt={image.alt} loading="lazy" />
-            </figure>
-          ))}
+        <div className="landing-gallery__slideshow">
+          <button
+            type="button"
+            className="landing-gallery__arrow landing-gallery__arrow--prev"
+            aria-label="Previous"
+            onClick={() => setIndex((current) => (current - 1 + count) % count)}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+          <div className="landing-gallery__track">
+            {visible.map((image, slot) => (
+              <figure key={`${image.src}-${slot}`} className="landing-gallery__card">
+                <img src={image.src} alt={image.alt} loading="lazy" />
+              </figure>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="landing-gallery__arrow landing-gallery__arrow--next"
+            aria-label="Next"
+            onClick={() => setIndex((current) => (current + 1) % count)}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
         </div>
       </div>
     </section>
@@ -214,13 +252,11 @@ export function LandingPage() {
             {t('landing.how.title')}
           </h2>
           <ol className="landing-how__steps landing-how__steps--ref">
-            {HOW_KEYS.map(([titleKey, descKey, image], index) => (
+            {HOW_KEYS.map(([titleKey, descKey, image]) => (
               <li key={titleKey} className="landing-how__step landing-how__step--ref">
                 <div className="landing-how__phone-wrap">
-                  <img className="landing-how__phone-shot" src={`/brand/${image}`} alt="" loading="lazy" />
+                  <img className="landing-how__phone-shot" src={`/brand/${image}?v=2`} alt="" loading="lazy" />
                 </div>
-                {index < HOW_KEYS.length - 1 ? <span className="landing-how__arrow" aria-hidden>→</span> : null}
-                <span className="landing-how__num">{index + 1}</span>
                 <div className="landing-how__card">
                   <h3>{t(titleKey)}</h3>
                   <p>{t(descKey)}</p>
@@ -276,7 +312,7 @@ export function LandingPage() {
           </div>
 
           <div className="landing-final__visual" aria-hidden>
-            <img className="landing-final__promo" src="/brand/landing-cta-visual.png" alt="" loading="lazy" />
+            <img className="landing-final__promo" src="/brand/landing-phone-profile-4k.png?v=2" alt="" loading="lazy" />
           </div>
         </div>
       </section>
