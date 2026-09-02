@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { ICON_MARK_VERSION } from '@/presentation/components/brand/icon-mark.version';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 
@@ -46,55 +45,19 @@ function LandingHeroTitle({ title }: { title: string }) {
   );
 }
 
-function LandingHeroPhones() {
+function LandingHeroVisual() {
   return (
-    <div className="landing-hero__phones" aria-hidden>
-      <figure className="landing-hero__phone landing-hero__phone--brand">
-        <div className="landing-hero__device">
-          <div className="landing-hero__screen landing-hero__screen--brand">
-            <div className="landing-hero__screen-map" aria-hidden>
-              <span className="landing-hero__screen-map-layer landing-hero__screen-map-layer--base" />
-              <span className="landing-hero__screen-map-layer landing-hero__screen-map-layer--relief" />
-            </div>
-            <img
-              className="landing-hero__screen-logo"
-              src={`/brand/icon-mark.png?v=${ICON_MARK_VERSION}`}
-              alt=""
-              width={120}
-              height={120}
-              decoding="async"
-            />
-            <span className="landing-hero__screen-word">BiteMate</span>
-          </div>
-        </div>
-      </figure>
-      <figure className="landing-hero__phone landing-hero__phone--discover">
-        <img
-          src="/brand/landing-phone-discover-4k.png"
-          srcSet="/brand/landing-phone-discover-4k.png 1400w"
-          sizes="(min-width: 1200px) 560px, (min-width: 768px) 44vw, 58vw"
-          alt=""
-          width={1400}
-          height={933}
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-        />
-      </figure>
-      <figure className="landing-hero__phone landing-hero__phone--profile">
-        <img
-          src="/brand/landing-phone-profile-4k.png"
-          srcSet="/brand/landing-phone-profile-4k.png 1400w"
-          sizes="(min-width: 1200px) 560px, (min-width: 768px) 44vw, 58vw"
-          alt=""
-          width={1400}
-          height={933}
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-        />
-      </figure>
-    </div>
+    <figure className="landing-hero__visual-ref" aria-hidden>
+      <img
+        src="/brand/landing-hero-phones-composite.png"
+        alt=""
+        width={1536}
+        height={1024}
+        loading="eager"
+        fetchPriority="high"
+        decoding="async"
+      />
+    </figure>
   );
 }
 
@@ -151,7 +114,7 @@ function LandingGalleryRow() {
   const { t } = useI18n();
 
   return (
-    <section className="landing-gallery landing-gallery--ref" aria-labelledby="landing-gallery-title">
+    <section className="landing-card landing-gallery landing-gallery--ref" aria-labelledby="landing-gallery-title">
       <div className="landing-gallery__inner">
         <h2 id="landing-gallery-title" className="landing-section-title landing-section-title--center landing-section-title--light">
           {t('landing.footer.tagline')}
@@ -174,8 +137,8 @@ export function LandingPage() {
   const inApp = isAuthenticated && isOtpVerified;
 
   return (
-    <main className="landing-page landing-page--ref">
-      <section className="landing-hero landing-hero--ref" aria-labelledby="landing-hero-title">
+    <main className="landing-page landing-page--ref landing-page--canvas">
+      <section className="landing-card landing-hero landing-hero--ref" aria-labelledby="landing-hero-title">
         <div className="landing-hero__bg" aria-hidden>
           <img src="/brand/landing-hero-dining.jpg" alt="" loading="eager" decoding="async" />
         </div>
@@ -208,11 +171,11 @@ export function LandingPage() {
             </div>
           </div>
 
-          <LandingHeroPhones />
+          <LandingHeroVisual />
         </div>
       </section>
 
-      <section className="landing-strip landing-strip--ref" id="features" aria-label="Features">
+      <section className="landing-card landing-strip landing-strip--ref" id="features" aria-label="Features">
         <div className="landing-strip__inner">
           <div className="landing-strip__grid">
             {FEATURE_KEYS.map(([titleKey, descKey, kind]) => (
@@ -228,7 +191,7 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section className="landing-how landing-how--ref" id="how-it-works" aria-labelledby="landing-how-title">
+      <section className="landing-card landing-how landing-how--ref" id="how-it-works" aria-labelledby="landing-how-title">
         <div className="landing-how__inner">
           <h2 id="landing-how-title" className="landing-section-title landing-section-title--center landing-how__title">
             {t('landing.how.title')}
@@ -253,7 +216,7 @@ export function LandingPage() {
 
       <LandingGalleryRow />
 
-      <section className="landing-final landing-final--ref" aria-labelledby="landing-final-title">
+      <section className="landing-card landing-final landing-final--ref" aria-labelledby="landing-final-title">
         <div className="landing-final__inner">
           <div className="landing-final__copy">
             <h2 id="landing-final-title" className="landing-final__title">
