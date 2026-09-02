@@ -480,25 +480,68 @@
   position: relative;
   margin: 0;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 0.55rem;
 }
 
-.landing-hero__visual-ref > img {
-  display: block;
+.landing-hero__phones-wave {
+  position: relative;
   width: 100%;
   max-width: 620px;
+}
+
+.landing-hero__wave-sizer {
+  display: block;
+  width: 100%;
   height: auto;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.landing-hero__wave-phone {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
   filter: none;
+  will-change: transform;
+}
+
+.landing-hero__wave-phone--1 {
+  clip-path: inset(0 64% 0 0);
+  animation: landing-phone-wave 2.6s ease-in-out infinite;
+}
+
+.landing-hero__wave-phone--2 {
+  clip-path: inset(0 32% 0 36%);
+  animation: landing-phone-wave 2.6s ease-in-out 0.22s infinite;
+}
+
+.landing-hero__wave-phone--3 {
+  clip-path: inset(0 0 0 68%);
+  animation: landing-phone-wave 2.6s ease-in-out 0.44s infinite;
+}
+
+@keyframes landing-phone-wave {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
 }
 
 .landing-hero__match-caption {
-  position: absolute;
-  left: 52%;
-  top: 36%;
+  position: relative;
+  left: auto;
+  top: auto;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.55rem;
   z-index: 2;
   pointer-events: none;
@@ -733,33 +776,53 @@
 .landing-final--ref {
   background: #fff8f5;
   border-top: 1px solid rgba(255, 107, 122, 0.1);
-  padding: clamp(2.5rem, 5vw, 4rem) 1.25rem;
+  padding: 0.7rem 32px;
 }
 
 .landing-final--ref .landing-final__inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 0.85fr);
-  gap: clamp(1.25rem, 3vw, 2rem);
+  max-width: none;
+  margin: 0;
+  display: flex;
+  flex-wrap: nowrap;
   align-items: center;
+  gap: 14px;
+}
+
+.landing-final--ref .landing-final__copy {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .landing-final--ref .landing-final__title {
-  white-space: normal;
-  font-size: clamp(1.35rem, 2.5vw, 2rem);
+  white-space: nowrap;
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+.landing-final--ref .landing-final__lead {
+  display: none;
 }
 
 .landing-final__actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-  margin-top: 0.35rem;
+  flex-wrap: nowrap;
+  gap: 0.45rem;
+  margin-top: 0;
 }
 
 .landing-btn--cta {
-  min-width: 9.5rem;
-  padding: 0.78rem 1.4rem;
+  min-width: 0;
+  padding: 0.5rem 0.95rem;
+  white-space: nowrap;
+}
+
+.landing-final--ref .landing-btn--outline {
+  padding: 0.5rem 0.9rem;
+  white-space: nowrap;
 }
 
 .landing-btn--outline {
@@ -778,18 +841,24 @@
 }
 
 .landing-stats-row--ref {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem 0.75rem;
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .landing-stats-row--ref article {
   text-align: center;
+  padding: 0.4rem 0.55rem;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .landing-stats-row--ref strong {
   display: block;
-  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  font-size: 1.15rem;
   font-weight: 800;
   background: linear-gradient(135deg, #ff8a9a, #ff4b5e);
   -webkit-background-clip: text;
@@ -801,10 +870,11 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex: 0 0 auto;
 }
 
 .landing-final__promo {
-  width: min(100%, 360px);
+  width: 118px;
   height: auto;
   display: block;
   background: transparent;
@@ -2437,7 +2507,8 @@
   .landing-hero__orbit,
   .landing-hero__float-icon,
   .landing-devices__phone,
-  .landing-hero__portrait {
+  .landing-hero__portrait,
+  .landing-hero__wave-phone {
     animation: none;
   }
 }
@@ -2518,10 +2589,11 @@
 }
 
 .landing-tablet-canvas .landing-final--ref .landing-final__inner {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.85fr);
+  display: flex;
+  flex-wrap: nowrap;
   text-align: start;
-  gap: 24px;
-  padding-inline: 32px;
+  gap: 14px;
+  padding-inline: 0;
 }
 
 .landing-tablet-canvas .landing-final--ref .landing-final__copy {
@@ -2548,7 +2620,8 @@
 }
 
 .landing-tablet-canvas .landing-stats-row--ref {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: nowrap;
 }
 
 .landing-tablet-canvas .marketing-footer__inner {

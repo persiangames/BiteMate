@@ -51,17 +51,10 @@ function LandingHeroTitle({ title }: { title: string }) {
 }
 
 function LandingHeroVisual() {
+  const phonesSrc = '/brand/landing-hero-phones-composite.png?v=7';
+
   return (
     <figure className="landing-hero__visual-ref" aria-hidden>
-      <img
-        src="/brand/landing-hero-phones-composite.png?v=7"
-        alt=""
-        width={1536}
-        height={1024}
-        loading="eager"
-        fetchPriority="high"
-        decoding="async"
-      />
       <div className="landing-hero__match-caption">
         <img
           className="landing-hero__match-caption-logo"
@@ -77,6 +70,21 @@ function LandingHeroVisual() {
           </p>
           <p className="landing-hero__match-caption-tag">Real people. Real food. Real connection.</p>
         </div>
+      </div>
+      <div className="landing-hero__phones-wave">
+        <img
+          className="landing-hero__wave-sizer"
+          src={phonesSrc}
+          alt=""
+          width={1536}
+          height={1024}
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
+        />
+        <img className="landing-hero__wave-phone landing-hero__wave-phone--1" src={phonesSrc} alt="" />
+        <img className="landing-hero__wave-phone landing-hero__wave-phone--2" src={phonesSrc} alt="" />
+        <img className="landing-hero__wave-phone landing-hero__wave-phone--3" src={phonesSrc} alt="" />
       </div>
     </figure>
   );
