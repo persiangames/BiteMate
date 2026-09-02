@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ICON_MARK_VERSION } from '@/presentation/components/brand/icon-mark.version';
 import { useAuth } from '@/presentation/context/AuthContext';
 import { useI18n } from '@/presentation/context/I18nContext';
 
@@ -49,7 +50,7 @@ function LandingHeroVisual() {
   return (
     <figure className="landing-hero__visual-ref" aria-hidden>
       <img
-        src="/brand/landing-hero-phones-composite.png"
+        src="/brand/landing-hero-phones-composite.png?v=4"
         alt=""
         width={1536}
         height={1024}
@@ -57,6 +58,22 @@ function LandingHeroVisual() {
         fetchPriority="high"
         decoding="async"
       />
+      <div className="landing-hero__match-caption">
+        <img
+          className="landing-hero__match-caption-logo"
+          src={`/brand/icon-mark.png?v=${ICON_MARK_VERSION}`}
+          alt=""
+          width={64}
+          height={64}
+          decoding="async"
+        />
+        <div className="landing-hero__match-caption-copy">
+          <p className="landing-hero__match-caption-title">
+            BiteMate <span>Profile Match</span>
+          </p>
+          <p className="landing-hero__match-caption-tag">Real people. Real food. Real connection.</p>
+        </div>
+      </div>
     </figure>
   );
 }

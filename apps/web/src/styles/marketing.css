@@ -24,6 +24,7 @@
 
 .marketing-shell--landing {
   background: #060608;
+  overflow-x: hidden;
 }
 
 /* ── Landing tablet frame (fixed canvas) ── */
@@ -82,8 +83,8 @@
 }
 
 .landing-tablet-canvas {
-  transform-origin: top center;
-  margin-inline: auto;
+  transform-origin: top left;
+  margin-inline: 0;
   display: flex;
   flex-direction: column;
   min-height: 100%;
@@ -306,6 +307,12 @@
   display: block;
   width: 38px;
   height: 38px;
+  object-fit: contain;
+}
+
+.marketing-shell--landing .brand-elevated .brand-mark__logo,
+.marketing-shell--landing .brand-elevated img {
+  filter: none;
 }
 
 /* 3D language switcher — marketing nav */
@@ -470,19 +477,70 @@
 }
 
 .landing-hero__visual-ref {
+  position: relative;
   margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.landing-hero__visual-ref img {
+.landing-hero__visual-ref > img {
   display: block;
   width: 100%;
   max-width: 620px;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 28px 56px rgba(0, 0, 0, 0.48));
+}
+
+.landing-hero__match-caption {
+  position: absolute;
+  left: 52%;
+  top: 36%;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.landing-hero__match-caption-logo {
+  display: block;
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  filter: none;
+}
+
+.landing-hero__match-caption-copy {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.landing-hero__match-caption-title {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 0.98rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+  line-height: 1.15;
+}
+
+.landing-hero__match-caption-title span {
+  background: linear-gradient(135deg, #ffd54f 0%, #ff8a00 55%, #ff4b3e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.landing-hero__match-caption-tag {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
 }
 
 .landing-strip--ref {

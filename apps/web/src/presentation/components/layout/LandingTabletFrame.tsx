@@ -19,9 +19,10 @@ export function LandingTabletFrame({ children }: LandingTabletFrameProps) {
     if (!viewport || !canvas) return;
 
     const update = () => {
-      const nextScale = Math.min(1, viewport.clientWidth / LANDING_CANVAS_WIDTH);
+      const widthScale = viewport.clientWidth / LANDING_CANVAS_WIDTH;
+      const nextScale = Number.isFinite(widthScale) ? Math.min(1, Math.max(widthScale, 0.01)) : 1;
       setScale(nextScale);
-      setCanvasHeight(canvas.offsetHeight);
+      setCanvasHeight(canvas.scrollHeight || canvas.offsetHeight);
     };
 
     update();
@@ -29,10 +30,15 @@ export function LandingTabletFrame({ children }: LandingTabletFrameProps) {
     ro.observe(viewport);
     ro.observe(canvas);
     window.addEventListener('resize', update);
+    window.addEventListener('load', update);
+    void document.fonts?.ready.then(update);
+    const frame = requestAnimationFrame(update);
 
     return () => {
+      cancelAnimationFrame(frame);
       ro.disconnect();
       window.removeEventListener('resize', update);
+      window.removeEventListener('load', update);
     };
   }, []);
 
@@ -46,7 +52,7 @@ export function LandingTabletFrame({ children }: LandingTabletFrameProps) {
           <div
             ref={viewportRef}
             className="landing-tablet-viewport"
-            style={scaledHeight ? { height: scaledHeight } : undefined}
+            style={scaledHeight ? { height: `${scaledHeight}px` } : undefined}
           >
             <div
               ref={canvasRef}
@@ -54,6 +60,7 @@ export function LandingTabletFrame({ children }: LandingTabletFrameProps) {
               style={{
                 width: LANDING_CANVAS_WIDTH,
                 transform: `scale(${scale})`,
+                transformOrigin: 'top left',
               }}
             >
               {children}
