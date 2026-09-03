@@ -272,10 +272,13 @@ export function LandingPage() {
             {t('landing.how.title')}
           </h2>
           <ol className="landing-how__steps landing-how__steps--ref">
-            {HOW_KEYS.map(([titleKey, descKey, image]) => (
+            {HOW_KEYS.map(([titleKey, descKey, image], index) => (
               <li key={titleKey} className="landing-how__step landing-how__step--ref">
                 <div className="landing-how__phone-wrap">
-                  <img className="landing-how__phone-shot" src={`/brand/${image}?v=2`} alt="" loading="lazy" />
+                  <img className="landing-how__phone-shot" src={`/brand/${image}?v=3`} alt="" loading="lazy" />
+                  <span className="landing-how__num" aria-hidden>
+                    {index + 1}
+                  </span>
                 </div>
                 <div className="landing-how__card">
                   <h3>{t(titleKey)}</h3>
@@ -331,8 +334,13 @@ export function LandingPage() {
             </article>
           </div>
 
-          <div className="landing-final__visual" aria-hidden>
-            <img className="landing-final__promo" src="/brand/landing-phone-profile-4k.jpg?v=3" alt="" loading="lazy" />
+          <div className="landing-final__visual">
+            <img
+              className="landing-final__promo"
+              src="/brand/landing-cta-sushi.jpg?v=1"
+              alt="Let's turn simple meals into lasting memories."
+              loading="lazy"
+            />
           </div>
         </div>
       </section>
