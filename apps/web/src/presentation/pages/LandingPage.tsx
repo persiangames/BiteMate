@@ -51,8 +51,6 @@ function LandingHeroTitle({ title }: { title: string }) {
 }
 
 function LandingHeroVisual() {
-  const phonesSrc = '/brand/landing-hero-phones-composite.png?v=7';
-
   return (
     <figure className="landing-hero__visual-ref" aria-hidden>
       <div className="landing-hero__match-caption">
@@ -71,20 +69,35 @@ function LandingHeroVisual() {
           <p className="landing-hero__match-caption-tag">Real people. Real food. Real connection.</p>
         </div>
       </div>
-      <div className="landing-hero__phones-wave">
+      <div className="landing-hero__devices">
         <img
-          className="landing-hero__wave-sizer"
-          src={phonesSrc}
+          className="landing-hero__device-shot landing-hero__device-shot--left"
+          src="/brand/landing-device-17-left.png?v=8"
           alt=""
-          width={1536}
+          width={768}
           height={1024}
           loading="eager"
           fetchPriority="high"
           decoding="async"
         />
-        <img className="landing-hero__wave-phone landing-hero__wave-phone--1" src={phonesSrc} alt="" />
-        <img className="landing-hero__wave-phone landing-hero__wave-phone--2" src={phonesSrc} alt="" />
-        <img className="landing-hero__wave-phone landing-hero__wave-phone--3" src={phonesSrc} alt="" />
+        <img
+          className="landing-hero__device-shot landing-hero__device-shot--center"
+          src="/brand/landing-device-17-center.png?v=8"
+          alt=""
+          width={768}
+          height={1024}
+          loading="eager"
+          decoding="async"
+        />
+        <img
+          className="landing-hero__device-shot landing-hero__device-shot--right"
+          src="/brand/landing-device-17-right.png?v=8"
+          alt=""
+          width={768}
+          height={1024}
+          loading="eager"
+          decoding="async"
+        />
       </div>
     </figure>
   );

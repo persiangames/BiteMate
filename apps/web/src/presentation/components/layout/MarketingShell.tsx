@@ -105,7 +105,6 @@ export function MarketingShell() {
           <div className="marketing-footer__bar">
             <p className="marketing-footer__rights">{t('landing.footer.rights', { year: new Date().getFullYear() })}</p>
             <div className="marketing-footer__bar-end">
-              <LanguageSwitcher placement="marketing" />
               <div className="marketing-footer__stores">
                 <a className="store-badge" href="#coming-soon">
                   <span className="store-badge__btn">
