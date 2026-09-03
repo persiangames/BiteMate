@@ -105,6 +105,9 @@ const RegisterPage = lazy(() =>
 );
 const AboutPage = lazy(() => import('@/presentation/pages/AboutPage').then((m) => ({ default: m.AboutPage })));
 const FaqPage = lazy(() => import('@/presentation/pages/FaqPage').then((m) => ({ default: m.FaqPage })));
+const MarketingDocPage = lazy(() =>
+  import('@/presentation/pages/MarketingDocPage').then((m) => ({ default: m.MarketingDocPage })),
+);
 const LandingPage = lazy(() =>
   import('@/presentation/pages/LandingPage').then((m) => ({ default: m.LandingPage })),
 );
@@ -159,6 +162,18 @@ export function AppRouter() {
                     <Route path="/" element={<LandingPage />} />
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/faq" element={<FaqPage />} />
+                    <Route path="/careers" element={<MarketingDocPage doc="careers" />} />
+                    <Route path="/press" element={<MarketingDocPage doc="press" />} />
+                    <Route path="/contact" element={<MarketingDocPage doc="contact" />} />
+                    <Route path="/help" element={<MarketingDocPage doc="help" />} />
+                    <Route path="/safety" element={<MarketingDocPage doc="safety" />} />
+                    <Route path="/guidelines" element={<MarketingDocPage doc="guidelines" />} />
+                    <Route path="/privacy" element={<MarketingDocPage doc="privacy" />} />
+                    <Route path="/partners" element={<MarketingDocPage doc="partners" />} />
+                    <Route path="/restaurant-partners" element={<MarketingDocPage doc="restaurant-partners" />} />
+                    <Route path="/advertise" element={<MarketingDocPage doc="advertise" />} />
+                    <Route path="/terms" element={<MarketingDocPage doc="terms" />} />
+                    <Route path="/cookies" element={<MarketingDocPage doc="cookies" />} />
                   </Route>
 
                   <Route element={<PublicShell />}>

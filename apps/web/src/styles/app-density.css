@@ -1,5 +1,5 @@
 /**
- * App-wide typography & density — Inter/Vazir only, ~0.75 compact scale.
+ * App-wide typography & density — Playfair Display / Vazir, compact scale.
  * Loaded last so it wins over component defaults (except .marketing-shell).
  */
 

@@ -648,6 +648,15 @@
   white-space: nowrap;
 }
 
+.landing-strip--ref,
+.landing-how--ref,
+.landing-gallery--ref,
+.landing-final--ref,
+.marketing-footer--landing {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 480px;
+}
+
 .landing-strip--ref {
   background: #fff5f3;
   border-block: 1px solid rgba(255, 107, 122, 0.12);
@@ -968,10 +977,11 @@
 
 .landing-final__promo {
   width: 100%;
-  max-width: 340px;
+  max-width: 360px;
   height: auto;
-  max-height: 168px;
-  object-fit: cover;
+  max-height: none;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
   object-position: center;
   display: block;
   border-radius: 16px;

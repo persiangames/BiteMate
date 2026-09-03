@@ -1,5 +1,6 @@
 import type { SupportedLocale } from '@bitemate/shared';
 import { MARKETING_RAW } from '@/presentation/i18n/marketing-catalogs';
+import { LEGAL_RAW } from '@/presentation/i18n/legal-catalogs';
 
 export const APP_LOCALE_CODES = [
   'ar',
@@ -764,7 +765,7 @@ function buildCatalogs(): Record<AppLang, Record<string, string>> {
     Record<string, string>
   >;
 
-  for (const [key, row] of Object.entries({ ...RAW, ...MARKETING_RAW })) {
+  for (const [key, row] of Object.entries({ ...RAW, ...MARKETING_RAW, ...LEGAL_RAW })) {
     LANGS.forEach((lang, index) => {
       catalogs[lang][key] = row[index];
     });

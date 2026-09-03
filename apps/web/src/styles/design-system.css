@@ -20,8 +20,8 @@
   --shadow-glass: 0 8px 32px rgba(15, 15, 15, 0.06);
   --glass-bg: #ffffff;
   --glass-border: rgba(24, 24, 27, 0.08);
+  --font-ui: 'Playfair Display', 'Vazir', Georgia, 'Times New Roman', serif;
   --font-display: var(--font-ui);
-  --font-ui: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-body: var(--font-ui);
   --text-xs: 0.75rem;
   --text-sm: 0.8125rem;
@@ -45,23 +45,27 @@
 
 html[lang='fa'],
 html[lang='ar'] {
-  --font-ui: 'Vazir', 'Inter', system-ui, sans-serif;
+  --font-ui: 'Vazir', 'Playfair Display', sans-serif;
   --font-display: var(--font-ui);
+  --font-body: var(--font-ui);
 }
 
 html[lang='zh'] {
-  --font-ui: 'Inter', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-ui: 'Playfair Display', 'PingFang SC', 'Microsoft YaHei', serif;
   --font-display: var(--font-ui);
+  --font-body: var(--font-ui);
 }
 
 html[lang='ja'] {
-  --font-ui: 'Inter', 'Hiragino Sans', 'Yu Gothic', sans-serif;
+  --font-ui: 'Playfair Display', 'Hiragino Sans', 'Yu Gothic', serif;
   --font-display: var(--font-ui);
+  --font-body: var(--font-ui);
 }
 
 html[lang='hi'] {
-  --font-ui: 'Inter', 'Nirmala UI', 'Segoe UI', sans-serif;
+  --font-ui: 'Playfair Display', 'Nirmala UI', 'Segoe UI', serif;
   --font-display: var(--font-ui);
+  --font-body: var(--font-ui);
 }
 
 html[data-theme='dark'] {

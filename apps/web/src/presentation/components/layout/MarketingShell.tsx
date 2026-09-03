@@ -51,7 +51,6 @@ export function MarketingShell() {
 
   const footer = (
     <footer className={`marketing-footer${isLanding ? ' marketing-footer--landing' : ''}`}>
-      {isLanding ? (
         <>
           <div className="marketing-footer__top">
             <div className="marketing-footer__brand">
@@ -78,28 +77,28 @@ export function MarketingShell() {
             <div className="marketing-footer__col">
               <strong>{t('landing.footer.company')}</strong>
               <Link to="/about">{t('nav.about')}</Link>
-              <Link to="/about">{t('landing.footer.careers')}</Link>
-              <Link to="/about">{t('landing.footer.press')}</Link>
-              <Link to="/about">{t('landing.footer.contact')}</Link>
+              <Link to="/careers">{t('landing.footer.careers')}</Link>
+              <Link to="/press">{t('landing.footer.press')}</Link>
+              <Link to="/contact">{t('landing.footer.contact')}</Link>
             </div>
             <div className="marketing-footer__col">
               <strong>{t('landing.footer.support')}</strong>
-              <Link to="/faq">{t('landing.footer.help')}</Link>
-              <Link to="/faq">{t('landing.footer.safety')}</Link>
-              <Link to="/faq">{t('landing.footer.guidelines')}</Link>
-              <Link to="/faq">{t('landing.footer.privacy')}</Link>
+              <Link to="/help">{t('landing.footer.help')}</Link>
+              <Link to="/safety">{t('landing.footer.safety')}</Link>
+              <Link to="/guidelines">{t('landing.footer.guidelines')}</Link>
+              <Link to="/privacy">{t('landing.footer.privacy')}</Link>
             </div>
             <div className="marketing-footer__col">
               <strong>{t('landing.footer.businesses')}</strong>
-              <Link to="/about">{t('landing.footer.partner')}</Link>
-              <Link to="/about">{t('landing.footer.restaurants')}</Link>
-              <Link to="/about">{t('landing.footer.advertise')}</Link>
+              <Link to="/partners">{t('landing.footer.partner')}</Link>
+              <Link to="/restaurant-partners">{t('landing.footer.restaurants')}</Link>
+              <Link to="/advertise">{t('landing.footer.advertise')}</Link>
             </div>
             <div className="marketing-footer__col">
               <strong>{t('landing.footer.legal')}</strong>
-              <Link to="/faq">{t('landing.footer.terms')}</Link>
-              <Link to="/faq">{t('landing.footer.privacy')}</Link>
-              <Link to="/faq">{t('landing.footer.cookies')}</Link>
+              <Link to="/terms">{t('landing.footer.terms')}</Link>
+              <Link to="/privacy">{t('landing.footer.privacy')}</Link>
+              <Link to="/cookies">{t('landing.footer.cookies')}</Link>
             </div>
           </div>
           <div className="marketing-footer__bar">
@@ -135,23 +134,6 @@ export function MarketingShell() {
             </div>
           </div>
         </>
-      ) : (
-        <>
-          <div className="marketing-footer__inner">
-            <div className="marketing-footer__brand">
-              <BrandMark size="sm" linked={false} />
-              <p className="marketing-footer__tagline">{t('landing.footer.tagline')}</p>
-            </div>
-            <div className="marketing-footer__cols">
-              <div className="marketing-footer__col">
-                <Link to="/about">{t('nav.about')}</Link>
-                <Link to="/faq">{t('nav.faq')}</Link>
-              </div>
-            </div>
-          </div>
-          <p className="marketing-footer__rights">{t('landing.footer.rights', { year: new Date().getFullYear() })}</p>
-        </>
-      )}
     </footer>
   );
 

@@ -14,11 +14,11 @@ const FEATURE_KEYS = [
 ] as const;
 
 const HOW_KEYS = [
-  ['landing.how.step1.title', 'landing.how.step1.desc', 'landing-how-card-1.png'],
-  ['landing.how.step2.title', 'landing.how.step2.desc', 'landing-how-card-2.png'],
-  ['landing.how.step3.title', 'landing.how.step3.desc', 'landing-how-card-3.png'],
-  ['landing.how.step4.title', 'landing.how.step4.desc', 'landing-how-card-4.png'],
-  ['landing.how.step5.title', 'landing.how.step5.desc', 'landing-how-card-5.png'],
+  ['landing.how.step1.title', 'landing.how.step1.desc', 'landing-how-card-1.webp'],
+  ['landing.how.step2.title', 'landing.how.step2.desc', 'landing-how-card-2.webp'],
+  ['landing.how.step3.title', 'landing.how.step3.desc', 'landing-how-card-3.webp'],
+  ['landing.how.step4.title', 'landing.how.step4.desc', 'landing-how-card-4.webp'],
+  ['landing.how.step5.title', 'landing.how.step5.desc', 'landing-how-card-5.webp'],
 ] as const;
 
 const GALLERY_IMAGES = [
@@ -72,17 +72,16 @@ function LandingHeroVisual() {
       <div className="landing-hero__devices">
         <img
           className="landing-hero__device-shot landing-hero__device-shot--left"
-          src="/brand/landing-device-17-left.png?v=8"
+          src="/brand/landing-device-17-left.webp?v=9"
           alt=""
           width={768}
           height={1024}
-          loading="eager"
-          fetchPriority="high"
+          loading="lazy"
           decoding="async"
         />
         <img
           className="landing-hero__device-shot landing-hero__device-shot--center"
-          src="/brand/landing-device-17-center.png?v=8"
+          src="/brand/landing-device-17-center.webp?v=9"
           alt=""
           width={768}
           height={1024}
@@ -91,11 +90,11 @@ function LandingHeroVisual() {
         />
         <img
           className="landing-hero__device-shot landing-hero__device-shot--right"
-          src="/brand/landing-device-17-right.png?v=8"
+          src="/brand/landing-device-17-right.webp?v=9"
           alt=""
           width={768}
           height={1024}
-          loading="eager"
+          loading="lazy"
           decoding="async"
         />
       </div>
@@ -275,7 +274,7 @@ export function LandingPage() {
             {HOW_KEYS.map(([titleKey, descKey, image], index) => (
               <li key={titleKey} className="landing-how__step landing-how__step--ref">
                 <div className="landing-how__phone-wrap">
-                  <img className="landing-how__phone-shot" src={`/brand/${image}?v=3`} alt="" loading="lazy" />
+                  <img className="landing-how__phone-shot" src={`/brand/${image}?v=4`} alt="" loading="lazy" decoding="async" />
                   <span className="landing-how__num" aria-hidden>
                     {index + 1}
                   </span>
@@ -304,7 +303,7 @@ export function LandingPage() {
                 <Link to="/register" state={{ authIntro: true }} className="btn-primary landing-btn landing-btn--primary landing-btn--cta">
                   {t('landing.cta.getStarted')}
                 </Link>
-                <Link to="/about" className="landing-btn landing-btn--outline">
+                <Link to="/partners" className="landing-btn landing-btn--outline">
                   {t('landing.cta.business')}
                 </Link>
               </div>

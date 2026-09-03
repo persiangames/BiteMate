@@ -114,7 +114,7 @@ export function BiteMateLogoIntro({ onComplete }: BiteMateLogoIntroProps) {
           muted
           playsInline
           autoPlay
-          preload="auto"
+          preload="metadata"
           disablePictureInPicture
         >
           <source src={VIDEO_WEBM} type="video/webm" />
